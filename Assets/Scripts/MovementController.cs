@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class MovementController : MonoBehaviour
 {
-    private Rigidbody rb;
+    [SerializeField] private Rigidbody rb;
 
     [Header("Velocity Safety Measures")]
     [SerializeField] private float velocityThreshold = 0.01f;
@@ -26,13 +26,18 @@ public class MovementController : MonoBehaviour
     public bool isGrounded = false;
 
     [Header("Step Handling")]
-    [SerializeField] GameObject stepRayUpper;
     [SerializeField] GameObject stepRayLower;
-    [SerializeField] float stepHeight = 0.3f;
+    [SerializeField] float maxStepHeight = 0.3f;
+    [SerializeField] float stepCheckDistance = 0.3f;
     [SerializeField] float stepSmooth = 2f;
 
     [Header("Slope Handling")]
     [SerializeField] private float maxSlopeAngle = 45.0f;
+    [SerializeField] private float maxDownwardSlopeChangeAngle = 30.0f;
+    [SerializeField] private float verticalOffset = 0.1f;
+    [SerializeField] private float deltaTimeIntoFuture = 0.5f;
+    [SerializeField] private float downDetectionDepth = 1.0f;
+    [SerializeField] private float secondaryNoGroundingCheckDistance = 0.1f;
     private RaycastHit slopeHit;
     public bool isOnSlope = false;
 
@@ -41,10 +46,6 @@ public class MovementController : MonoBehaviour
 
     public bool movement = false;
 
-    private void Awake()
-    {
-        stepRayUpper.transform.position = new Vector3(stepRayUpper.transform.position.x, stepHeight, stepRayUpper.transform.position.z);
-    }
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -57,7 +58,7 @@ public class MovementController : MonoBehaviour
         if (isGrounded)
         {
             SetGravity(false);
-            AddForce(Vector3.down * 0.1f);
+            AddForce(Vector3.down * 0.01f);
             if (!movement && useFriction)
             {
                 ApplyFriction(friction);
@@ -77,7 +78,56 @@ public class MovementController : MonoBehaviour
             rb.velocity = Vector3.zero;
         }
 
-        stepHandling();
+    }
+    private void Update_PreventGroundingFromFutureSlopeChange(Vector3 movementDirection)
+    {
+        // Get the character's movement direction
+        Vector3 origin = groundCheckPosition.position + Vector3.up * verticalOffset;
+
+        // Draw future slope change check rays
+        Debug.DrawRay(origin, movementDirection.normalized * deltaTimeIntoFuture * rb.velocity.magnitude, Color.green);
+
+        Debug.DrawRay(origin + movementDirection.normalized * deltaTimeIntoFuture * rb.velocity.magnitude, Vector3.down * (downDetectionDepth + verticalOffset), Color.cyan);
+        Debug.DrawRay(origin + movementDirection.normalized * (deltaTimeIntoFuture * rb.velocity.magnitude + secondaryNoGroundingCheckDistance), Vector3.down * (downDetectionDepth + verticalOffset), Color.cyan);
+
+        // A. Raycast in the movement direction to detect slope change
+        Ray movementRay = new Ray(origin, movementDirection.normalized);
+        bool hitMovement = Physics.Raycast(movementRay, out RaycastHit movementHit, deltaTimeIntoFuture * rb.velocity.magnitude, groundMask);
+
+        if (hitMovement)
+        {
+            float futureSlopeChangeAngle = Vector3.Angle(movementHit.normal, Vector3.up);
+            if (futureSlopeChangeAngle > maxSlopeAngle)
+            {
+                // Character is moving towards invalid ground
+                return;
+            }
+        }
+
+        // B. First downward raycast in the direction of movement
+        Ray downwardRay = new Ray(origin + movementDirection.normalized * deltaTimeIntoFuture * rb.velocity.magnitude, Vector3.down);
+        bool hitDown = Physics.Raycast(downwardRay, out RaycastHit downHit, downDetectionDepth + verticalOffset, groundMask);
+
+        if (hitDown)
+        {
+            float futureSlopeChangeAngle = Vector3.Angle(downHit.normal, Vector3.up);
+            if (futureSlopeChangeAngle > maxDownwardSlopeChangeAngle)
+            {
+                // Prevent grounding on downward slope change
+                return;
+            }
+        }
+
+        // C. Check for further no-grounding conditions in the movement direction
+        Ray secondaryDownwardRay = new Ray(origin + movementDirection.normalized * (deltaTimeIntoFuture * rb.velocity.magnitude + secondaryNoGroundingCheckDistance), Vector3.down);
+        bool hitSecondaryDown = Physics.Raycast(secondaryDownwardRay, out RaycastHit secondaryDownHit, downDetectionDepth + verticalOffset, groundMask);
+
+        if (!hitSecondaryDown)
+        {
+            // No grounding detected further ahead, prevent grounding
+            return;
+        }
+
     }
 
     private void OnDrawGizmos()
@@ -108,6 +158,7 @@ public class MovementController : MonoBehaviour
         {
             Gizmos.DrawRay(groundCheckPosition.position + offset, Vector3.down * maxGroundDistance);
         }
+        
     }
 
     public void Rotate(Transform transform)
@@ -173,6 +224,10 @@ public class MovementController : MonoBehaviour
             // Apply the new velocity to the rigidbody
             rb.velocity = new Vector3(newVelocityX, currentVelocity.y, newVelocityZ);
         }
+
+
+        StepHandling(directionVector);
+        Update_PreventGroundingFromFutureSlopeChange(directionVector);
     }
 
     public void StopMovement()
@@ -228,48 +283,55 @@ public class MovementController : MonoBehaviour
         // If none of the raycasts hit the ground, return false
         return false;
     }
-
-    void stepHandling()
+    private void StepHandling(Vector3 moveDirection)
     {
-        // Debug rays for step detection
+        // Step detection rays start points
+        Vector3 origin = stepRayLower.transform.position;
+        Vector3 upOffset = Vector3.up * maxStepHeight; // Position offset for step height
+        Vector3 forwardOffset = moveDirection.normalized * stepCheckDistance; // Position offset for step forward check
+
+        // Draw debug rays for step detection
         if (debug)
         {
-            Debug.DrawRay(stepRayLower.transform.position, transform.TransformDirection(Vector3.forward) * 0.1f, Color.yellow);
-            Debug.DrawRay(stepRayUpper.transform.position, transform.TransformDirection(Vector3.forward) * 0.2f, Color.cyan);
-            Debug.DrawRay(stepRayLower.transform.position, transform.TransformDirection(1.5f, 0, 1) * 0.1f, Color.yellow);
-            Debug.DrawRay(stepRayUpper.transform.position, transform.TransformDirection(1.5f, 0, 1) * 0.2f, Color.cyan);
-            Debug.DrawRay(stepRayLower.transform.position, transform.TransformDirection(-1.5f, 0, 1) * 0.1f, Color.yellow);
-            Debug.DrawRay(stepRayUpper.transform.position, transform.TransformDirection(-1.5f, 0, 1) * 0.2f, Color.cyan);
+            // Upward raycast to check for space above the character
+            Debug.DrawRay(origin, Vector3.up * maxStepHeight, Color.red);
+
+            // Forward raycast after moving up
+            Debug.DrawRay(origin + upOffset, moveDirection.normalized * stepCheckDistance, Color.green);
+
+            // Downward raycast to check for step height
+            Debug.DrawRay(origin + upOffset + forwardOffset, Vector3.down * maxStepHeight, Color.blue);
         }
 
-        // Step handling logic
-        RaycastHit hitLower;
-        if (Physics.Raycast(stepRayLower.transform.position, transform.TransformDirection(Vector3.forward), out hitLower, 0.1f, groundMask))
+        // Cast upwards to check if there is room to step up
+        if (!Physics.Raycast(origin, Vector3.up, maxStepHeight, groundMask))
         {
-            RaycastHit hitUpper;
-            if (!Physics.Raycast(stepRayUpper.transform.position, transform.TransformDirection(Vector3.forward), out hitUpper, 0.2f, groundMask))
+            // No obstruction above, potential step
+            // Cast forward to check if the character can move forward after stepping up
+            if (!Physics.Raycast(origin + upOffset, moveDirection.normalized, stepCheckDistance, groundMask))
             {
-                rb.position -= new Vector3(0f, -stepSmooth * Time.deltaTime, 0f);
-            }
-        }
+                // No obstruction in the movement direction, now check downward to detect step height
+                if (Physics.Raycast(origin + upOffset + forwardOffset, Vector3.down, out RaycastHit downHit, maxStepHeight, groundMask))
+                {
+                    // Calculate the height difference for stepping up
+                    float stepHeight = downHit.point.y - transform.position.y;
 
-        RaycastHit hitLower45;
-        if (Physics.Raycast(stepRayLower.transform.position, transform.TransformDirection(1.5f, 0, 1), out hitLower45, 0.1f, groundMask))
-        {
-            RaycastHit hitUpper45;
-            if (!Physics.Raycast(stepRayUpper.transform.position, transform.TransformDirection(1.5f, 0, 1), out hitUpper45, 0.2f, groundMask))
-            {
-                rb.position -= new Vector3(0f, -stepSmooth * Time.deltaTime, 0f);
-            }
-        }
+                    // Ensure the height difference is within the step height limit
+                    if (stepHeight <= maxStepHeight && stepHeight > 0)
+                    {
+                        // Check the slope angle of the surface we're stepping onto
+                        float stepSlopeAngle = Vector3.Angle(downHit.normal, Vector3.up);
 
-        RaycastHit hitLowerMinus45;
-        if (Physics.Raycast(stepRayLower.transform.position, transform.TransformDirection(-1.5f, 0, 1), out hitLowerMinus45, 0.1f, groundMask))
-        {
-            RaycastHit hitUpperMinus45;
-            if (!Physics.Raycast(stepRayUpper.transform.position, transform.TransformDirection(-1.5f, 0, 1), out hitUpperMinus45, 0.2f, groundMask))
-            {
-                rb.position -= new Vector3(0f, -stepSmooth * Time.deltaTime, 0f);
+                        // Ensure the slope angle is within the allowed limit
+                        if (stepSlopeAngle <= maxSlopeAngle)
+                        {
+                            // Smoothly move the character up to the step height
+                            Vector3 newPosition = transform.position;
+                            newPosition.y += stepHeight;
+                            transform.position = Vector3.Lerp(transform.position, newPosition, stepSmooth * Time.deltaTime);
+                        }
+                    }
+                }
             }
         }
     }

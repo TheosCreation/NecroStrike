@@ -14,6 +14,7 @@ public class UiManager : MonoBehaviour
     [SerializeField] private FlashImage hitMarker;
     [SerializeField] private FlashImage hurtScreen;
     [SerializeField] private TMP_Text ammoText;
+    [SerializeField] private TMP_Text ammoReserveText;
     [SerializeField] private TMP_Text speedText;
     //[SerializeField] private Image weaponIconImage;
 
@@ -60,6 +61,11 @@ public class UiManager : MonoBehaviour
     public void UpdateAmmoText(int ammo)
     {
         ammoText.text = ammo.ToString();
+    }
+    
+    public void UpdateAmmoReserveText(int ammo)
+    {
+        ammoReserveText.text = ammo.ToString();
     }
 
     public void UpdateSpeedText(float speed)

@@ -30,6 +30,12 @@ public class Weapon : MonoBehaviour, IInteractable
     [SerializeField] private float screenShakeAmount = 1.0f;
 
 
+    [Header("Ammo and Damage")]
+    [SerializeField] private int magSize = 30;
+    [SerializeField] private int startingAmmoReserve = 1000;
+    private int ammoLeft = 0;
+    private int ammoReserve = 0;
+
     [Header("Reloading")]
     [SerializeField] private float reloadTime = 0.5f;
     private Timer reloadTimer;
@@ -55,6 +61,9 @@ public class Weapon : MonoBehaviour, IInteractable
 
     void Start()
     {
+        ammoReserve = startingAmmoReserve;
+        FillMag();
+
         if (holder != null)
         {
             PickUp();
@@ -93,11 +102,17 @@ public class Weapon : MonoBehaviour, IInteractable
     public void Equip()
     {
         isEquip = true;
+
+        UiManager.Instance.UpdateAmmoText(ammoLeft);
+        UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
 
     public void Unequip()
     {
-        isEquip = false; 
+        isEquip = false;
+
+        UiManager.Instance.UpdateAmmoText(0);
+        UiManager.Instance.UpdateAmmoReserveText(0);
     }
 
     void Update()
@@ -105,8 +120,15 @@ public class Weapon : MonoBehaviour, IInteractable
         attackTimer -= Time.deltaTime;
         if (attackTimer < 0.0f && isAttacking && isEquip && !isReloading)
         {
-            attackTimer = attackDelay;
-            Attack();
+            if (ammoLeft > 0)
+            {
+                attackTimer = attackDelay;
+                Attack();
+            }
+            else
+            {
+                Reload();
+            }
         }
     }
 
@@ -125,6 +147,8 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void Attack()
     {
+        TakeAmmoFromMag(1);
+
         float aimRatio = isAiming ? motionReduction : 1f;
         float hRecoil = Random.Range(horizontalVariation.x,
             horizontalVariation.y);
@@ -140,6 +164,41 @@ public class Weapon : MonoBehaviour, IInteractable
         PlayRandomFiringSound();
     }
 
+    private void TakeAmmoFromMag(int magChange)
+    {
+        //take the ammo from the mag
+        ammoLeft -= magChange;
+
+        //If the weapon is held/equiped then update the ui
+        if (!isHeld) return;
+
+        UiManager.Instance.UpdateAmmoText(ammoLeft);
+    }
+    private void FillMag()
+    {
+        // Calculate the amount of ammo needed to fill the magazine
+        int ammoNeeded = magSize - ammoLeft;
+
+        // Check if the reserve has enough ammo
+        if (ammoReserve >= ammoNeeded)
+        {
+            // If there's enough ammo, fill the magazine completely
+            ammoLeft += ammoNeeded;
+            ammoReserve -= ammoNeeded;
+        }
+        else
+        {
+            // If not enough ammo, fill the magazine with whatever is left
+            ammoLeft += ammoReserve;
+            ammoReserve = 0;
+        }
+
+        //If the weapon is held/equiped then update the ui
+        if (!isHeld) return;
+
+        UiManager.Instance.UpdateAmmoText(ammoLeft);
+        UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
+    }
 
     private void PlayRandomFiringSound()
     {
@@ -174,13 +233,12 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public void Reload()
     {
-        if (!isReloading)
+        if (!isReloading && ammoLeft < magSize && ammoReserve > 0)
         {
             isReloading = true;
 
             PlayReloadSound(); 
             animator.SetTrigger("Reload");
-            //animation probs turn off ik
 
             reloadTimer.SetTimer(reloadTime, FinishReload);
         }
@@ -189,5 +247,6 @@ public class Weapon : MonoBehaviour, IInteractable
     private void FinishReload()
     {
         isReloading = false;
+        FillMag();
     }
 }

@@ -57,21 +57,32 @@ public class WeaponAnim : MonoBehaviour
     {
         if (player.weaponHolder.currentWeapon == null) return;
 
-        float moveSpeed = Mathf.Abs(player.playerMovement.horizontalMovementSpeed.magnitude);
-        float bobOffset = 0;
+        // Get the movement vector from the InputManager
+        Vector2 movementVector = InputManager.Instance.MovementVector;
+        float bobOffsetX = 0;
+        float bobOffsetY = 0;
 
-        if(moveSpeed > 0.1f && player.playerMovement.movementController.isGrounded && !player.weaponHolder.currentWeapon.isAiming)
+        // Check if the player is moving and grounded, and not aiming
+        if (movementVector.magnitude > 0.1f && player.playerMovement.movementController.isGrounded && !player.weaponHolder.currentWeapon.isAiming)
         {
+            // Increase the bob timer based on the bobbing speed
             bobTimer += Time.deltaTime * bobbingSpeed;
-            bobOffset = Mathf.Sin(bobTimer) * bobbingAmount * 0.1f;
+
+            // Calculate the bobbing offset for both X (side-to-side) and Y (up-and-down)
+            bobOffsetX = Mathf.Sin(bobTimer * 0.5f) * bobbingAmount * movementVector.x * 0.1f; // Side-to-side bobbing
+            bobOffsetY = Mathf.Sin(bobTimer) * bobbingAmount * movementVector.y * 0.1f; // Up-and-down bobbing
         }
         else
         {
+            // Reset the bob timer and smoothly transition the bobbing effect to zero
             bobTimer = 0;
-            bobOffset = Mathf.Lerp(bobTimer, 0, Time.deltaTime * swaySmoothness);
+            bobOffsetX = Mathf.Lerp(bobOffsetX, 0, Time.deltaTime * swaySmoothness);
+            bobOffsetY = Mathf.Lerp(bobOffsetY, 0, Time.deltaTime * swaySmoothness);
         }
 
-        transform.localPosition += new Vector3(0, bobOffset, 0);
+        // Apply the bobbing offset to the local position of the weapon
+        transform.localPosition += new Vector3(bobOffsetX, bobOffsetY, 0);
     }
+
 
 }

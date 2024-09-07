@@ -28,6 +28,7 @@ public class PlayerMovement : MonoBehaviour
 
     Vector2 movementInput = Vector2.zero;
     private Rigidbody rb;
+    private Animator animator;
 
     public Vector2 horizontalMovementSpeed = Vector2.zero;
 
@@ -35,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         movementController = GetComponent<MovementController>();
+        animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
 
         InputManager.Instance.playerInput.InGame.Jump.started += _ctx => Jump();
@@ -55,9 +57,13 @@ public class PlayerMovement : MonoBehaviour
         float speed = Mathf.Abs(horizontalMovementSpeed.magnitude);
         UiManager.Instance.UpdateSpeedText(speed);
 
+        UpdateAnimations();
+
         if (isDashing) return;
 
         movementInput = InputManager.Instance.MovementVector;
+        animator.SetFloat("SpeedX", movementInput.x);
+        animator.SetFloat("SpeedY", movementInput.y);
         if (movementInput == Vector2.zero)
         {
             movementController.movement = false;
@@ -68,6 +74,11 @@ public class PlayerMovement : MonoBehaviour
         movement = movement.normalized;
 
         movementController.MoveLocal(movement, maxSpeed, acceleration, deceleration);
+    }
+
+    private void UpdateAnimations()
+    {
+        animator.SetBool("IsMoving", movementController.movement);
     }
 
     void Jump()
