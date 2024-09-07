@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class WeaponAnim : MonoBehaviour
 {
@@ -10,12 +11,16 @@ public class WeaponAnim : MonoBehaviour
 
     private Vector3 initialPosition = Vector3.zero;
     private Quaternion initialRotation = Quaternion.identity;
+    private Vector3 swayPositionOffset;
+    private Quaternion swayRotationOffset;
 
     [Header("Weapon Bobbing")]
     [SerializeField] private float bobbingSpeed = 1f;
     [SerializeField] private float bobbingAmount = 1f;
 
     private float bobTimer = 0f;
+    private Vector3 bobbingOffset;
+
 
     private void Awake()
     {
@@ -30,11 +35,15 @@ public class WeaponAnim : MonoBehaviour
 
     private void Update()
     {
-        ApplySway();
-        ApplyBobbing();
+        CalculateSway();
+        CalculateBobbing();
+
+        // Apply the sway effects to the local position and rotation
+        transform.localPosition = Vector3.Lerp(transform.localPosition, (initialPosition + bobbingOffset) - swayPositionOffset, Time.deltaTime * swaySmoothness);
+        transform.localRotation = Quaternion.Lerp(transform.localRotation, initialRotation * swayRotationOffset, Time.deltaTime * swaySmoothness);
     }
 
-    private void ApplySway()
+    private void CalculateSway()
     {
         if (player.weaponHolder.currentWeapon == null) return;
 
@@ -46,14 +55,11 @@ public class WeaponAnim : MonoBehaviour
         float mouseY = InputManager.Instance.currentMouseDelta.y * 0.1f;
 
         // Apply the sway reduction multiplier
-        Vector3 positionOffset = new Vector3(mouseX, mouseY, 0) * positionalSway * swayReduction;
-        Quaternion rotationOffset = Quaternion.Euler(new Vector3(-mouseY, mouseX, 0) * rotationalSway * swayReduction);
-
-        transform.localPosition = Vector3.Lerp(transform.localPosition, initialPosition - positionOffset, Time.deltaTime * swaySmoothness);
-        transform.localRotation = Quaternion.Lerp(transform.localRotation, initialRotation * rotationOffset, Time.deltaTime * swaySmoothness);
+        swayPositionOffset = new Vector3(mouseX, mouseY, 0) * positionalSway * swayReduction;
+        swayRotationOffset = Quaternion.Euler(new Vector3(-mouseY, mouseX, 0) * rotationalSway * swayReduction);
     }
 
-    private void ApplyBobbing()
+    private void CalculateBobbing()
     {
         if (player.weaponHolder.currentWeapon == null) return;
 
@@ -74,15 +80,11 @@ public class WeaponAnim : MonoBehaviour
         }
         else
         {
-            // Reset the bob timer and smoothly transition the bobbing effect to zero
-            bobTimer = 0;
+            // Smoothly transition the bobbing effect to zero when not moving
             bobOffsetX = Mathf.Lerp(bobOffsetX, 0, Time.deltaTime * swaySmoothness);
             bobOffsetY = Mathf.Lerp(bobOffsetY, 0, Time.deltaTime * swaySmoothness);
         }
 
-        // Apply the bobbing offset to the local position of the weapon
-        transform.localPosition += new Vector3(bobOffsetX, bobOffsetY, 0);
+        bobbingOffset = new Vector3(bobOffsetX, bobOffsetY, 0);
     }
-
-
 }

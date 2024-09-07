@@ -9,6 +9,7 @@ public class WeaponHolder : MonoBehaviour
     [SerializeField] private Transform currentWeaponPosition;
     [SerializeField] private Transform idlePos;
     [SerializeField] private Transform aimingPos;
+    [SerializeField] float transitionSpeed = 5.0f;
 
     [Header("Right Hand Target")]
     [SerializeField] private TwoBoneIKConstraint rightHandIK;
@@ -30,6 +31,7 @@ public class WeaponHolder : MonoBehaviour
         InputManager.Instance.playerInput.InGame.Drop.started += _ctx => TryDropWeapon();
         InputManager.Instance.playerInput.InGame.Reload.started += _ctx => TryReload();
     }
+
     private void LateUpdate()
     {
         if (currentWeapon == null)
@@ -58,9 +60,10 @@ public class WeaponHolder : MonoBehaviour
         rightHandTarget.position = currentWeapon.IKRightHandPos.position;
         rightHandTarget.rotation = currentWeapon.IKRightHandPos.rotation;
 
+        // Smoothly interpolate weapon's position and rotation to the target transform
+        currentWeapon.transform.position = Vector3.Lerp(currentWeapon.transform.position, transformToAttachWeapon.position, Time.deltaTime * transitionSpeed);
+        currentWeapon.transform.rotation = Quaternion.Slerp(currentWeapon.transform.rotation, transformToAttachWeapon.rotation, Time.deltaTime * transitionSpeed);
         currentWeapon.transform.parent = transformToAttachWeapon;
-        currentWeapon.transform.position = transformToAttachWeapon.position;
-        currentWeapon.transform.rotation = transformToAttachWeapon.rotation;
     }
 
     private void TryStartAttacking()

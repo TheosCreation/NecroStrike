@@ -949,13 +949,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 718178526}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.60876137, y: 0, z: 0, w: 0.7933534}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 2.365, y: -0.136, z: -1.09}
   m_LocalScale: {x: 5, y: 1, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 75, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1001 &750174607
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1186,7 +1186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collisionCollider: {fileID: 750174610}
-  motionReduction: 0.3
+  motionReduction: 0.23
   isHeld: 0
   isEquip: 0
   isAiming: 0
@@ -2292,13 +2292,8 @@ MonoBehaviour:
   maxStepHeight: 0.45
   stepCheckDistance: 0.4
   stepSmooth: 7
-  maxSlopeAngle: 45
-  maxDownwardSlopeChangeAngle: 30
-  verticalOffset: 0.1
-  deltaTimeIntoFuture: 0.1
-  downDetectionDepth: 1
-  secondaryNoGroundingCheckDistance: 0.1
   isOnSlope: 0
+  maxSlopeAngle: 45
   debug: 1
   movement: 0
 --- !u!114 &2703814052888819657
@@ -3142,10 +3137,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   positionalSway: 0.01
-  rotationalSway: 0.5
+  rotationalSway: 0.3
   swaySmoothness: 10
   bobbingSpeed: 5
-  bobbingAmount: 0.005
+  bobbingAmount: 0.1
 --- !u!1 &5534665256584052493
 GameObject:
   m_ObjectHideFlags: 0
@@ -3581,6 +3576,7 @@ MonoBehaviour:
   currentWeaponPosition: {fileID: 3343091649244496812}
   idlePos: {fileID: 3343091649244496812}
   aimingPos: {fileID: 6816487326852825450}
+  transitionSpeed: 20
   rightHandIK: {fileID: 6169358503798648094}
   rightHandTarget: {fileID: 2044914726170134855}
   leftHandIK: {fileID: 2703814052888819657}

@@ -32,14 +32,9 @@ public class MovementController : MonoBehaviour
     [SerializeField] float stepSmooth = 2f;
 
     [Header("Slope Handling")]
-    [SerializeField] private float maxSlopeAngle = 45.0f;
-    [SerializeField] private float maxDownwardSlopeChangeAngle = 30.0f;
-    [SerializeField] private float verticalOffset = 0.1f;
-    [SerializeField] private float deltaTimeIntoFuture = 0.5f;
-    [SerializeField] private float downDetectionDepth = 1.0f;
-    [SerializeField] private float secondaryNoGroundingCheckDistance = 0.1f;
     private RaycastHit slopeHit;
     public bool isOnSlope = false;
+    public float maxSlopeAngle = 45.0f;
 
     [Header("Debugging")]
     [SerializeField] private bool debug = false;
@@ -76,56 +71,6 @@ public class MovementController : MonoBehaviour
         if (rb.velocity.sqrMagnitude < velocityThreshold * velocityThreshold)
         {
             rb.velocity = Vector3.zero;
-        }
-
-    }
-    private void Update_PreventGroundingFromFutureSlopeChange(Vector3 movementDirection)
-    {
-        // Get the character's movement direction
-        Vector3 origin = groundCheckPosition.position + Vector3.up * verticalOffset;
-
-        // Draw future slope change check rays
-        Debug.DrawRay(origin, movementDirection.normalized * deltaTimeIntoFuture * rb.velocity.magnitude, Color.green);
-
-        Debug.DrawRay(origin + movementDirection.normalized * deltaTimeIntoFuture * rb.velocity.magnitude, Vector3.down * (downDetectionDepth + verticalOffset), Color.cyan);
-        Debug.DrawRay(origin + movementDirection.normalized * (deltaTimeIntoFuture * rb.velocity.magnitude + secondaryNoGroundingCheckDistance), Vector3.down * (downDetectionDepth + verticalOffset), Color.cyan);
-
-        // A. Raycast in the movement direction to detect slope change
-        Ray movementRay = new Ray(origin, movementDirection.normalized);
-        bool hitMovement = Physics.Raycast(movementRay, out RaycastHit movementHit, deltaTimeIntoFuture * rb.velocity.magnitude, groundMask);
-
-        if (hitMovement)
-        {
-            float futureSlopeChangeAngle = Vector3.Angle(movementHit.normal, Vector3.up);
-            if (futureSlopeChangeAngle > maxSlopeAngle)
-            {
-                // Character is moving towards invalid ground
-                return;
-            }
-        }
-
-        // B. First downward raycast in the direction of movement
-        Ray downwardRay = new Ray(origin + movementDirection.normalized * deltaTimeIntoFuture * rb.velocity.magnitude, Vector3.down);
-        bool hitDown = Physics.Raycast(downwardRay, out RaycastHit downHit, downDetectionDepth + verticalOffset, groundMask);
-
-        if (hitDown)
-        {
-            float futureSlopeChangeAngle = Vector3.Angle(downHit.normal, Vector3.up);
-            if (futureSlopeChangeAngle > maxDownwardSlopeChangeAngle)
-            {
-                // Prevent grounding on downward slope change
-                return;
-            }
-        }
-
-        // C. Check for further no-grounding conditions in the movement direction
-        Ray secondaryDownwardRay = new Ray(origin + movementDirection.normalized * (deltaTimeIntoFuture * rb.velocity.magnitude + secondaryNoGroundingCheckDistance), Vector3.down);
-        bool hitSecondaryDown = Physics.Raycast(secondaryDownwardRay, out RaycastHit secondaryDownHit, downDetectionDepth + verticalOffset, groundMask);
-
-        if (!hitSecondaryDown)
-        {
-            // No grounding detected further ahead, prevent grounding
-            return;
         }
 
     }
@@ -227,7 +172,6 @@ public class MovementController : MonoBehaviour
 
 
         StepHandling(directionVector);
-        Update_PreventGroundingFromFutureSlopeChange(directionVector);
     }
 
     public void StopMovement()
@@ -334,34 +278,6 @@ public class MovementController : MonoBehaviour
                 }
             }
         }
-    }
-
-    private bool CheckOnSlope()
-    {
-        // Define the positions of the corners relative to feetTransform
-        Vector3[] cornerOffsets = new Vector3[]
-        {
-            new Vector3(-groundCheckBoxWidth, 0, 0), // Left
-            new Vector3(groundCheckBoxWidth, 0, 0),  // Right
-            new Vector3(0, 0, groundCheckBoxWidth),  // Front
-            new Vector3(0, 0, -groundCheckBoxWidth)  // Back
-        };
-
-        // Perform raycasts from each corner
-        foreach (Vector3 offset in cornerOffsets)
-        {
-            if (Physics.Raycast(groundCheckPosition.position + offset, Vector3.down, out slopeHit, maxGroundDistance, groundMask))
-            {
-                float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-                if (angle < maxSlopeAngle && angle != 0)
-                {
-                    return true;
-                }
-            }
-        }
-
-        // If none of the raycasts hit the ground, return false
-        return false;
     }
 
     public void SetFriction(bool useFriction)
