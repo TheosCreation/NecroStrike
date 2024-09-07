@@ -30,6 +30,7 @@ public class WeaponHolder : MonoBehaviour
         InputManager.Instance.playerInput.InGame.Aim.canceled += _ctx => TryStopAiming();
         InputManager.Instance.playerInput.InGame.Drop.started += _ctx => TryDropWeapon();
         InputManager.Instance.playerInput.InGame.Reload.started += _ctx => TryReload();
+        InputManager.Instance.playerInput.InGame.Inspect.started += _ctx => TryInspect();
     }
 
     private void LateUpdate()
@@ -110,5 +111,11 @@ public class WeaponHolder : MonoBehaviour
     {
         if (currentWeapon == null) return;
         currentWeapon.Reload();
+    }
+
+    private void TryInspect()
+    {
+        if (currentWeapon == null) return;
+        currentWeapon.Inspect();
     }
 }

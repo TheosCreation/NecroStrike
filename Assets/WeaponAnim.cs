@@ -11,8 +11,8 @@ public class WeaponAnim : MonoBehaviour
 
     private Vector3 initialPosition = Vector3.zero;
     private Quaternion initialRotation = Quaternion.identity;
-    private Vector3 swayPositionOffset;
-    private Quaternion swayRotationOffset;
+    private Vector3 swayPositionOffset = Vector3.zero;
+    private Quaternion swayRotationOffset = Quaternion.identity;
 
     [Header("Weapon Bobbing")]
     [SerializeField] private float bobbingSpeed = 1f;

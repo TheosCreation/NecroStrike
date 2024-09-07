@@ -13,6 +13,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool isAiming = false;
     public bool isAttacking = false;
     public bool isReloading = false;
+    public bool isInspecting = false;
     [Header("Attacking")]
     [SerializeField] private float attackDelay = 0.1f;
     float attackTimer = 0;
@@ -118,7 +119,7 @@ public class Weapon : MonoBehaviour, IInteractable
     void Update()
     {
         attackTimer -= Time.deltaTime;
-        if (attackTimer < 0.0f && isAttacking && isEquip && !isReloading)
+        if (attackTimer < 0.0f && isAttacking && isEquip && !isReloading && !isInspecting)
         {
             if (ammoLeft > 0)
             {
@@ -130,6 +131,19 @@ public class Weapon : MonoBehaviour, IInteractable
                 Reload();
             }
         }
+    }
+
+    public void Inspect()
+    {
+        if (isReloading || isInspecting) return;
+
+        isInspecting = true;
+        animator.SetTrigger("Inspect");
+    }
+
+    public void FinishInpect()
+    {
+        isInspecting = false;
     }
 
     public void Interact(PlayerController player)
@@ -223,6 +237,8 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public void StartAiming()
     {
+        if(isInspecting) return;
+
         isAiming = true;
     }
 
@@ -233,7 +249,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public void Reload()
     {
-        if (!isReloading && ammoLeft < magSize && ammoReserve > 0)
+        if (!isReloading && ammoLeft < magSize && ammoReserve > 0 && !isInspecting)
         {
             isReloading = true;
 
