@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.WSA;
 
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : MonoBehaviour, IInteractable
@@ -7,6 +8,7 @@ public class Weapon : MonoBehaviour, IInteractable
     private Rigidbody rb;
     private WeaponHolder holder;
     [SerializeField] private Collider collisionCollider;
+    [SerializeField] private Transform muzzleTransform;
     public float motionReduction = 0.5f;
     [SerializeField] private bool isHeld = false;
     [SerializeField] private bool isEquip = false;
@@ -15,8 +17,12 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool isReloading = false;
     public bool isInspecting = false;
     [Header("Attacking")]
+    [SerializeField] private float damage = 50.0f;
     [SerializeField] private float attackDelay = 0.1f;
     float attackTimer = 0;
+    [SerializeField] private LayerMask hitLayers;
+    [SerializeField] private BulletTrail bulletTrailPrefab;
+    [SerializeField] private MuzzleFlash[] muzzleFlashPrefabs;
 
     [Header("Recoil")]
     public Vector2 recoil; 
@@ -161,6 +167,14 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void Attack()
     {
+        Vector3 shootDirection = holder.player.playerLook.cameraTransform.forward;
+        Vector3 startPosition = muzzleTransform.position;
+        Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
+        if (Physics.Raycast(startPosition, shootDirection, out RaycastHit hit, Mathf.Infinity, hitLayers))
+        {
+            HandleHit(hit);
+        }
+
         TakeAmmoFromMag(1);
 
         float aimRatio = isAiming ? motionReduction : 1f;
@@ -174,8 +188,21 @@ public class Weapon : MonoBehaviour, IInteractable
         }
 
         holder.player.playerLook.TriggerScreenShake(screenShakeDuration, screenShakeAmount * motionReduction * 0.01f);
+        PlayRandomFiringSound(); 
+        SpawnRandomMuzzleFlash();
+    }
 
-        PlayRandomFiringSound();
+    private void HandleHit(RaycastHit hit)
+    {
+        //init a bullet trail
+        BulletTrail bulletTrail = Instantiate(bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
+        bulletTrail.Init(hit.point, hit.normal);
+
+        var damageable = hit.collider.GetComponent<IDamageable>();
+        if (damageable != null)
+        {
+            damageable.Damage(damage);
+        }
     }
 
     private void TakeAmmoFromMag(int magChange)
@@ -216,12 +243,20 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void PlayRandomFiringSound()
     {
-        if(firingSounds.Length == 0) return;
+        if(firingSounds.Length == 0) return; //cannot play a firing sound because none is set
 
         int randomIndex = Random.Range(0, firingSounds.Length);
         AudioClip randomClip = firingSounds[randomIndex];
 
         audioSource.PlayOneShot(randomClip);
+    }
+
+    private void SpawnRandomMuzzleFlash()
+    {
+        if (muzzleFlashPrefabs.Length == 0) return; //cannot spawn a muzzle flash because none is set
+
+        int randomIndex = Random.Range(0, muzzleFlashPrefabs.Length);
+        Instantiate(muzzleFlashPrefabs[randomIndex], muzzleTransform.position, muzzleTransform.rotation, muzzleTransform);
     }
 
     private void PlayReloadSound()

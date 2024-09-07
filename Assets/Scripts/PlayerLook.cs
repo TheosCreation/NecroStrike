@@ -15,7 +15,7 @@ public class PlayerLook : MonoBehaviour
 
     [Header("Body Transforms")]
     [SerializeField] private Transform neckTransform;
-    [SerializeField] private Transform cameraTransform;
+    public Transform cameraTransform;
 
     private float currentXRotation = 0f;
     private float currentTilt = 0;
