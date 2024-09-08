@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
   m_Name: OpaqueAllDepth
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   settings:
     passTag: OpaqueAllDepth
     Event: 300
@@ -20,7 +20,7 @@ MonoBehaviour:
       RenderQueueType: 0
       LayerMask:
         serializedVersion: 2
-        m_Bits: 192
+        m_Bits: 64
       PassNames: []
     overrideMaterial: {fileID: 0}
     overrideMaterialPassIndex: 0
@@ -143,12 +143,12 @@ MonoBehaviour:
     probeSamplingDebugMesh: {fileID: -3555484719484374845, guid: 57d7c4c16e2765b47a4d2069b311bffe, type: 3}
     probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e, type: 3}
   m_RendererFeatures:
-  - {fileID: -216041616328929038}
   - {fileID: -5149842682485635344}
   - {fileID: 7273120132713145942}
+  - {fileID: -216041616328929038}
   - {fileID: -3732416717930010475}
   - {fileID: 4864290084294701945}
-  m_RendererFeatureMap: f250036a4b7700fdf0864c855d1588b856e61bdf3950ef6495680d2ec5ca33cc7933d73e0f6e8143
+  m_RendererFeatureMap: f0864c855d1588b856e61bdf3950ef64f250036a4b7700fd95680d2ec5ca33cc7933d73e0f6e8143
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -170,10 +170,10 @@ MonoBehaviour:
   m_AssetVersion: 2
   m_OpaqueLayerMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 4294967295
   m_TransparentLayerMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 4294967295
   m_DefaultStencilState:
     overrideStencilState: 0
     stencilReference: 0
@@ -241,7 +241,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
   m_Name: OpaqueLessEqualDepth
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   settings:
     passTag: OpaqueLessEqualDepth
     Event: 300
@@ -249,7 +249,7 @@ MonoBehaviour:
       RenderQueueType: 0
       LayerMask:
         serializedVersion: 2
-        m_Bits: 192
+        m_Bits: 64
       PassNames: []
     overrideMaterial: {fileID: 0}
     overrideMaterialPassIndex: 0

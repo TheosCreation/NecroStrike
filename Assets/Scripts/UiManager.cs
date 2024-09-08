@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,6 +10,8 @@ public class UiManager : MonoBehaviour
     [SerializeField] private GameObject playerHud;
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject deathScreen;
+
+    [SerializeField] private GameObject crosshair;
 
 
     [SerializeField] private FlashImage hitMarker;
@@ -81,5 +84,10 @@ public class UiManager : MonoBehaviour
     public void FlashHurtScreen()
     {
         hurtScreen.Play();
+    }
+
+    public void SetCrosshair(bool active)
+    {
+        crosshair.SetActive(active);
     }
 }

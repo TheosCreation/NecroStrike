@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.WSA;
+using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : MonoBehaviour, IInteractable
@@ -9,6 +11,7 @@ public class Weapon : MonoBehaviour, IInteractable
     private WeaponHolder holder;
     [SerializeField] private Collider collisionCollider;
     [SerializeField] private Transform muzzleTransform;
+    [SerializeField] private Transform casingEjectionTransform;
     public float motionReduction = 0.5f;
     [SerializeField] private bool isHeld = false;
     [SerializeField] private bool isEquip = false;
@@ -18,20 +21,19 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool isInspecting = false;
     [Header("Attacking")]
     [SerializeField] private float damage = 50.0f;
-    [SerializeField] private float attackDelay = 0.1f;
-    float attackTimer = 0;
+    [SerializeField] private float damageFallOffDistance = 100.0f;
+    [SerializeField] private float fireRatePerSecond = 3f;
+    float lastShotTime = 0;
     [SerializeField] private LayerMask hitLayers;
     [SerializeField] private BulletTrail bulletTrailPrefab;
     [SerializeField] private MuzzleFlash[] muzzleFlashPrefabs;
+    [SerializeField] private Casing casingPrefab;
 
     [Header("Recoil")]
-    public Vector2 recoil; 
-    [SerializeField] private Vector2 horizontalVariation = new Vector2(-0.5f, 0.5f);
-    [SerializeField] private float initialRecoilStep = 1f;
-    [SerializeField] private float acceleration = 0.1f;
-    [SerializeField] private float maxStep = 0.1f;
-    private float recoilStep = 0f;
-
+    public Vector2 recoil;
+    [SerializeField] private RecoilPattern recoilPattern;
+    [SerializeField] private float recoilResetTimeSeconds = 1f;
+    private int currentRecoilIndex = 0;
 
     [SerializeField] private float screenShakeDuration = 0.1f;
     [SerializeField] private float screenShakeAmount = 1.0f;
@@ -56,14 +58,52 @@ public class Weapon : MonoBehaviour, IInteractable
     public Transform IKRightHandPos;
     public Transform IKLeftHandPos;
 
+    [Header("Debugging")]
+    [SerializeField] private bool applyRecoil = true;
+
+    public class AttachedWeaponPart
+    {
+
+        public WeaponBody.PartTypeAttachPoint partTypeAttachPoint;
+        public WeaponPartSO weaponPartSO;
+        public Transform spawnedTransform;
+
+    }
+
+
+    [SerializeField] private List<WeaponPartSO> defaultWeaponPartSOList;
+
+
+    private WeaponBody weaponBody;
+    private Dictionary<WeaponPartSO.PartType, AttachedWeaponPart> attachedWeaponPartDic;
+
+    private ZoomShaderScreenPos aimingZoomLevel;
+    private Timer aimingTimer;
 
     private void Awake()
     {
+        weaponBody = GetComponent<WeaponBody>();
         animator = GetComponent<Animator>(); 
         rb = GetComponent<Rigidbody>(); 
         audioSource = GetComponent<AudioSource>();
         holder = transform.root.GetComponent<WeaponHolder>();
         reloadTimer = gameObject.AddComponent<Timer>();
+        aimingTimer = gameObject.AddComponent<Timer>();
+
+        attachedWeaponPartDic = new Dictionary<WeaponPartSO.PartType, AttachedWeaponPart>();
+
+        foreach (WeaponBody.PartTypeAttachPoint partTypeAttachPoint in weaponBody.GetPartTypeAttachPointList())
+        {
+            attachedWeaponPartDic[partTypeAttachPoint.partType] = new AttachedWeaponPart
+            {
+                partTypeAttachPoint = partTypeAttachPoint,
+            };
+        }
+
+        foreach (WeaponPartSO weaponPartSO in defaultWeaponPartSOList)
+        {
+            SetPart(weaponPartSO);
+        }
     }
 
     void Start()
@@ -123,20 +163,30 @@ public class Weapon : MonoBehaviour, IInteractable
     }
 
     void Update()
-    {
-        attackTimer -= Time.deltaTime;
-        if (attackTimer < 0.0f && isAttacking && isEquip && !isReloading && !isInspecting)
+    {   
+        if(isAttacking)
         {
-            if (ammoLeft > 0)
+            if (CanShoot() && isEquip && !isReloading && !isInspecting)
             {
-                attackTimer = attackDelay;
-                Attack();
-            }
-            else
-            {
-                Reload();
+                if (ammoLeft > 0)
+                {
+                    Attack();
+                }
+                else
+                {
+                    Reload();
+                }
             }
         }
+    }
+
+    private bool CanShoot()
+    {
+        if(Time.time - lastShotTime >= 1 / fireRatePerSecond)
+        {
+            return true;
+        }
+        return false;
     }
 
     public void Inspect()
@@ -162,39 +212,64 @@ public class Weapon : MonoBehaviour, IInteractable
     public void StartAttacking()
     {
         isAttacking = true;
-        recoilStep = initialRecoilStep;
     }
 
     private void Attack()
     {
         Vector3 shootDirection = holder.player.playerLook.cameraTransform.forward;
-        Vector3 startPosition = muzzleTransform.position;
+        Vector3 startPosition = holder.player.playerLook.cameraTransform.position;
         Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
-        if (Physics.Raycast(startPosition, shootDirection, out RaycastHit hit, Mathf.Infinity, hitLayers))
+        if (Physics.Raycast(startPosition, shootDirection, out RaycastHit hit, damageFallOffDistance, hitLayers))
         {
             HandleHit(hit);
         }
-
-        TakeAmmoFromMag(1);
-
-        float aimRatio = isAiming ? motionReduction : 1f;
-        float hRecoil = Random.Range(horizontalVariation.x,
-            horizontalVariation.y);
-        recoil += new Vector2(hRecoil, recoilStep) * aimRatio;
-
-        if(recoilStep < maxStep)
+        else
         {
-            recoilStep += (acceleration * 0.01f);
+            HandleMiss(shootDirection);
         }
 
+        if(applyRecoil)
+            ApplyRecoil();
+
+        TakeAmmoFromMag(1);
         holder.player.playerLook.TriggerScreenShake(screenShakeDuration, screenShakeAmount * motionReduction * 0.01f);
         PlayRandomFiringSound(); 
-        SpawnRandomMuzzleFlash();
+        SpawnRandomMuzzleFlash(); 
+        SpawnCasing();
+
+        // Update the last shot time
+        lastShotTime = Time.time;
+    }
+
+    private void ApplyRecoil()
+    {
+        float aimingReduction = isAiming ? motionReduction : 1f;
+
+        // Ensure recoil is updated only when enough time has passed
+        if (Time.time - lastShotTime >= recoilResetTimeSeconds)
+        {
+            recoil = Vector2.zero;
+            recoil += recoilPattern.pattern[0] * aimingReduction;
+            currentRecoilIndex = 1;
+        }
+        else
+        {
+            recoil += recoilPattern.pattern[currentRecoilIndex] * aimingReduction;
+
+            if (currentRecoilIndex + 1 < recoilPattern.pattern.Length)
+            {
+                currentRecoilIndex++;
+            }
+            else
+            {
+                currentRecoilIndex = 0;
+            }
+        }
+
     }
 
     private void HandleHit(RaycastHit hit)
     {
-        //init a bullet trail
         BulletTrail bulletTrail = Instantiate(bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
         bulletTrail.Init(hit.point, hit.normal);
 
@@ -202,7 +277,17 @@ public class Weapon : MonoBehaviour, IInteractable
         if (damageable != null)
         {
             damageable.Damage(damage);
+            bulletTrail.hitCharacter = true;
         }
+    }
+    
+    private void HandleMiss(Vector3 shootDirection)
+    {
+        BulletTrail bulletTrail = Instantiate(bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
+
+        Vector3 pointAlongShootDirection = shootDirection * damageFallOffDistance;
+        bulletTrail.Init(pointAlongShootDirection, Vector3.zero);
+        bulletTrail.spawnImpact = false;
     }
 
     private void TakeAmmoFromMag(int magChange)
@@ -215,6 +300,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
         UiManager.Instance.UpdateAmmoText(ammoLeft);
     }
+
     private void FillMag()
     {
         // Calculate the amount of ammo needed to fill the magazine
@@ -241,6 +327,12 @@ public class Weapon : MonoBehaviour, IInteractable
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
 
+    public void AddAmmoToReserve(int ammoAmount)
+    {
+        ammoReserve += ammoAmount;
+        UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
+    }
+
     private void PlayRandomFiringSound()
     {
         if(firingSounds.Length == 0) return; //cannot play a firing sound because none is set
@@ -259,6 +351,13 @@ public class Weapon : MonoBehaviour, IInteractable
         Instantiate(muzzleFlashPrefabs[randomIndex], muzzleTransform.position, muzzleTransform.rotation, muzzleTransform);
     }
 
+    private void SpawnCasing()
+    {
+        if (casingPrefab == null) return;
+
+        Instantiate(casingPrefab, casingEjectionTransform.position, casingEjectionTransform.rotation);
+    }
+
     private void PlayReloadSound()
     {
         audioSource.PlayOneShot(reloadSound);
@@ -267,7 +366,6 @@ public class Weapon : MonoBehaviour, IInteractable
     public void StopAttacking()
     {
         isAttacking = false;
-        recoilStep = 0f;
     }
 
     public void StartAiming()
@@ -275,11 +373,31 @@ public class Weapon : MonoBehaviour, IInteractable
         if(isInspecting) return;
 
         isAiming = true;
+
+        aimingTimer.StopTimer();
+        aimingTimer.SetTimer(0.02f, FinishAim);
+    }
+
+    private void FinishAim()
+    {
+        if (aimingZoomLevel)
+        {
+            aimingZoomLevel.gameObject.SetActive(true);
+        }
+
+        UiManager.Instance.SetCrosshair(false);
     }
 
     public void StopAiming()
     { 
-        isAiming = false; 
+        isAiming = false;
+        aimingTimer.StopTimer();
+        if (aimingZoomLevel)
+        {
+            aimingZoomLevel.gameObject.SetActive(false);
+        }
+
+        UiManager.Instance.SetCrosshair(true);
     }
 
     public void Reload()
@@ -299,5 +417,63 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         isReloading = false;
         FillMag();
+    }
+
+    public void SetPart(WeaponPartSO weaponPartSO)
+    {
+        // Destroy currently attached part
+        if (attachedWeaponPartDic[weaponPartSO.partType].spawnedTransform != null)
+        {
+            Destroy(attachedWeaponPartDic[weaponPartSO.partType].spawnedTransform.gameObject);
+        }
+
+        // Spawn new part
+        Transform spawnedPartTransform = Instantiate(weaponPartSO.prefab);
+        AttachedWeaponPart attachedWeaponPart = attachedWeaponPartDic[weaponPartSO.partType];
+        attachedWeaponPart.spawnedTransform = spawnedPartTransform;
+
+        Transform attachPointTransform = attachedWeaponPart.partTypeAttachPoint.attachPointTransform;
+        spawnedPartTransform.parent = attachPointTransform;
+        spawnedPartTransform.localEulerAngles = Vector3.zero;
+        spawnedPartTransform.localPosition = Vector3.zero;
+        spawnedPartTransform.localScale = new Vector3(1,1,1);
+
+        attachedWeaponPart.weaponPartSO = weaponPartSO;
+
+        attachedWeaponPartDic[weaponPartSO.partType] = attachedWeaponPart;
+
+        // Is it a barrel?
+        if (weaponPartSO.partType == WeaponPartSO.PartType.Barrel)
+        {
+            BarrelWeaponPartSO barrelWeaponPartSO = (BarrelWeaponPartSO)weaponPartSO;
+
+            AttachedWeaponPart barrelPartTypeAttachedWeaponPart = attachedWeaponPartDic[WeaponPartSO.PartType.Barrel];
+            AttachedWeaponPart muzzlePartTypeAttachedWeaponPart = attachedWeaponPartDic[WeaponPartSO.PartType.Muzzle];
+
+            muzzlePartTypeAttachedWeaponPart.partTypeAttachPoint.attachPointTransform.position =
+                barrelPartTypeAttachedWeaponPart.partTypeAttachPoint.attachPointTransform.position +
+                barrelPartTypeAttachedWeaponPart.partTypeAttachPoint.attachPointTransform.forward * barrelWeaponPartSO.muzzleOffset;
+        }
+
+        if(weaponPartSO.partType == WeaponPartSO.PartType.Scope)
+        {
+            aimingZoomLevel = attachPointTransform.GetComponentInChildren<ZoomShaderScreenPos>();
+        }
+    }
+
+    public WeaponPartSO GetWeaponPartSO(WeaponPartSO.PartType partType)
+    {
+        AttachedWeaponPart attachedWeaponPart = attachedWeaponPartDic[partType];
+        return attachedWeaponPart.weaponPartSO;
+    }
+
+    public List<WeaponPartSO.PartType> GetWeaponPartTypeList()
+    {
+        return new List<WeaponPartSO.PartType>(attachedWeaponPartDic.Keys);
+    }
+
+    public WeaponBodySO GetWeaponBodySO()
+    {
+        return weaponBody.GetWeaponBodySO();
     }
 }

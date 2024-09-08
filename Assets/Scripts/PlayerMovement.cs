@@ -1,9 +1,12 @@
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class PlayerMovement : MonoBehaviour
 {
     private PlayerController playerController;
     [HideInInspector] public MovementController movementController;
+    [Header("Audio Clips")]
+    [SerializeField] private AudioClip audioClipWalking;
 
     [Header("Movement")]
     [SerializeField] private float maxSpeed = 2.0f;
@@ -28,7 +31,8 @@ public class PlayerMovement : MonoBehaviour
 
     Vector2 movementInput = Vector2.zero;
     private Rigidbody rb;
-    private Animator animator;
+    [SerializeField] private Animator animator;
+    private AudioSource audioSource;
 
     public Vector2 horizontalMovementSpeed = Vector2.zero;
 
@@ -36,8 +40,10 @@ public class PlayerMovement : MonoBehaviour
     {
         playerController = GetComponent<PlayerController>();
         movementController = GetComponent<MovementController>();
-        animator = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>(); 
+
+        audioSource = GetComponent<AudioSource>();
+        audioSource.clip = audioClipWalking;
 
         InputManager.Instance.playerInput.InGame.Jump.started += _ctx => Jump();
         InputManager.Instance.playerInput.InGame.Dash.started += _ctx => Dash(transform.forward, dashForce, dashDuration);
@@ -58,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
         UiManager.Instance.UpdateSpeedText(speed);
 
         UpdateAnimations();
+        PlayFootstepSounds();
 
         if (isDashing) return;
 
@@ -144,5 +151,21 @@ public class PlayerMovement : MonoBehaviour
     {
         movementController.SetFriction(true);
         canDash = true;
+    }
+    private void PlayFootstepSounds()
+    {
+        if (movementController.isGrounded && horizontalMovementSpeed.sqrMagnitude > 0.1f)
+        {
+            //audioSource.clip = playerCharacter.IsRunning() ? audioClipRunning : audioClipWalking;
+
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
+        }
+        else if (audioSource.isPlaying)
+        {
+            audioSource.Pause();
+        }
     }
 }

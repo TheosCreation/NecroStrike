@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f69cf96b5035f9b4ea6830e37dbd1572, type: 3}
+  m_Name: ForeGrip1
+  m_EditorClassIdentifier: 
+  partType: 2
+  prefab: {fileID: 4209820515401528, guid: 44265dc44d8a75644b27b0efd0fcae1a, type: 3}

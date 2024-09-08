@@ -7,6 +7,7 @@ public class PlayerLook : MonoBehaviour
     private PlayerController player;
     [Header("Looking")]
     public float lookSensitivity = 1f;
+    [SerializeField] private float cameraOffsetY = 0.1f;
 
     [Header("Camera Tilt")]
     [SerializeField] private int tiltStatus = 1;
@@ -15,6 +16,7 @@ public class PlayerLook : MonoBehaviour
 
     [Header("Body Transforms")]
     [SerializeField] private Transform neckTransform;
+    [SerializeField] private Transform cameraOffsetTransform;
     public Transform cameraTransform;
 
     private float currentXRotation = 0f;
@@ -27,6 +29,8 @@ public class PlayerLook : MonoBehaviour
     private float shakeMagnitude = 0.1f;
     private float shakeEndTime = 0f;
     private Vector3 originalCameraPosition;
+    private Vector3 originalcameraOffsetPosition;
+    private Vector3 originalNeckRotation;
 
     private Vector2 currentRecoilOffset = Vector2.zero;  // New field to handle recoil offset
     [SerializeField] private float recoilSmoothTime = 0.1f;  // Recoil smooth damping
@@ -35,9 +39,18 @@ public class PlayerLook : MonoBehaviour
     {
         player = GetComponent<PlayerController>();
         rb = GetComponent<Rigidbody>();
-        if (neckTransform != null)
+        if (cameraTransform != null)
         {
             originalCameraPosition = cameraTransform.localPosition;
+        }
+        if (cameraTransform != null)
+        {
+            originalcameraOffsetPosition = cameraOffsetTransform.localPosition;
+        }
+        
+        if (neckTransform != null)
+        {
+            originalNeckRotation = neckTransform.localRotation.eulerAngles;
         }
     }
 
@@ -57,7 +70,7 @@ public class PlayerLook : MonoBehaviour
 
         // Calculate vertical rotation and clamp it
         currentXRotation -= (currentMouseDelta.y * lookSensitivity) + currentRecoilOffset.y;
-        currentXRotation = Mathf.Clamp(currentXRotation, -90f, 90f);
+        currentXRotation = Mathf.Clamp(currentXRotation, -85f, 85f);
 
         // Calculate horizontal rotation as a Quaternion
         Quaternion horizontalRotation = Quaternion.Euler(0f, (currentMouseDelta.x * lookSensitivity) + currentRecoilOffset.x, 0f);
@@ -72,7 +85,20 @@ public class PlayerLook : MonoBehaviour
         }
 
         // Rotate the camera vertically and apply tilt
-        neckTransform.localRotation = Quaternion.Euler(currentXRotation, 0f, 0f);
+        neckTransform.localRotation = Quaternion.Euler(currentXRotation, originalNeckRotation.y, originalNeckRotation.z);
+
+        //slight offset
+        Vector3 cameraPositionOffset = new Vector3(0f, currentXRotation * 0.01f * cameraOffsetY, 0f);
+        cameraOffsetTransform.localPosition = originalcameraOffsetPosition + cameraPositionOffset;
+        //if (currentXRotation >= 0f)
+        //{
+        //    Vector3 cameraPositionOffset = new Vector3(0f, currentXRotation * 0.01f * cameraOffsetY, 0f);
+        //    cameraOffsetTransform.localPosition = originalcameraOffsetPosition + cameraPositionOffset;
+        //}
+        //else
+        //{
+        //    cameraOffsetTransform.localPosition = originalcameraOffsetPosition;
+        //}
         cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -currentTilt);
     }
 

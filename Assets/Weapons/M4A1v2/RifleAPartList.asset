@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3aa9234445f01714da2b835daa2e1736, type: 3}
+  m_Name: RifleAPartList
+  m_EditorClassIdentifier: 
+  weaponPartSOList:
+  - {fileID: 11400000, guid: ffedf33a91240eb4482444744144a3c2, type: 2}
+  - {fileID: 11400000, guid: 56c8e439efb8613429589eba68d6187b, type: 2}
+  - {fileID: 11400000, guid: cf7413d0633af6f4f8ae2d779a5847d8, type: 2}
+  - {fileID: 11400000, guid: fad54214ef152a44daed5d41d9bc1d9a, type: 2}
+  - {fileID: 11400000, guid: 40e54c8e2e925e8438da89f10c6148be, type: 2}
+  - {fileID: 11400000, guid: 7fc302368063faa408a407d0594dc747, type: 2}
+  - {fileID: 11400000, guid: 04b12b5db09569d42847d75f3c9e2b16, type: 2}
+  - {fileID: 11400000, guid: 4866194f3214a7443a3b168d4e69e295, type: 2}
+  - {fileID: 11400000, guid: 61791f5d52f35fd46be8b5f217c9453a, type: 2}
