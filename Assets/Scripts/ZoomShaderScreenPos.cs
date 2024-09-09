@@ -3,6 +3,7 @@ using UnityEngine;
 public class ZoomShaderScreenPos : MonoBehaviour
 {
     [SerializeField] private Material material;
+    public float zoomAmount = 1.1f;
 
     private void Update()
     {

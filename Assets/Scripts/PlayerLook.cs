@@ -17,7 +17,12 @@ public class PlayerLook : MonoBehaviour
     [Header("Body Transforms")]
     [SerializeField] private Transform neckTransform;
     [SerializeField] private Transform cameraOffsetTransform;
-    public Transform cameraTransform;
+    public Camera playerCamera;
+
+    [Header("FOV")]
+    [SerializeField] private float startFov = 60f;
+    private float targetFov = 60f;
+    [SerializeField] private float zoomSmoothness = 60f;
 
     private float currentXRotation = 0f;
     private float currentTilt = 0;
@@ -39,11 +44,11 @@ public class PlayerLook : MonoBehaviour
     {
         player = GetComponent<PlayerController>();
         rb = GetComponent<Rigidbody>();
-        if (cameraTransform != null)
+        if (playerCamera != null)
         {
-            originalCameraPosition = cameraTransform.localPosition;
+            originalCameraPosition = playerCamera.transform.localPosition;
         }
-        if (cameraTransform != null)
+        if (playerCamera != null)
         {
             originalcameraOffsetPosition = cameraOffsetTransform.localPosition;
         }
@@ -56,7 +61,7 @@ public class PlayerLook : MonoBehaviour
 
     private void Update()
     {
-        if (neckTransform != null && cameraTransform != null)
+        if (neckTransform != null && playerCamera != null)
         {
             Look(); 
             UpdateRecoil();
@@ -99,7 +104,8 @@ public class PlayerLook : MonoBehaviour
         //{
         //    cameraOffsetTransform.localPosition = originalcameraOffsetPosition;
         //}
-        cameraTransform.localRotation = Quaternion.Euler(0f, 0f, -currentTilt);
+        playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, targetFov, Time.deltaTime * zoomSmoothness);
+        playerCamera.transform.localRotation = Quaternion.Euler(0f, 0f, -currentTilt);
     }
 
     private void UpdateRecoil()
@@ -126,11 +132,16 @@ public class PlayerLook : MonoBehaviour
     {
         if (Time.time < shakeEndTime)
         {
-            cameraTransform.localPosition = originalCameraPosition + Random.insideUnitSphere * shakeMagnitude;
+            playerCamera.transform.localPosition = originalCameraPosition + Random.insideUnitSphere * shakeMagnitude;
         }
         else
         {
-            cameraTransform.localPosition = originalCameraPosition;
+            playerCamera.transform.localPosition = originalCameraPosition;
         }
+    }
+
+    public void SetZoomLevel(float zoomLevel)
+    {
+        targetFov = startFov * (2 - zoomLevel);
     }
 }

@@ -1,7 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.WSA;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : MonoBehaviour, IInteractable
@@ -19,6 +18,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool isAttacking = false;
     public bool isReloading = false;
     public bool isInspecting = false;
+    public bool attachedToAimPos = false;
     [Header("Attacking")]
     [SerializeField] private float damage = 50.0f;
     [SerializeField] private float damageFallOffDistance = 100.0f;
@@ -27,7 +27,7 @@ public class Weapon : MonoBehaviour, IInteractable
     [SerializeField] private LayerMask hitLayers;
     [SerializeField] private BulletTrail bulletTrailPrefab;
     [SerializeField] private MuzzleFlash[] muzzleFlashPrefabs;
-    [SerializeField] private Casing casingPrefab;
+    [SerializeField] private Casing casingPrefab; 
 
     [Header("Recoil")]
     public Vector2 recoil;
@@ -52,6 +52,7 @@ public class Weapon : MonoBehaviour, IInteractable
     [Header("Audio")]
     [SerializeField] private AudioClip[] firingSounds;
     [SerializeField] private AudioClip reloadSound; 
+    [SerializeField] private AudioClip aimInSound; 
     private AudioSource audioSource;
 
     [Header("IK hand positions")]
@@ -75,10 +76,10 @@ public class Weapon : MonoBehaviour, IInteractable
 
 
     private WeaponBody weaponBody;
+    private Scope attachedScope;
     private Dictionary<WeaponPartSO.PartType, AttachedWeaponPart> attachedWeaponPartDic;
 
-    private ZoomShaderScreenPos aimingZoomLevel;
-    private Timer aimingTimer;
+    private Coroutine aimingCoroutine;
 
     private void Awake()
     {
@@ -88,7 +89,6 @@ public class Weapon : MonoBehaviour, IInteractable
         audioSource = GetComponent<AudioSource>();
         holder = transform.root.GetComponent<WeaponHolder>();
         reloadTimer = gameObject.AddComponent<Timer>();
-        aimingTimer = gameObject.AddComponent<Timer>();
 
         attachedWeaponPartDic = new Dictionary<WeaponPartSO.PartType, AttachedWeaponPart>();
 
@@ -132,6 +132,10 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public void Drop(float _force)
     {
+        StopAiming();
+        StopAttacking();
+        Unequip();
+
         holder = null;
         transform.parent = null;
         isHeld = false;
@@ -140,10 +144,6 @@ public class Weapon : MonoBehaviour, IInteractable
         LayerController.Instance.SetGameObjectAndChildrenLayer(gameObject, LayerMask.NameToLayer("Default"));
 
         rb.AddForce(transform.forward * _force, ForceMode.Impulse);
-
-        StopAiming();
-        StopAttacking();
-        Unequip();
     }
 
     public void Equip()
@@ -216,8 +216,8 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void Attack()
     {
-        Vector3 shootDirection = holder.player.playerLook.cameraTransform.forward;
-        Vector3 startPosition = holder.player.playerLook.cameraTransform.position;
+        Vector3 shootDirection = holder.player.playerLook.playerCamera.transform.forward;
+        Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
         Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
         if (Physics.Raycast(startPosition, shootDirection, out RaycastHit hit, damageFallOffDistance, hitLayers))
         {
@@ -362,6 +362,11 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         audioSource.PlayOneShot(reloadSound);
     }
+    
+    private void PlayAimInSound()
+    {
+        audioSource.PlayOneShot(aimInSound);
+    }
 
     public void StopAttacking()
     {
@@ -374,30 +379,64 @@ public class Weapon : MonoBehaviour, IInteractable
 
         isAiming = true;
 
-        aimingTimer.StopTimer();
-        aimingTimer.SetTimer(0.02f, FinishAim);
+        if(attachedToAimPos)
+        {
+            FinishAim();
+        }
+        else
+        {
+            aimingCoroutine = StartCoroutine(CheckIfAiming());
+        }
+    }
+
+    private IEnumerator CheckIfAiming()
+    {
+        while (!attachedToAimPos)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        FinishAim();
     }
 
     private void FinishAim()
     {
-        if (aimingZoomLevel)
+        if(attachedToAimPos)
         {
-            aimingZoomLevel.gameObject.SetActive(true);
+            if (attachedScope)
+            {
+                attachedScope.zoomGlass.SetActive(true);
+                holder.player.playerLook.SetZoomLevel(attachedScope.zoomAmount);
+            }
+            else
+            {
+                holder.player.playerLook.SetZoomLevel(1.1f);
+            }
+            PlayAimInSound();
+            UiManager.Instance.SetCrosshair(false);
         }
-
-        UiManager.Instance.SetCrosshair(false);
     }
 
     public void StopAiming()
     { 
         isAiming = false;
-        aimingTimer.StopTimer();
-        if (aimingZoomLevel)
+
+        if (aimingCoroutine != null)
         {
-            aimingZoomLevel.gameObject.SetActive(false);
+            StopCoroutine(aimingCoroutine);
+            aimingCoroutine = null;
+        }
+
+        if (attachedScope)
+        {
+            attachedScope.zoomGlass.SetActive(false);
         }
 
         UiManager.Instance.SetCrosshair(true);
+        if (holder != null)
+        {
+            holder.player.playerLook.SetZoomLevel(1.0f);
+        }
     }
 
     public void Reload()
@@ -457,7 +496,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
         if(weaponPartSO.partType == WeaponPartSO.PartType.Scope)
         {
-            aimingZoomLevel = attachPointTransform.GetComponentInChildren<ZoomShaderScreenPos>();
+            attachedScope = spawnedPartTransform.GetComponent<Scope>();
         }
     }
 

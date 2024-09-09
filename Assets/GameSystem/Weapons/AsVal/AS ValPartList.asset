@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3aa9234445f01714da2b835daa2e1736, type: 3}
+  m_Name: AS ValPartList
+  m_EditorClassIdentifier: 
+  weaponPartSOList:
+  - {fileID: 11400000, guid: beee1e0cefdf2e6459645992ed628177, type: 2}
+  - {fileID: 11400000, guid: 1c27eb89ae022ae42ab69d08ca01e064, type: 2}
+  - {fileID: 11400000, guid: 5d958c97d46024c48983f14405fbbb40, type: 2}
+  - {fileID: 11400000, guid: 8baa7a0a7e656eb4fafc4fc72d9bde7f, type: 2}
+  - {fileID: 11400000, guid: 636356bb59d3d0240b3fb8e22a1c704b, type: 2}
+  - {fileID: 11400000, guid: d183dc79c29a3c0468b72e577ebe18b6, type: 2}

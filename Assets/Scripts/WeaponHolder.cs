@@ -53,6 +53,11 @@ public class WeaponHolder : MonoBehaviour
         if (currentWeapon.isAiming && !currentWeapon.isReloading)
         {
             transformToAttachWeapon = aimingPos;
+            currentWeapon.attachedToAimPos = true;
+        }
+        else
+        {
+            currentWeapon.attachedToAimPos = false;
         }
 
         //set the position and rotation of the hand targets to the ik target on rifle
