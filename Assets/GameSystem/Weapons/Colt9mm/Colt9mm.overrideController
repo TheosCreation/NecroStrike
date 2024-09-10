@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Colt9mm
+  m_Controller: {fileID: 9100000, guid: aef5a5a309357464aba1096b0a467d37, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 257bc2096d451264983da3d39e7657db, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: dc840b61ad2aeb74ea3e7adcca4b2d9a, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 045fd61bd90b26a45894301d41760af5, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: dfaa85fbed3f7d54e98a2ee95e197ec1, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 4c350faec1bd2754d92d6c762021bc3a, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 1f9c156a1306ce94fbd374de42652418, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 5e2bcae613feccb428cff75947ab7025, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 7a0a1edbeed85a946b5e08dda748420e, type: 2}

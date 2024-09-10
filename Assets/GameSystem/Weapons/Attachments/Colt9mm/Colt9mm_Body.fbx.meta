@@ -1,54 +1,9 @@
 fileFormatVersion: 2
-guid: 54861182f0a433b4eb83d9429da78dc8
+guid: 34d4c217e0d3be645be9c66c1bebd544
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material.001
-    second: {fileID: 2100000, guid: 31ecb86a240ee5c4dbb3b201599c3403, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material.002
-    second: {fileID: 2100000, guid: baed893f173261847af6566d2ca6511b, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material.003
-    second: {fileID: 2100000, guid: 83dfd1e6cd30113479e526cb0dea35d5, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: barrel
-    second: {fileID: 2100000, guid: 7501ac0d003abc94e83215ec54981183, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: bolts
-    second: {fileID: 2100000, guid: e1b4723188c3fb448bf953240f54986b, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: metal1
-    second: {fileID: 2100000, guid: ff5924aa9338bd240a56fc98b4b2946e, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: metal2
-    second: {fileID: 2100000, guid: 41e5d74360ea6bf49b19c8d8e0a40c32, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: poly1
-    second: {fileID: 2100000, guid: bc83db6286fb56642a0a58f3325d03b3, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: poly2
-    second: {fileID: 2100000, guid: 61db05551e5f60744b27ef7fd9b040ec, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

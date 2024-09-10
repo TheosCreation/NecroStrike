@@ -1,6 +1,18 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public enum Firemode
+{
+    Auto,
+    Burst,
+    Single
+}
+
+public enum WeaponClass
+{
+    Rifle,
+    Pistol
+}
 
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : MonoBehaviour, IInteractable
@@ -23,11 +35,17 @@ public class Weapon : MonoBehaviour, IInteractable
     [SerializeField] private float damage = 50.0f;
     [SerializeField] private float damageFallOffDistance = 100.0f;
     [SerializeField] private float fireRatePerSecond = 3f;
+    [SerializeField] private WeaponClass weaponClass = WeaponClass.Rifle;
     float lastShotTime = 0;
     [SerializeField] private LayerMask hitLayers;
     [SerializeField] private BulletTrail bulletTrailPrefab;
     [SerializeField] private MuzzleFlash[] muzzleFlashPrefabs;
-    [SerializeField] private Casing casingPrefab; 
+    [SerializeField] private Casing casingPrefab;
+    [SerializeField] private Firemode firemode = Firemode.Auto;
+    [Header("Burst Firing")]
+    [SerializeField] private float burstCooldown = 1f;
+    private int burstShotsFired = 0;
+    private float timeSinceLastBurst = 0f;
 
     [Header("Recoil")]
     public Vector2 recoil;
@@ -161,8 +179,8 @@ public class Weapon : MonoBehaviour, IInteractable
     }
 
     void Update()
-    {   
-        if(isAttacking)
+    {
+        if (isAttacking)
         {
             if (CanShoot() && isEquip && !isReloading && !isInspecting)
             {
@@ -180,11 +198,40 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private bool CanShoot()
     {
-        if(Time.time - lastShotTime >= 1 / fireRatePerSecond)
+        if (firemode == Firemode.Burst)
         {
-            return true;
+            // Check if we are within the burst cooldown
+            if (Time.time - lastShotTime >= 1 / fireRatePerSecond)
+            {
+                // Allow to shoot until 3 shots are fired
+                if (burstShotsFired < 3)
+                {
+                    burstShotsFired++;
+                    lastShotTime = Time.time; // Reset last shot time for next shot in the burst
+                    return true;
+                }
+                else
+                {
+                    // If 3 shots are fired, reset burst shots after cooldown
+                    if (Time.time - timeSinceLastBurst >= burstCooldown)
+                    {
+                        burstShotsFired = 0; // Reset burst shots
+                        timeSinceLastBurst = Time.time; // Reset time since the last burst
+                    }
+                    return false;
+                }
+            }
+            return false;
         }
-        return false;
+        else
+        {
+            // Handle Auto and Single Fire modes
+            if (Time.time - lastShotTime >= 1 / fireRatePerSecond)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 
     public void Inspect()
@@ -234,9 +281,15 @@ public class Weapon : MonoBehaviour, IInteractable
         PlayRandomFiringSound(); 
         SpawnRandomMuzzleFlash(); 
         SpawnCasing();
+        animator.SetTrigger("Shoot");
 
         // Update the last shot time
         lastShotTime = Time.time;
+
+        if(firemode == Firemode.Single)
+        {
+            isAttacking = false;
+        }
     }
 
     private void ApplyRecoil()
