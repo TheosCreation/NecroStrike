@@ -10,6 +10,7 @@ public class WeaponBodySO : ScriptableObject
         RifleB,
         Pistol,
         AsVal,
+        Colt9,
     }
 
 

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3aa9234445f01714da2b835daa2e1736, type: 3}
+  m_Name: Colt9mmPartList
+  m_EditorClassIdentifier: 
+  weaponPartSOList:
+  - {fileID: 11400000, guid: 8a7bd3baee653c347b0c9b6c810cbbf4, type: 2}
+  - {fileID: 11400000, guid: fefbb00d8066730488c271a3d0cacc75, type: 2}
+  - {fileID: 11400000, guid: cf7413d0633af6f4f8ae2d779a5847d8, type: 2}
+  - {fileID: 11400000, guid: fad54214ef152a44daed5d41d9bc1d9a, type: 2}
+  - {fileID: 11400000, guid: 40e54c8e2e925e8438da89f10c6148be, type: 2}

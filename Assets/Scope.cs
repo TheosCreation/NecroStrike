@@ -2,10 +2,9 @@ using UnityEngine;
 
 public class Scope : MonoBehaviour
 {
+    public Camera scopeCamera;
     [SerializeField] private Crosshair crosshairPrefab;
     [SerializeField] private Transform crosshairAttachmentTransform;
-    public GameObject zoomGlass; 
-    public float zoomAmount = 1.1f;
 
     private void Awake()
     {
@@ -15,5 +14,10 @@ public class Scope : MonoBehaviour
         crosshair.transform.localEulerAngles = Vector3.zero;
         crosshair.transform.localPosition = Vector3.zero;
         crosshair.transform.localScale = new Vector3(1, 1, 1);
+    }
+
+    private void Start()
+    {
+        scopeCamera.gameObject.SetActive(false);
     }
 }

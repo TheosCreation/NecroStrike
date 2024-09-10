@@ -79,8 +79,6 @@ public class Weapon : MonoBehaviour, IInteractable
     private Scope attachedScope;
     private Dictionary<WeaponPartSO.PartType, AttachedWeaponPart> attachedWeaponPartDic;
 
-    private Coroutine aimingCoroutine;
-
     private void Awake()
     {
         weaponBody = GetComponent<WeaponBody>();
@@ -379,41 +377,13 @@ public class Weapon : MonoBehaviour, IInteractable
 
         isAiming = true;
 
-        if(attachedToAimPos)
-        {
-            FinishAim();
-        }
-        else
-        {
-            aimingCoroutine = StartCoroutine(CheckIfAiming());
-        }
-    }
+        PlayAimInSound();
 
-    private IEnumerator CheckIfAiming()
-    {
-        while (!attachedToAimPos)
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
+        UiManager.Instance.SetCrosshair(false);
 
-        FinishAim();
-    }
-
-    private void FinishAim()
-    {
-        if(attachedToAimPos)
+        if(attachedScope)
         {
-            if (attachedScope)
-            {
-                attachedScope.zoomGlass.SetActive(true);
-                holder.player.playerLook.SetZoomLevel(attachedScope.zoomAmount);
-            }
-            else
-            {
-                holder.player.playerLook.SetZoomLevel(1.1f);
-            }
-            PlayAimInSound();
-            UiManager.Instance.SetCrosshair(false);
+            attachedScope.scopeCamera.gameObject.SetActive(true);
         }
     }
 
@@ -421,15 +391,9 @@ public class Weapon : MonoBehaviour, IInteractable
     { 
         isAiming = false;
 
-        if (aimingCoroutine != null)
-        {
-            StopCoroutine(aimingCoroutine);
-            aimingCoroutine = null;
-        }
-
         if (attachedScope)
         {
-            attachedScope.zoomGlass.SetActive(false);
+            attachedScope.scopeCamera.gameObject.SetActive(false);
         }
 
         UiManager.Instance.SetCrosshair(true);
