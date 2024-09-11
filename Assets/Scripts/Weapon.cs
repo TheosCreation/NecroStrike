@@ -61,6 +61,10 @@ public class Weapon : MonoBehaviour, IInteractable
     private int ammoLeft = 0;
     private int ammoReserve = 0;
 
+    [Header("Aiming")]
+    [SerializeField] private float aimingZoomLevel = 1.2f;
+    [SerializeField] private float cameraZOffset = 0.05f;
+
     [Header("Reloading")]
     [SerializeField] private float reloadTime = 0.5f;
     private Timer reloadTimer;
@@ -446,7 +450,12 @@ public class Weapon : MonoBehaviour, IInteractable
 
         if(attachedScope)
         {
-            attachedScope.scopeCamera.gameObject.SetActive(true);
+            attachedScope.SetZoom(true);
+        }
+
+        if (holder != null)
+        {
+            holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset);
         }
     }
 
@@ -456,13 +465,13 @@ public class Weapon : MonoBehaviour, IInteractable
 
         if (attachedScope)
         {
-            attachedScope.scopeCamera.gameObject.SetActive(false);
+            attachedScope.SetZoom(false);
         }
 
         UiManager.Instance.SetCrosshair(true);
         if (holder != null)
         {
-            holder.player.playerLook.SetZoomLevel(1.0f);
+            holder.player.playerLook.ResetZoomLevel();
         }
     }
 

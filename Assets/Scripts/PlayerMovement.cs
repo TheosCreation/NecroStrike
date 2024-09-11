@@ -24,6 +24,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpDuration = 0.1f;
     private Timer jumpTimer;
 
+    [Header("Crouching")]
+    [SerializeField] private float crouchHeightMultiplier = 0.5f;
+
     [Header("Dash")]
     [SerializeField] public bool isDashing = false;
     [SerializeField] private bool canDash = true;
@@ -35,6 +38,9 @@ public class PlayerMovement : MonoBehaviour
 
     Vector2 movementInput = Vector2.zero;
     private Rigidbody rb;
+    private CapsuleCollider capsule;
+    private float capsuleOriginalHeight = 0;
+    private Vector3 capsuleOriginalCenter = Vector3.zero;
     [SerializeField] private Animator animator;
     private AudioSource audioSource;
 
@@ -45,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
         playerController = GetComponent<PlayerController>();
         movementController = GetComponent<MovementController>();
         rb = GetComponent<Rigidbody>(); 
+        capsule = GetComponent<CapsuleCollider>(); 
 
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = audioClipWalking;
@@ -58,6 +65,8 @@ public class PlayerMovement : MonoBehaviour
         dashTimer = gameObject.AddComponent<Timer>();
         dashCoolDownTimer = gameObject.AddComponent<Timer>();
 
+        capsuleOriginalHeight = capsule.height;
+        capsuleOriginalCenter = capsule.center;
         CheckMoveSpeed();
     }
 
@@ -139,13 +148,21 @@ public class PlayerMovement : MonoBehaviour
     private void StartCrouching()
     {
         isCrouching = true;
+        SetCapsuleHeight(crouchHeightMultiplier);
         CheckMoveSpeed();
     }
 
     private void EndCrouching()
     {
         isCrouching = false;
+        SetCapsuleHeight(1.0f);
         CheckMoveSpeed();
+    }
+
+    private void SetCapsuleHeight(float crouchHeightMultiplier)
+    {
+        capsule.height = capsuleOriginalHeight * crouchHeightMultiplier;
+        capsule.center = new Vector3(capsuleOriginalCenter.x, capsuleOriginalCenter.y * crouchHeightMultiplier, capsuleOriginalCenter.z);
     }
 
     public void Dash(Vector3 dashDirection, float dashForce, float dashDuration, bool ignoreInput = false)

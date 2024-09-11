@@ -1,6 +1,4 @@
 using UnityEngine;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
-using UnityEngine.InputSystem;
 
 public class PlayerLook : MonoBehaviour
 {
@@ -21,7 +19,9 @@ public class PlayerLook : MonoBehaviour
 
     [Header("FOV")]
     [SerializeField] private float startFov = 60f;
-    private float targetFov = 60f;
+    [SerializeField] private float targetFov = 60f;
+
+    [Header("Aiming/Zoom")]
     [SerializeField] private float zoomSmoothness = 60f;
 
     private float currentXRotation = 0f;
@@ -36,8 +36,9 @@ public class PlayerLook : MonoBehaviour
     private Vector3 originalCameraPosition;
     private Vector3 originalcameraOffsetPosition;
     private Vector3 originalNeckRotation;
+    private Vector3 cameraTargetLocalPosition;
 
-    private Vector2 currentRecoilOffset = Vector2.zero;  // New field to handle recoil offset
+    private Vector2 currentRecoilOffset = Vector2.zero;
     [SerializeField] private float recoilSmoothTime = 0.1f;  // Recoil smooth damping
 
     private void Awake()
@@ -57,6 +58,8 @@ public class PlayerLook : MonoBehaviour
         {
             originalNeckRotation = neckTransform.localRotation.eulerAngles;
         }
+
+        ResetZoomLevel();
     }
 
     private void Update()
@@ -65,7 +68,6 @@ public class PlayerLook : MonoBehaviour
         {
             Look(); 
             UpdateRecoil();
-            HandleScreenShake();
         }
     }
 
@@ -95,17 +97,9 @@ public class PlayerLook : MonoBehaviour
         //slight offset
         Vector3 cameraPositionOffset = new Vector3(0f, currentXRotation * 0.01f * cameraOffsetY, 0f);
         cameraOffsetTransform.localPosition = originalcameraOffsetPosition + cameraPositionOffset;
-        //if (currentXRotation >= 0f)
-        //{
-        //    Vector3 cameraPositionOffset = new Vector3(0f, currentXRotation * 0.01f * cameraOffsetY, 0f);
-        //    cameraOffsetTransform.localPosition = originalcameraOffsetPosition + cameraPositionOffset;
-        //}
-        //else
-        //{
-        //    cameraOffsetTransform.localPosition = originalcameraOffsetPosition;
-        //}
         playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, targetFov, Time.deltaTime * zoomSmoothness);
-        playerCamera.transform.localRotation = Quaternion.Euler(0f, 0f, -currentTilt);
+        playerCamera.transform.localRotation = Quaternion.Euler(0f, 0f, -currentTilt); 
+        playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, cameraTargetLocalPosition, Time.deltaTime * zoomSmoothness) + (Time.time < shakeEndTime ? Random.insideUnitSphere * shakeMagnitude : Vector3.zero);
     }
 
     private void UpdateRecoil()
@@ -128,20 +122,15 @@ public class PlayerLook : MonoBehaviour
         shakeMagnitude = magnitude * shakeAmount;
     }
 
-    private void HandleScreenShake()
+    public void ResetZoomLevel()
     {
-        if (Time.time < shakeEndTime)
-        {
-            playerCamera.transform.localPosition = originalCameraPosition + Random.insideUnitSphere * shakeMagnitude;
-        }
-        else
-        {
-            playerCamera.transform.localPosition = originalCameraPosition;
-        }
+        cameraTargetLocalPosition = originalCameraPosition;
+        targetFov = startFov;
     }
 
-    public void SetZoomLevel(float zoomLevel)
+    public void SetZoomLevel(float zoomLevel, float cameraZoomZ)
     {
         targetFov = startFov * (2 - zoomLevel);
+        cameraTargetLocalPosition = new Vector3(originalCameraPosition.x, originalCameraPosition.y, cameraZoomZ);
     }
 }
