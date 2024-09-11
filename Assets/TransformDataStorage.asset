@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78d001242da61824e8bb1febd0b915d4, type: 3}
+  m_Name: TransformDataStorage
+  m_EditorClassIdentifier: 
+  leftHandTransforms:
+  - localPosition: {x: -0.1103, y: 0.001, z: 0.0879}
+    localRotation: {x: 0.65068275, y: 0.7406665, z: 0.08195894, w: -0.14597203}
+  - localPosition: {x: 0, y: 0, z: 0}
+    localRotation: {x: -0, y: -0, z: -0, w: 1}
+  - localPosition: {x: 0, y: 0, z: 0}
+    localRotation: {x: -0, y: -0, z: -0, w: 1}
+  - localPosition: {x: 0, y: 0, z: 0}
+    localRotation: {x: -0, y: -0, z: -0, w: 1}
+  - localPosition: {x: 0, y: 0, z: 0}
+    localRotation: {x: -0, y: -0, z: -0, w: 1}
+  - localPosition: {x: 0, y: 0, z: 0}
+    localRotation: {x: -0, y: -0, z: -0, w: 1}
+  rightHandTransforms:
+  - localPosition: {x: -0.0012, y: -0.0446, z: -0.0791}
+    localRotation: {x: 0.4308958, y: -0.4522317, z: -0.48602214, w: 0.6112265}
+  - localPosition: {x: -0.0263, y: 0.124, z: 0.0109}
+    localRotation: {x: 0.6025264, y: 0.08577181, z: 0.099620454, w: 0.7871981}
+  - localPosition: {x: -0.0099, y: 0.0977, z: 0.0249}
+    localRotation: {x: 0.99150074, y: -0.0000003129243, z: 0.00000029802317, w: 0.13010114}
+  - localPosition: {x: 0.0264, y: 0.0666, z: 0.0273}
+    localRotation: {x: 0.91927433, y: -0.0000001452863, z: -0.00000025331968, w: 0.39361748}
+  - localPosition: {x: 0.0075, y: 0.0783, z: 0.0305}
+    localRotation: {x: 0.982915, y: -0.00000026077024, z: 0.00000025331966, w: 0.18406017}
+  - localPosition: {x: -0.0566, y: 0.0551, z: 0.0194}
+    localRotation: {x: -0.12760715, y: 0.028543195, z: -0.20932318, w: -0.96906424}

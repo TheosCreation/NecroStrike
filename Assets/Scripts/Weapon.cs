@@ -30,7 +30,6 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool isAttacking = false;
     public bool isReloading = false;
     public bool isInspecting = false;
-    public bool attachedToAimPos = false;
     [Header("Attacking")]
     [SerializeField] private float damage = 50.0f;
     [SerializeField] private float damageFallOffDistance = 100.0f;
@@ -56,7 +55,6 @@ public class Weapon : MonoBehaviour, IInteractable
     [SerializeField] private float screenShakeDuration = 0.1f;
     [SerializeField] private float screenShakeAmount = 1.0f;
 
-
     [Header("Ammo and Damage")]
     [SerializeField] private int magSize = 30;
     [SerializeField] private int startingAmmoReserve = 1000;
@@ -73,9 +71,21 @@ public class Weapon : MonoBehaviour, IInteractable
     [SerializeField] private AudioClip aimInSound; 
     private AudioSource audioSource;
 
-    [Header("IK hand positions")]
+    [Header("Right Hand Setup")]
     public Transform IKRightHandPos;
+    public Transform IKRightIndexPos;
+    public Transform IKRightMiddlePos;
+    public Transform IKRightPinkyPos;
+    public Transform IKRightRingPos;
+    public Transform IKRightThumbPos;
+
+    [Header("Left Hand Setup")]
     public Transform IKLeftHandPos;
+    public Transform IKLeftIndexPos;
+    public Transform IKLeftMiddlePos;
+    public Transform IKLeftPinkyPos;
+    public Transform IKLeftRingPos;
+    public Transform IKLeftThumbPos;
 
     [Header("Debugging")]
     [SerializeField] private bool applyRecoil = true;

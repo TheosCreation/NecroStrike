@@ -12,12 +12,47 @@ public class WeaponHolder : MonoBehaviour
     [SerializeField] float transitionSpeed = 5.0f;
 
     [Header("Right Hand Target")]
+    //Base Hand
     [SerializeField] private TwoBoneIKConstraint rightHandIK;
     [SerializeField] private Transform rightHandTarget;
+
+    [Header("Right Fingers Targets")]
+    //Index
+    [SerializeField] private TwoBoneIKConstraint rightIndexIK;
+    [SerializeField] private Transform rightIndexTarget;
+    //Middle
+    [SerializeField] private TwoBoneIKConstraint rightMiddleIK;
+    [SerializeField] private Transform rightMiddleTarget;
+    //Pinky
+    [SerializeField] private TwoBoneIKConstraint rightPinkyIK;
+    [SerializeField] private Transform rightPinkyTarget;
+    //Ring
+    [SerializeField] private TwoBoneIKConstraint rightRingIK;
+    [SerializeField] private Transform rightRingTarget;
+    //Thumb
+    [SerializeField] private TwoBoneIKConstraint rightThumbIK;
+    [SerializeField] private Transform rightThumbTarget;
 
     [Header("Left Hand Target")]
     [SerializeField] private TwoBoneIKConstraint leftHandIK;
     [SerializeField] private Transform leftHandTarget;
+
+    [Header("Left Fingers Targets")]
+    //Index
+    [SerializeField] private TwoBoneIKConstraint leftIndexIK;
+    [SerializeField] private Transform leftIndexTarget;
+    //Middle
+    [SerializeField] private TwoBoneIKConstraint leftMiddleIK;
+    [SerializeField] private Transform leftMiddleTarget;
+    //Pinky
+    [SerializeField] private TwoBoneIKConstraint leftPinkyIK;
+    [SerializeField] private Transform leftPinkyTarget;
+    //Ring
+    [SerializeField] private TwoBoneIKConstraint leftRingIK;
+    [SerializeField] private Transform leftRingTarget;
+    //Thumb
+    [SerializeField] private TwoBoneIKConstraint leftThumbIK;
+    [SerializeField] private Transform leftThumbTarget;
 
     private Animator animator;
     private void Awake()
@@ -33,7 +68,7 @@ public class WeaponHolder : MonoBehaviour
         InputManager.Instance.playerInput.InGame.Inspect.started += _ctx => TryInspect();
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         if (currentWeapon == null)
         {
@@ -53,18 +88,45 @@ public class WeaponHolder : MonoBehaviour
         if (currentWeapon.isAiming && !currentWeapon.isReloading)
         {
             transformToAttachWeapon = aimingPos;
-            currentWeapon.attachedToAimPos = true;
-        }
-        else
-        {
-            currentWeapon.attachedToAimPos = false;
         }
 
         //set the position and rotation of the hand targets to the ik target on rifle
         leftHandTarget.position = currentWeapon.IKLeftHandPos.position;
         leftHandTarget.rotation = currentWeapon.IKLeftHandPos.rotation;
+        //left index
+        leftIndexTarget.position = currentWeapon.IKLeftIndexPos.position;
+        leftIndexTarget.rotation = currentWeapon.IKLeftIndexPos.rotation;
+        //left middle
+        leftMiddleTarget.position = currentWeapon.IKLeftMiddlePos.position;
+        leftMiddleTarget.rotation = currentWeapon.IKLeftMiddlePos.rotation;
+        //left pinky
+        leftPinkyTarget.position = currentWeapon.IKLeftPinkyPos.position;
+        leftPinkyTarget.rotation = currentWeapon.IKLeftPinkyPos.rotation;
+        //left ring
+        leftRingTarget.position = currentWeapon.IKLeftRingPos.position;
+        leftRingTarget.rotation = currentWeapon.IKLeftRingPos.rotation;
+        //left thumb
+        leftThumbTarget.position = currentWeapon.IKLeftThumbPos.position;
+        leftThumbTarget.rotation = currentWeapon.IKLeftThumbPos.rotation;
+
+        //Right Hand
         rightHandTarget.position = currentWeapon.IKRightHandPos.position;
         rightHandTarget.rotation = currentWeapon.IKRightHandPos.rotation;
+        // Right Index
+        rightIndexTarget.position = currentWeapon.IKRightIndexPos.position;
+        rightIndexTarget.rotation = currentWeapon.IKRightIndexPos.rotation;
+        // Right Middle
+        rightMiddleTarget.position = currentWeapon.IKRightMiddlePos.position;
+        rightMiddleTarget.rotation = currentWeapon.IKRightMiddlePos.rotation;
+        // Right Ring
+        rightRingTarget.position = currentWeapon.IKRightRingPos.position;
+        rightRingTarget.rotation = currentWeapon.IKRightRingPos.rotation;
+        // Right Pinky
+        rightPinkyTarget.position = currentWeapon.IKRightPinkyPos.position;
+        rightPinkyTarget.rotation = currentWeapon.IKRightPinkyPos.rotation;
+        // Right Thumb
+        rightThumbTarget.position = currentWeapon.IKRightThumbPos.position;
+        rightThumbTarget.rotation = currentWeapon.IKRightThumbPos.rotation;
 
         // Smoothly interpolate weapon's position and rotation to the target transform
         currentWeapon.transform.position = Vector3.Lerp(currentWeapon.transform.position, transformToAttachWeapon.position, Time.deltaTime * transitionSpeed);

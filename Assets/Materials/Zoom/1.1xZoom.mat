@@ -70,6 +70,6 @@ Material:
     - _ZWriteControl: 0
     - _Zoom: 0.4
     m_Colors:
-    - _ObjectScreenPos: {r: 0.6083788, g: 0.75563085, b: 0, a: 0}
+    - _ObjectScreenPos: {r: 0.9901346, g: 0.52350706, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

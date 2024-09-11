@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -9,13 +10,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private AudioClip audioClipWalking;
 
     [Header("Movement")]
-    [SerializeField] private float maxSpeed = 2.0f;
+    [SerializeField] private float walkMoveSpeed = 4.0f;
+    [SerializeField] private float crouchMoveSpeed = 2.0f;
+    private float currentMoveSpeed = 2.0f;
     [SerializeField] private float acceleration = 5.0f;
     [SerializeField] private float deceleration = 2.0f;
 
     [Header("Jump")]
     [SerializeField] private bool canJump = true;
     [SerializeField] private bool isJumping = false;
+    [SerializeField] private bool isCrouching = false;
     [SerializeField] private float jumpForce = 10.0f;
     [SerializeField] private float jumpDuration = 0.1f;
     private Timer jumpTimer;
@@ -46,11 +50,15 @@ public class PlayerMovement : MonoBehaviour
         audioSource.clip = audioClipWalking;
 
         InputManager.Instance.playerInput.InGame.Jump.started += _ctx => Jump();
+        InputManager.Instance.playerInput.InGame.Crouch.started += _ctx => StartCrouching();
+        InputManager.Instance.playerInput.InGame.Crouch.canceled += _ctx => EndCrouching();
         InputManager.Instance.playerInput.InGame.Dash.started += _ctx => Dash(transform.forward, dashForce, dashDuration);
 
         jumpTimer = gameObject.AddComponent<Timer>();
         dashTimer = gameObject.AddComponent<Timer>();
         dashCoolDownTimer = gameObject.AddComponent<Timer>();
+
+        CheckMoveSpeed();
     }
 
     private void FixedUpdate()
@@ -80,12 +88,25 @@ public class PlayerMovement : MonoBehaviour
         Vector3 movement = new Vector3(movementInput.x, 0f, movementInput.y);
         movement = movement.normalized;
 
-        movementController.MoveLocal(movement, maxSpeed, acceleration, deceleration);
+        movementController.MoveLocal(movement, currentMoveSpeed, acceleration, deceleration);
+    }
+
+    private void CheckMoveSpeed()
+    {
+        if(isCrouching)
+        {
+            currentMoveSpeed = crouchMoveSpeed;
+        }
+        else
+        {
+            currentMoveSpeed = walkMoveSpeed;
+        }
     }
 
     private void UpdateAnimations()
     {
         animator.SetBool("IsMoving", movementController.movement);
+        animator.SetBool("IsCrouching", isCrouching);
     }
 
     void Jump()
@@ -113,6 +134,18 @@ public class PlayerMovement : MonoBehaviour
     {
         isJumping = false;
         canJump = true;
+    }
+
+    private void StartCrouching()
+    {
+        isCrouching = true;
+        CheckMoveSpeed();
+    }
+
+    private void EndCrouching()
+    {
+        isCrouching = false;
+        CheckMoveSpeed();
     }
 
     public void Dash(Vector3 dashDirection, float dashForce, float dashDuration, bool ignoreInput = false)
