@@ -11,7 +11,8 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float walkMoveSpeed = 4.0f;
-    [SerializeField] private float crouchMoveSpeed = 2.0f;
+    [SerializeField] private float crouchMoveReduction = 0.5f;
+    [HideInInspector] public float movementReduction = 1.0f;
     private float currentMoveSpeed = 2.0f;
     [SerializeField] private float acceleration = 5.0f;
     [SerializeField] private float deceleration = 2.0f;
@@ -86,8 +87,8 @@ public class PlayerMovement : MonoBehaviour
         if (isDashing) return;
 
         movementInput = InputManager.Instance.MovementVector;
-        animator.SetFloat("SpeedX", movementInput.x);
-        animator.SetFloat("SpeedY", movementInput.y);
+        animator.SetFloat("InputX", movementInput.x);
+        animator.SetFloat("InputY", movementInput.y);
         if (movementInput == Vector2.zero)
         {
             movementController.movement = false;
@@ -97,18 +98,18 @@ public class PlayerMovement : MonoBehaviour
         Vector3 movement = new Vector3(movementInput.x, 0f, movementInput.y);
         movement = movement.normalized;
 
-        movementController.MoveLocal(movement, currentMoveSpeed, acceleration, deceleration);
+        movementController.MoveLocal(movement, walkMoveSpeed * movementReduction, acceleration, deceleration);
     }
 
     private void CheckMoveSpeed()
     {
         if(isCrouching)
         {
-            currentMoveSpeed = crouchMoveSpeed;
+            movementReduction = crouchMoveReduction;
         }
         else
         {
-            currentMoveSpeed = walkMoveSpeed;
+            movementReduction = 1.0f;
         }
     }
 

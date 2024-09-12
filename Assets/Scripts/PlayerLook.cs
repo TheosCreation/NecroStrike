@@ -97,6 +97,8 @@ public class PlayerLook : MonoBehaviour
         //slight offset
         Vector3 cameraPositionOffset = new Vector3(0f, currentXRotation * 0.01f * cameraOffsetY, 0f);
         cameraOffsetTransform.localPosition = originalcameraOffsetPosition + cameraPositionOffset;
+
+
         playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, targetFov, Time.deltaTime * zoomSmoothness);
         playerCamera.transform.localRotation = Quaternion.Euler(0f, 0f, -currentTilt); 
         playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, cameraTargetLocalPosition, Time.deltaTime * zoomSmoothness) + (Time.time < shakeEndTime ? Random.insideUnitSphere * shakeMagnitude : Vector3.zero);
