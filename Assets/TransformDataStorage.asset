@@ -13,22 +13,22 @@ MonoBehaviour:
   m_Name: TransformDataStorage
   m_EditorClassIdentifier: 
   leftHandTransforms:
-  - localPosition: {x: -0.0437, y: -0.0973, z: -0.0417}
-    localRotation: {x: 0.4625242, y: 0.6782445, z: 0.45054084, w: -0.35081166}
-  - localPosition: {x: 0.0286, y: 0.0924, z: 0.0482}
-    localRotation: {x: 0.77279687, y: -0.00000005960461, z: 0.00000005960461, w: 0.63465345}
-  - localPosition: {x: 0.0099, y: 0.0939, z: 0.0502}
-    localRotation: {x: 0.79985905, y: -0.000000029802308, z: 0.00000011920923, w: 0.6001879}
-  - localPosition: {x: -0.0257, y: 0.0801, z: 0.0431}
-    localRotation: {x: 0.78789216, y: -0.000000029802315, z: 0.00000014901158, w: 0.6158134}
-  - localPosition: {x: -0.0086, y: 0.0859, z: 0.0483}
-    localRotation: {x: 0.7625912, y: -0.000000029802312, z: 0.00000014901156, w: 0.64688075}
-  - localPosition: {x: 0.0566, y: 0.0594, z: 0.0289}
-    localRotation: {x: 0.3426885, y: 0.00000011920925, z: 0.00000020861619, w: 0.93944913}
+  - localPosition: {x: -0.0529, y: -0.0715, z: 0.1773}
+    localRotation: {x: -0.41081572, y: -0.64541614, z: -0.31693298, w: 0.56055504}
+  - localPosition: {x: 0.0512, y: 0.1083, z: -0.0011}
+    localRotation: {x: 0.5829019, y: -0, z: 0.000000029802306, w: 0.8125426}
+  - localPosition: {x: 0.0267, y: 0.1092, z: 0.0056}
+    localRotation: {x: 0.5265183, y: -0.000000029802312, z: 0.000000029802312, w: 0.85016376}
+  - localPosition: {x: -0.031, y: 0.101, z: 0.0125}
+    localRotation: {x: 0.4170008, y: -0.00000005960463, z: 0.000000029802315, w: 0.9089061}
+  - localPosition: {x: -0.0109, y: 0.1054, z: 0.0094}
+    localRotation: {x: 0.5371995, y: 0.000000059604616, z: 0.000000059604616, w: 0.8434553}
+  - localPosition: {x: 0.0281, y: 0.0416, z: 0.0503}
+    localRotation: {x: -0, y: -0, z: -0, w: 1}
   rightHandTransforms:
-  - localPosition: {x: -0.0012, y: -0.0446, z: -0.0791}
-    localRotation: {x: 0.4308958, y: -0.4522317, z: -0.48602214, w: 0.6112265}
-  - localPosition: {x: -0.0263, y: 0.124, z: 0.0109}
+  - localPosition: {x: -0.0067, y: -0.1218, z: -0.0255}
+    localRotation: {x: 0.7886149, y: -0.48713708, z: -0.013711097, w: 0.3749613}
+  - localPosition: {x: -0.0271, y: 0.1179, z: 0.0074}
     localRotation: {x: 0.6025264, y: 0.08577181, z: 0.099620454, w: 0.7871981}
   - localPosition: {x: -0.0099, y: 0.0977, z: 0.0249}
     localRotation: {x: 0.99150074, y: -0.0000003129243, z: 0.00000029802317, w: 0.13010114}

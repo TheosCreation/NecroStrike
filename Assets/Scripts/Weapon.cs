@@ -31,8 +31,6 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool isReloading = false;
     public bool isInspecting = false;
     [Header("Attacking")]
-    [SerializeField] private float damage = 50.0f;
-    [SerializeField] private float damageFallOffDistance = 100.0f;
     [SerializeField] private float fireRatePerSecond = 3f;
     [SerializeField] private WeaponClass weaponClass = WeaponClass.Rifle;
     float lastShotTime = 0;
@@ -58,6 +56,9 @@ public class Weapon : MonoBehaviour, IInteractable
     [Header("Ammo and Damage")]
     [SerializeField] private int magSize = 30;
     [SerializeField] private int startingAmmoReserve = 1000;
+    [SerializeField] private float damage = 50.0f;
+    [SerializeField] private float damageFallOffDistance = 100.0f;
+    [SerializeField] private float headShotMultiplier = 1.5f;
     private int ammoLeft = 0;
     private int ammoReserve = 0;
 
@@ -194,6 +195,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     void Update()
     {
+        //attacking
         if (isAttacking)
         {
             if (CanShoot() && isEquip && !isReloading && !isInspecting)
@@ -206,6 +208,19 @@ public class Weapon : MonoBehaviour, IInteractable
                 {
                     Reload();
                 }
+            }
+        }
+
+        //zooming
+        if (holder != null)
+        {
+            if (CanZoom())
+            {
+                holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset);
+            }
+            else
+            {
+                holder.player.playerLook.ResetZoomLevel();
             }
         }
     }
@@ -246,6 +261,12 @@ public class Weapon : MonoBehaviour, IInteractable
             }
             return false;
         }
+    }
+
+    private bool CanZoom()
+    {
+        if (isAiming && !isReloading) return true;
+        return false;
     }
 
     public void Inspect()
@@ -304,6 +325,7 @@ public class Weapon : MonoBehaviour, IInteractable
         {
             isAttacking = false;
         }
+
     }
 
     private void ApplyRecoil()
@@ -337,11 +359,15 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         BulletTrail bulletTrail = Instantiate(bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
         bulletTrail.Init(hit.point, hit.normal);
-
-        var damageable = hit.collider.GetComponent<IDamageable>();
+        var collider = hit.collider;
+        var damageable = collider.GetComponent<IDamageable>();
+        if(damageable == null) damageable = collider.transform.root.GetComponent<IDamageable>();
         if (damageable != null)
         {
-            damageable.Damage(damage);
+            float hitDamage = damage;
+            if (collider.tag == "Head") hitDamage *= headShotMultiplier;
+
+            damageable.Damage(hitDamage);
             bulletTrail.hitCharacter = true;
         }
     }
@@ -452,11 +478,6 @@ public class Weapon : MonoBehaviour, IInteractable
         {
             attachedScope.SetZoom(true);
         }
-
-        if (holder != null)
-        {
-            holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset);
-        }
     }
 
     public void StopAiming()
@@ -469,10 +490,6 @@ public class Weapon : MonoBehaviour, IInteractable
         }
 
         UiManager.Instance.SetCrosshair(true);
-        if (holder != null)
-        {
-            holder.player.playerLook.ResetZoomLevel();
-        }
     }
 
     public void Reload()

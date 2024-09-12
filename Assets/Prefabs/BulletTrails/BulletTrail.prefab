@@ -148,10 +148,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 8080828592214714553}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cdca0cfec36e054f9d956f855ed0e38, type: 3}
+  m_Script: {fileID: 11500000, guid: 8734977fc523a0942ba543a6225b30fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 1
+  lifeTime: 3
   speed: 100
   spawnImpact: 1
   hitCharacter: 0

@@ -9848,10 +9848,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2298868330319646590}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c62bec3eb5a72d0478ff810775e4fe40, type: 3}
+  m_Script: {fileID: 11500000, guid: fac9ba7a5660df1499037cfda7ffdc44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 10
+  lifeTime: 3
 --- !u!1 &4887718573867810782
 GameObject:
   m_ObjectHideFlags: 0
