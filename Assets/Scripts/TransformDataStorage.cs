@@ -10,11 +10,15 @@ public class TransformDataStorage : ScriptableObject
         public Quaternion localRotation;
     }
 
+    // Arrays to store hand IK transforms
     public TransformData[] leftHandTransforms = new TransformData[6];
     public TransformData[] rightHandTransforms = new TransformData[6];
 
-    // Method to save local transforms
-    public void SaveLocalTransforms(Transform[] leftHand, Transform[] rightHand)
+    // List to store attachment point transforms for the weapon
+    public TransformData[] attachmentPointTransforms;
+
+    // Method to save local hand transforms
+    public void SaveLocalHandTransforms(Transform[] leftHand, Transform[] rightHand)
     {
         for (int i = 0; i < leftHand.Length; i++)
         {
@@ -29,8 +33,8 @@ public class TransformDataStorage : ScriptableObject
         }
     }
 
-    // Method to load local transforms
-    public void LoadLocalTransforms(Transform[] leftHand, Transform[] rightHand)
+    // Method to load local hand transforms
+    public void LoadLocalHandTransforms(Transform[] leftHand, Transform[] rightHand)
     {
         for (int i = 0; i < leftHand.Length; i++)
         {
@@ -44,4 +48,45 @@ public class TransformDataStorage : ScriptableObject
             rightHand[i].localRotation = rightHandTransforms[i].localRotation;
         }
     }
+
+    // Method to save local attachment point transforms
+    public void SaveLocalAttachmentPointTransforms(Transform[] attachPoints)
+    {
+        // Resize the attachment point array to match the number of points
+        attachmentPointTransforms = new TransformData[attachPoints.Length];
+
+        for (int i = 0; i < attachPoints.Length; i++)
+        {
+            attachmentPointTransforms[i] = new TransformData
+            {
+                localPosition = attachPoints[i].localPosition,
+                localRotation = attachPoints[i].localRotation
+            };
+        }
+    }
+
+    // Method to load local attachment point transforms
+    public void LoadLocalAttachmentPointTransforms(Transform[] attachPoints)
+    {
+        // Check if the attachmentPointTransforms array is null or has no data
+        if (attachmentPointTransforms == null || attachmentPointTransforms.Length == 0)
+        {
+            Debug.LogError("No attachment point transforms have been saved or the array is uninitialized.");
+            return;
+        }
+
+        // Ensure the array lengths match
+        if (attachPoints.Length != attachmentPointTransforms.Length)
+        {
+            Debug.LogError("Mismatch between saved attachment point transforms and provided attachment points.");
+            return;
+        }
+
+        for (int i = 0; i < attachPoints.Length; i++)
+        {
+            attachPoints[i].localPosition = attachmentPointTransforms[i].localPosition;
+            attachPoints[i].localRotation = attachmentPointTransforms[i].localRotation;
+        }
+    }
+
 }

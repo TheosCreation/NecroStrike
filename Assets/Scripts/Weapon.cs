@@ -11,15 +11,16 @@ public enum Firemode
 public enum WeaponClass
 {
     Rifle,
-    Pistol
+    Pistol,
+    Sniper
 }
 
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : MonoBehaviour, IInteractable
 {
-    private Animator animator;
+    protected Animator animator;
     private Rigidbody rb;
-    private WeaponHolder holder;
+    protected WeaponHolder holder;
     [SerializeField] private Collider collisionCollider;
     [SerializeField] private Transform muzzleTransform;
     [SerializeField] private Transform casingEjectionTransform;
@@ -30,15 +31,22 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool isAttacking = false;
     public bool isReloading = false;
     public bool isInspecting = false;
+    public bool isBoltAction = false;
+
     [Header("Attacking")]
     [SerializeField] private float fireRatePerSecond = 3f;
     [SerializeField] private WeaponClass weaponClass = WeaponClass.Rifle;
-    float lastShotTime = 0;
-    [SerializeField] private LayerMask hitLayers;
+    protected float lastShotTime = 0;
+    [SerializeField] protected LayerMask hitLayers;
     [SerializeField] private BulletTrail bulletTrailPrefab;
     [SerializeField] private MuzzleFlash[] muzzleFlashPrefabs;
     [SerializeField] private Casing casingPrefab;
-    [SerializeField] private Firemode firemode = Firemode.Auto;
+    [SerializeField] protected Firemode firemode = Firemode.Auto;
+
+    [Header("Penetration")] 
+    [SerializeField] private float penetrationFactor = 0.5f;
+    [SerializeField] private int allowedHitCount = 3;
+
     [Header("Burst Firing")]
     [SerializeField] private float burstCooldown = 1f;
     private int burstShotsFired = 0;
@@ -50,14 +58,14 @@ public class Weapon : MonoBehaviour, IInteractable
     [SerializeField] private float recoilResetTimeSeconds = 1f;
     private int currentRecoilIndex = 0;
 
-    [SerializeField] private float screenShakeDuration = 0.1f;
-    [SerializeField] private float screenShakeAmount = 1.0f;
+    [SerializeField] protected float screenShakeDuration = 0.1f;
+    [SerializeField] protected float screenShakeAmount = 1.0f;
 
     [Header("Ammo and Damage")]
     [SerializeField] private int magSize = 30;
     [SerializeField] private int startingAmmoReserve = 1000;
-    [SerializeField] private float damage = 50.0f;
-    [SerializeField] private float damageFallOffDistance = 100.0f;
+    [SerializeField] private float baseDamage = 50.0f;
+    [SerializeField] protected float damageFallOffDistance = 100.0f;
     [SerializeField] private float headShotMultiplier = 1.5f;
     private int ammoLeft = 0;
     private int ammoReserve = 0;
@@ -70,10 +78,17 @@ public class Weapon : MonoBehaviour, IInteractable
     [SerializeField] private float reloadTime = 0.5f;
     private Timer reloadTimer;
 
+    [Header("Bolt Action")]
+    [SerializeField] private float boltDelay = 0.2f;
+    [SerializeField] private float boltActionLength = 0.5f;
+    private Timer boltActionTimer;
+
     [Header("Audio")]
     [SerializeField] private AudioClip[] firingSounds;
     [SerializeField] private AudioClip reloadSound; 
     [SerializeField] private AudioClip aimInSound; 
+    [SerializeField] private AudioClip pickUpClip;
+    [SerializeField] private AudioClip boltAction; //optional
     private AudioSource audioSource;
 
     [Header("Right Hand Setup")]
@@ -93,7 +108,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public Transform IKLeftThumbPos;
 
     [Header("Debugging")]
-    [SerializeField] private bool applyRecoil = true;
+    [SerializeField] protected bool applyRecoil = true;
 
     public class AttachedWeaponPart
     {
@@ -121,6 +136,11 @@ public class Weapon : MonoBehaviour, IInteractable
         holder = transform.root.GetComponent<WeaponHolder>();
         reloadTimer = gameObject.AddComponent<Timer>();
 
+        if(weaponClass == WeaponClass.Sniper && firemode == Firemode.Single)
+        {
+            boltActionTimer = gameObject.AddComponent<Timer>();
+        }
+
         attachedWeaponPartDic = new Dictionary<WeaponPartSO.PartType, AttachedWeaponPart>();
 
         foreach (WeaponBody.PartTypeAttachPoint partTypeAttachPoint in weaponBody.GetPartTypeAttachPointList())
@@ -135,6 +155,8 @@ public class Weapon : MonoBehaviour, IInteractable
         {
             SetPart(weaponPartSO);
         }
+
+        weaponBody.ApplyWeaponSkin();
     }
 
     void Start()
@@ -158,6 +180,8 @@ public class Weapon : MonoBehaviour, IInteractable
         rb.isKinematic = true;
         collisionCollider.enabled = false;
         LayerController.Instance.SetGameObjectAndChildrenLayer(gameObject, LayerMask.NameToLayer("Weapon"));
+
+        PlayPickUpSound();
         //holder = transform.root.GetComponent<WeaponHolder>();
     }
 
@@ -216,10 +240,18 @@ public class Weapon : MonoBehaviour, IInteractable
         {
             if (CanZoom())
             {
+                if (attachedScope && holder)
+                {
+                    attachedScope.SetZoom(true, holder.player.playerLook);
+                }
                 holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset);
             }
             else
             {
+                if (attachedScope && holder)
+                {
+                    attachedScope.SetZoom(false, holder.player.playerLook);
+                }
                 holder.player.playerLook.ResetZoomLevel();
             }
         }
@@ -265,7 +297,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private bool CanZoom()
     {
-        if (isAiming && !isReloading) return true;
+        if (isAiming && !isReloading && !isBoltAction) return true;
         return false;
     }
 
@@ -294,21 +326,40 @@ public class Weapon : MonoBehaviour, IInteractable
         isAttacking = true;
     }
 
-    private void Attack()
+    protected virtual void Attack()
     {
         Vector3 shootDirection = holder.player.playerLook.playerCamera.transform.forward;
         Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
         Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
-        if (Physics.Raycast(startPosition, shootDirection, out RaycastHit hit, damageFallOffDistance, hitLayers))
+        RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, damageFallOffDistance, hitLayers);
+
+        float remainingDamage = baseDamage; 
+        int remainingHits = allowedHitCount;
+        if (hits.Length > 0)
         {
-            HandleHit(hit);
+            foreach (RaycastHit hit in hits)
+            {
+                HandleHit(hit, remainingDamage); // Handle hit with remaining damage
+
+                // Reduce penetration force after each hit
+                remainingDamage *= penetrationFactor;
+
+                // Decrease the remaining allowed hits
+                remainingHits--;
+
+                if (remainingHits <= 0 || remainingDamage <= 0)
+                {
+                    // Stop if we've reached the hit limit or damage is too low
+                    break;
+                }
+            }
         }
         else
         {
-            HandleMiss(shootDirection);
+            HandleMiss(shootDirection); // Handle the case where no enemies are hit
         }
 
-        if(applyRecoil)
+        if (applyRecoil)
             ApplyRecoil();
 
         TakeAmmoFromMag(1);
@@ -324,11 +375,12 @@ public class Weapon : MonoBehaviour, IInteractable
         if(firemode == Firemode.Single)
         {
             isAttacking = false;
+            if (weaponClass == WeaponClass.Sniper) PullBolt();
         }
 
     }
 
-    private void ApplyRecoil()
+    protected void ApplyRecoil()
     {
         float aimingReduction = isAiming ? motionReduction : 1f;
 
@@ -355,7 +407,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     }
 
-    private void HandleHit(RaycastHit hit)
+    protected void HandleHit(RaycastHit hit, float damage)
     {
         BulletTrail bulletTrail = Instantiate(bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
         bulletTrail.Init(hit.point, hit.normal);
@@ -371,8 +423,8 @@ public class Weapon : MonoBehaviour, IInteractable
             bulletTrail.hitCharacter = true;
         }
     }
-    
-    private void HandleMiss(Vector3 shootDirection)
+
+    protected void HandleMiss(Vector3 shootDirection)
     {
         BulletTrail bulletTrail = Instantiate(bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
 
@@ -381,7 +433,7 @@ public class Weapon : MonoBehaviour, IInteractable
         bulletTrail.spawnImpact = false;
     }
 
-    private void TakeAmmoFromMag(int magChange)
+    protected void TakeAmmoFromMag(int magChange)
     {
         //take the ammo from the mag
         ammoLeft -= magChange;
@@ -390,6 +442,21 @@ public class Weapon : MonoBehaviour, IInteractable
         if (!isHeld) return;
 
         UiManager.Instance.UpdateAmmoText(ammoLeft);
+    }
+
+    private void PullBolt()
+    {
+        PlayBoltActionSound();
+        
+        isBoltAction = true;
+        animator.SetBool("BoltAction", true);
+        boltActionTimer.SetTimer(boltActionLength, FinishBolt);
+    }
+
+    private void FinishBolt()
+    {
+        isBoltAction = false;
+        animator.SetBool("BoltAction", false);
     }
 
     private void FillMag()
@@ -424,7 +491,26 @@ public class Weapon : MonoBehaviour, IInteractable
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
 
-    private void PlayRandomFiringSound()
+    private void PlayPickUpSound()
+    {
+        if(pickUpClip == null)
+        {
+            Debug.Log("Weapon does not have a assigned pickup sound");
+        }
+        audioSource.PlayOneShot(pickUpClip);
+    }
+    
+    private void PlayBoltActionSound()
+    {
+        if(boltAction == null)
+        {
+            Debug.Log("Weapon does not have a assigned bolt action sound");
+        }
+        audioSource.clip = boltAction;
+        audioSource.PlayDelayed(boltDelay);
+    }
+
+    protected void PlayRandomFiringSound()
     {
         if(firingSounds.Length == 0) return; //cannot play a firing sound because none is set
 
@@ -434,7 +520,7 @@ public class Weapon : MonoBehaviour, IInteractable
         audioSource.PlayOneShot(randomClip);
     }
 
-    private void SpawnRandomMuzzleFlash()
+    protected void SpawnRandomMuzzleFlash()
     {
         if (muzzleFlashPrefabs.Length == 0) return; //cannot spawn a muzzle flash because none is set
 
@@ -442,7 +528,7 @@ public class Weapon : MonoBehaviour, IInteractable
         Instantiate(muzzleFlashPrefabs[randomIndex], muzzleTransform.position, muzzleTransform.rotation, muzzleTransform);
     }
 
-    private void SpawnCasing()
+    protected void SpawnCasing()
     {
         if (casingPrefab == null) return;
 
@@ -473,21 +559,11 @@ public class Weapon : MonoBehaviour, IInteractable
         PlayAimInSound();
 
         UiManager.Instance.SetCrosshair(false);
-
-        if(attachedScope)
-        {
-            attachedScope.SetZoom(true);
-        }
     }
 
     public void StopAiming()
     { 
         isAiming = false;
-
-        if (attachedScope)
-        {
-            attachedScope.SetZoom(false);
-        }
 
         UiManager.Instance.SetCrosshair(true);
     }

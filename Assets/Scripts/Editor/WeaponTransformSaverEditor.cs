@@ -60,7 +60,7 @@ public class WeaponTransformSaverEditor : Editor
             (Transform)script.GetType().GetField("IKRightThumbPos").GetValue(script)
         };
 
-        transformDataStorage.SaveLocalTransforms(leftHand, rightHand);
+        transformDataStorage.SaveLocalHandTransforms(leftHand, rightHand);
         EditorUtility.SetDirty(transformDataStorage);
         Debug.Log("Local transforms saved successfully!");
     }
@@ -90,7 +90,7 @@ public class WeaponTransformSaverEditor : Editor
             (Transform)script.GetType().GetField("IKRightThumbPos").GetValue(script)
         };
 
-        transformDataStorage.LoadLocalTransforms(leftHand, rightHand);
+        transformDataStorage.LoadLocalHandTransforms(leftHand, rightHand);
         Debug.Log("Local transforms loaded successfully!");
     }
 }

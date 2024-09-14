@@ -4,11 +4,14 @@ public class PlayerLook : MonoBehaviour
 {
     private PlayerController player;
     [Header("Looking")]
-    public float lookSensitivity = 1f;
     [SerializeField] private float cameraOffsetY = 0.1f;
 
+    [Header("Player Options")]
+    public float lookSensitivity = 1f;
+    public int tiltStatus = 1;
+    public float shakeAmount = 1.0f;
+
     [Header("Camera Tilt")]
-    [SerializeField] private int tiltStatus = 1;
     [SerializeField] private float tiltAmount = 2.5f;
     [SerializeField] private float tiltSmoothTime = 0.1f;
 
@@ -23,6 +26,7 @@ public class PlayerLook : MonoBehaviour
 
     [Header("Aiming/Zoom")]
     [SerializeField] private float zoomSmoothness = 60f;
+    public float sensitivityMultiplier = 1.0f;
 
     private float currentXRotation = 0f;
     private float currentTilt = 0;
@@ -30,7 +34,6 @@ public class PlayerLook : MonoBehaviour
     private Rigidbody rb;
 
     [Header("Screen Shake")]
-    [SerializeField] private float shakeAmount = 1.0f;
     private float shakeMagnitude = 0.1f;
     private float shakeEndTime = 0f;
     private Vector3 originalCameraPosition;
@@ -76,11 +79,11 @@ public class PlayerLook : MonoBehaviour
         Vector2 currentMouseDelta = InputManager.Instance.currentMouseDelta;
 
         // Calculate vertical rotation and clamp it
-        currentXRotation -= (currentMouseDelta.y * lookSensitivity) + currentRecoilOffset.y;
+        currentXRotation -= (currentMouseDelta.y * lookSensitivity * sensitivityMultiplier) + currentRecoilOffset.y;
         currentXRotation = Mathf.Clamp(currentXRotation, -85f, 85f);
 
         // Calculate horizontal rotation as a Quaternion
-        Quaternion horizontalRotation = Quaternion.Euler(0f, (currentMouseDelta.x * lookSensitivity) + currentRecoilOffset.x, 0f);
+        Quaternion horizontalRotation = Quaternion.Euler(0f, (currentMouseDelta.x * lookSensitivity * sensitivityMultiplier) + currentRecoilOffset.x, 0f);
 
         // Apply the horizontal rotation to the player body
         rb.MoveRotation(rb.rotation * horizontalRotation);
@@ -90,6 +93,10 @@ public class PlayerLook : MonoBehaviour
             float targetTilt = InputManager.Instance.MovementVector.x * tiltAmount;
             currentTilt = Mathf.SmoothDamp(currentTilt, targetTilt, ref tiltVelocity, tiltSmoothTime);
         }
+        else
+        {
+            currentTilt = 0f;
+        }    
 
         // Rotate the camera vertically and apply tilt
         neckTransform.localRotation = Quaternion.Euler(currentXRotation, originalNeckRotation.y, originalNeckRotation.z);

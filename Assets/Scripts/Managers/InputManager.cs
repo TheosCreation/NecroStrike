@@ -5,6 +5,10 @@ public class InputManager : MonoBehaviour
     public static InputManager Instance { get; private set; }
     public PlayerInput playerInput;
 
+    [Header("Player Settings")]
+    public bool mouseSmoothingStatus = false;
+
+    [Header("Settings")]
     [Range(0.0f, 0.5f)] public float mouseSmoothTime = 0.0f;
     [HideInInspector] public Vector2 currentMouseDelta = Vector2.zero;
     Vector2 currentMouseDeltaVelocity = Vector2.zero;
@@ -37,7 +41,14 @@ public class InputManager : MonoBehaviour
 
         Vector2 targetMouseDelta = playerInput.InGame.Look.ReadValue<Vector2>();
 
-        currentMouseDelta = Vector2.SmoothDamp(currentMouseDelta, targetMouseDelta, ref currentMouseDeltaVelocity, mouseSmoothTime);
+        if(mouseSmoothingStatus)
+        {
+            currentMouseDelta = Vector2.SmoothDamp(currentMouseDelta, targetMouseDelta, ref currentMouseDeltaVelocity, mouseSmoothTime);
+        }
+        else
+        {
+            currentMouseDelta = targetMouseDelta;
+        }
 
     }
 

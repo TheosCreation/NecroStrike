@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         weaponHolder = GetComponentInChildren<WeaponHolder>();
         playerMovement = GetComponent<PlayerMovement>();
+
+        InputManager.Instance.playerInput.Ui.Pause.started += _ctx => PauseManager.Instance.TogglePause();
     }
 
     private void Start()

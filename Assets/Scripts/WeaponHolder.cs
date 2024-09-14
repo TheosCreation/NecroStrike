@@ -85,7 +85,7 @@ public class WeaponHolder : MonoBehaviour
         }
 
         Transform transformToAttachWeapon = idlePos;
-        if (currentWeapon.isAiming && !currentWeapon.isReloading)
+        if (currentWeapon.isAiming && !currentWeapon.isReloading && !currentWeapon.isBoltAction)
         {
             transformToAttachWeapon = aimingPos;
         }
