@@ -11,7 +11,6 @@ public class BulletTrail : MonoBehaviour
     [HideInInspector] public bool hitCharacter = false;
 
     [SerializeField] private Impact stoneImpactPrefab;
-    [SerializeField] private Impact characterImpactPrefab;
 
     Vector3 hitNormal = Vector3.zero;
     public void Init(Vector3 _hitpoint, Vector3 _hitNormal)
@@ -40,9 +39,8 @@ public class BulletTrail : MonoBehaviour
             Vector3 offset = hitNormal * 0.01f;
 
             Impact impactToSpawn = stoneImpactPrefab;
-            if(hitCharacter) impactToSpawn = characterImpactPrefab;
 
-            if(spawnImpact)
+            if(spawnImpact && !hitCharacter)
             {
                 Instantiate(impactToSpawn, hitPosition + offset, Quaternion.LookRotation(hitNormal));
             }

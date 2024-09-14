@@ -18,6 +18,7 @@ public class FlashImage : MonoBehaviour
         image = GetComponent<Image>();
         initialAlpha = image.color.a;
         initialScale = transform.localScale;
+        gameObject.SetActive(false);
     }
 
     private void Update()

@@ -367,7 +367,7 @@ public class Weapon : MonoBehaviour, IInteractable
             float hitDamage = damage;
             if (collider.tag == "Head") hitDamage *= headShotMultiplier;
 
-            damageable.Damage(hitDamage);
+            damageable.Damage(hitDamage, hit.point, hit.normal);
             bulletTrail.hitCharacter = true;
         }
     }

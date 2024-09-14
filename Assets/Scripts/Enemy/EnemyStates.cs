@@ -67,6 +67,8 @@ public class ChaseState : IEnemyState
     float timer = 0.0f;
     public void Enter(Enemy enemy)
     {
+        if (enemy.target == null) return;
+
         enemy.agent.SetDestination(enemy.target.position);
         enemy.animator.SetBool("IsMoving", true);
     }
@@ -83,6 +85,7 @@ public class ChaseState : IEnemyState
         if (timer < 0.0f)
         {
             timer = enemy.updatePathTime;
+            if (enemy.target == null) return;
             enemy.agent.SetDestination(enemy.target.position);
         }
     }
@@ -96,7 +99,6 @@ public class ChaseState : IEnemyState
 public class AttackingState : IEnemyState
 {
     private float attackTime;
-    private float rotationResumeTime;
 
     public void Enter(Enemy enemy)
     {
@@ -110,18 +112,17 @@ public class AttackingState : IEnemyState
         // Check distance to target
         float distanceToTarget = Vector3.Distance(enemy.transform.position, enemy.target.position);
 
+        if (distanceToTarget >= enemy.loseDistance)
+        {
+            // Switch back to chasing if the target is out of sight
+            enemy.StateMachine.ChangeState(new ChaseState(), enemy);
+            return;
+        }
+
         if (Time.time >= attackTime)
         {
-            if (distanceToTarget >= enemy.loseDistance)
-            {
-                // Switch back to chasing if the target is out of sight
-                enemy.StateMachine.ChangeState(new ChaseState(), enemy);
-            }
-            else
-            {
-                enemy.StartAttack();
-                attackTime = Time.time + enemy.attackDelay;
-            }
+            enemy.StartAttack();
+            attackTime = Time.time + enemy.attackDelay;
         }
 
         enemy.LookTowardsTarget();

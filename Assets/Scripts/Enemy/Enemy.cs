@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEngine.UI.Image;
 
 public class Enemy : MonoBehaviour, IDamageable
 {
@@ -11,16 +10,18 @@ public class Enemy : MonoBehaviour, IDamageable
     [HideInInspector] public EnemyStateMachine StateMachine;
 
     [Header("Setup")]
-    [SerializeField] private Transform attackRadiusTransform;
     [SerializeField] private Impact bloodImpactPrefab;
+    [SerializeField] private Collider swingCheck;
+    [SerializeField] private SkinnedMeshRenderer modelRenderer;
 
+    [Header("Spawn")]
+    public float spawnDelay = 1.0f;
     [Header("Settings")]
     public float updatePathTime = 1.0f; // time to update the path towards the target
     public float attackDamage = 1f;
     public float attackDistance = 0.1f;
     public float attackStartDelay = 0.1f;
     public float attackDelay = 1.5f;
-    public float attackDuration = 1.0f;
     public float loseDistance = 5f;
 
     [Header("States")]
@@ -57,7 +58,10 @@ public class Enemy : MonoBehaviour, IDamageable
             .Build();
 
         SetDefaultState();
+
+        swingCheck.GetComponent<DamageTrigger>().damage = attackDamage;
     }
+
     private void SetDefaultState()
     {
         switch (defaultState)
@@ -74,17 +78,27 @@ public class Enemy : MonoBehaviour, IDamageable
     void Start()
     {
         Health = maxHealth;
+        swingCheck.gameObject.SetActive(false);
     }
 
     private void Update()
     {
+        if (spawnDelay > 0)
+        {
+            spawnDelay -= Time.deltaTime;
+            return;
+        }
+
         StateMachine.Update(this);
         currentState = StateMachine.GetCurrentState();
     }
 
-    public void Damage(float damageAmount)
+    public void Damage(float damageAmount, Vector3 point, Vector3 pointNormal)
     {
         Health -= damageAmount;
+        Vector3 offset = pointNormal * 0.01f;
+
+        Instantiate(bloodImpactPrefab, point + offset, Quaternion.LookRotation(pointNormal));
     }
 
     public void Heal(float healAmount)
@@ -95,44 +109,8 @@ public class Enemy : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        OnDeath?.Invoke();
         Destroy(gameObject);
-    }
-
-    public void DealDamageToTarget()
-    {
-        // Define the direction and distance for the line raycast
-        Vector2 rayOrigin = transform.position + new Vector3(0, 0.5f, 0);
-        Vector2 rayDirection = transform.forward;
-        float rayDistance = attackDistance;
-
-        // Perform a line raycast to find a target
-        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, rayDistance);
-
-        // Draw the raycast for debugging purposes
-        Debug.DrawRay(rayOrigin, rayDirection * rayDistance, Color.red, 1f);
-
-        // Check if the raycast hit anything
-        if (hit.collider != null)
-        {
-            // Check if the collider hit has an IDamageable component
-            var damageable = hit.collider.GetComponent<IDamageable>();
-            if (damageable == null)
-            {
-                damageable = hit.collider.transform.root.GetComponent<IDamageable>();
-            }
-
-            // If a damageable component is found, apply damage
-            if (damageable != null)
-            {
-                damageable.Damage(attackDamage);
-            }
-
-            // Spawn the impact effect at the hit point
-            Vector2 hitPosition = hit.point;
-            Vector2 hitNormal = hit.normal;
-
-            Instantiate(bloodImpactPrefab, hitPosition, Quaternion.LookRotation(Vector3.forward, hitNormal));
-        }
     }
 
     public void LookTowardsTarget()
@@ -163,5 +141,10 @@ public class Enemy : MonoBehaviour, IDamageable
     public void EndAttack()
     {
         animator.SetTrigger("CancelAttack");
+    }
+
+    public void SetModel(Mesh newMesh)
+    {
+        modelRenderer.sharedMesh = newMesh;
     }
 }

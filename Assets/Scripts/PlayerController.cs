@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
     public event Action OnDeath;
-
+    [SerializeField] private Impact bloodImpactPrefab;
 
     private void Awake()
     {
@@ -41,10 +41,18 @@ public class PlayerController : MonoBehaviour, IDamageable
         Health = maxHealth;
     }
 
-    public void Damage(float damageAmount)
+    public void Damage(float damageAmount, Vector3 point, Vector3 pointNormal)
     {
         Health -= damageAmount;
         UiManager.Instance.FlashHurtScreen();
+        if (pointNormal == Vector3.zero)
+        {
+            // Provide a default normal direction (e.g., facing forward)
+            pointNormal = transform.forward;
+        }
+        Vector3 offset = pointNormal * 0.01f;
+
+        Instantiate(bloodImpactPrefab, point + offset, Quaternion.LookRotation(pointNormal));
     }
 
     public void Heal(float healAmount)
@@ -55,5 +63,6 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     private void Die()
     {
+        OnDeath?.Invoke();
     }
 }
