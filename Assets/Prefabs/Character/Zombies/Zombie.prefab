@@ -1462,10 +1462,11 @@ MonoBehaviour:
   bloodImpactPrefab: {fileID: -6381912884395275083, guid: 447eabdfd182acd4dae54168e98b90e9, type: 3}
   swingCheck: {fileID: 4714324180505339893}
   modelRenderer: {fileID: 7723520442650030128}
+  spawnDelay: 1
   updatePathTime: 0.1
   attackDamage: 50
   attackDistance: 1.7
-  attackStartDelay: 0.15
+  attackStartDelay: 0.25
   attackDelay: 1
   loseDistance: 1.8
   defaultState: 1

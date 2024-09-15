@@ -104,7 +104,8 @@ public class AttackingState : IEnemyState
     {
         // Start attack delay and animation
         enemy.agent.isStopped = true;
-        attackTime = Time.time + enemy.attackStartDelay;
+        float halfDelay = enemy.attackStartDelay / 4;
+        attackTime = Time.time + enemy.attackStartDelay + Random.Range(-halfDelay, halfDelay);
     }
 
     public void Execute(Enemy enemy)

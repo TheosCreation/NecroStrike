@@ -19,7 +19,7 @@ public class UiManager : MonoBehaviour
     [SerializeField] private TMP_Text ammoText;
     [SerializeField] private TMP_Text ammoReserveText;
     [SerializeField] private TMP_Text speedText;
-    //[SerializeField] private Image weaponIconImage;
+    [SerializeField] private Image playerWeakOverlay;
 
     //public Image image;
     //public UiBar bar;
@@ -89,5 +89,10 @@ public class UiManager : MonoBehaviour
     public void SetCrosshair(bool active)
     {
         crosshair.SetActive(active);
+    }
+
+    public void SetPlayerWeak(bool weak)
+    {
+        playerWeakOverlay.gameObject.SetActive(weak);
     }
 }

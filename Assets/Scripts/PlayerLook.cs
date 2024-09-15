@@ -10,6 +10,7 @@ public class PlayerLook : MonoBehaviour
     public float lookSensitivity = 1f;
     public int tiltStatus = 1;
     public float shakeAmount = 1.0f;
+    public float fov = 60f;
 
     [Header("Camera Tilt")]
     [SerializeField] private float tiltAmount = 2.5f;
@@ -21,7 +22,6 @@ public class PlayerLook : MonoBehaviour
     public Camera playerCamera;
 
     [Header("FOV")]
-    [SerializeField] private float startFov = 60f;
     [SerializeField] private float targetFov = 60f;
 
     [Header("Aiming/Zoom")]
@@ -76,6 +76,7 @@ public class PlayerLook : MonoBehaviour
 
     private void Look()
     {
+        if (PauseManager.Instance.isPaused) return;
         Vector2 currentMouseDelta = InputManager.Instance.currentMouseDelta;
 
         // Calculate vertical rotation and clamp it
@@ -134,12 +135,12 @@ public class PlayerLook : MonoBehaviour
     public void ResetZoomLevel()
     {
         cameraTargetLocalPosition = originalCameraPosition;
-        targetFov = startFov;
+        targetFov = fov;
     }
 
     public void SetZoomLevel(float zoomLevel, float cameraZoomZ)
     {
-        targetFov = startFov * (2 - zoomLevel);
+        targetFov = fov * (2 - zoomLevel);
         cameraTargetLocalPosition = new Vector3(originalCameraPosition.x, originalCameraPosition.y, cameraZoomZ);
     }
 }

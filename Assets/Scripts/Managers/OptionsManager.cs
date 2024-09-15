@@ -86,7 +86,8 @@ public class OptionsManager : MonoBehaviour
     public void UpdateFov(FloatSetting fovSetting)
     {
         float fov = PlayerPrefs.GetFloat(fovSetting.name, fovSetting.defaultValue);
-        Camera.main.fieldOfView = fov;
+        player.playerLook.fov = fov;
+        player.playerLook.ResetZoomLevel();
     }
 
     public void UpdateTilt(BoolSetting tiltSetting)

@@ -4,7 +4,7 @@ public class PauseManager : MonoBehaviour
 {
     public static PauseManager Instance { get; private set; }
 
-    [SerializeField] private bool isPaused = false;
+    public bool isPaused = false;
     public bool canUnpause = true;
 
     private void Awake()
