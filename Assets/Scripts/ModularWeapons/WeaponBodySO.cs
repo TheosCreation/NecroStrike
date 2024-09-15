@@ -12,6 +12,8 @@ public class WeaponBodySO : ScriptableObject
         AsVal,
         Colt9,
         P1911,
+        L96AWS,
+        ScarL,
     }
 
 
