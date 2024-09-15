@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -9,8 +10,9 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float walkMoveSpeed = 4.0f;
-    [SerializeField] private float crouchMoveReduction = 0.5f;
-    [HideInInspector] public float movementReduction = 1.0f;
+    [SerializeField] private float sprintMoveMultiplier = 1.5f;
+    [SerializeField] private float crouchMoveMultiplier = 0.5f;
+    [HideInInspector] public float movementMultiplier = 1.0f;
     private float currentMoveSpeed = 2.0f;
     [SerializeField] private float acceleration = 5.0f;
     [SerializeField] private float deceleration = 2.0f;
@@ -26,14 +28,15 @@ public class PlayerMovement : MonoBehaviour
     [Header("Crouching")]
     [SerializeField] private float crouchHeightMultiplier = 0.5f;
 
-    [Header("Dash")]
-    [SerializeField] public bool isDashing = false;
-    [SerializeField] private bool canDash = true;
-    [SerializeField] private float dashForce = 15.0f;
-    [SerializeField] private float dashDuration = 0.2f;
-    [SerializeField] private float dashCooldown = 2.0f;
-    Timer dashTimer;
-    Timer dashCoolDownTimer;
+    [Header("Sprinting")]
+    [SerializeField] public bool isSprinting = false;
+
+    [Header("Sliding")]
+    [SerializeField] public bool isSliding = false;
+    [SerializeField] private bool canSlide = true;
+    [SerializeField] private float slideForce = 15.0f;
+    [SerializeField] private float slideDuration = 0.2f;
+    Timer slideTimer;
 
     Vector2 movementInput = Vector2.zero;
     private Rigidbody rb;
@@ -58,11 +61,11 @@ public class PlayerMovement : MonoBehaviour
         InputManager.Instance.playerInput.InGame.Jump.started += _ctx => Jump();
         InputManager.Instance.playerInput.InGame.Crouch.started += _ctx => StartCrouching();
         InputManager.Instance.playerInput.InGame.Crouch.canceled += _ctx => EndCrouching();
-        InputManager.Instance.playerInput.InGame.Dash.started += _ctx => Dash(transform.forward, dashForce, dashDuration);
+        InputManager.Instance.playerInput.InGame.Sprint.started += _ctx => StartSprinting();
+        InputManager.Instance.playerInput.InGame.Sprint.canceled += _ctx => EndSprinting();
 
         jumpTimer = gameObject.AddComponent<Timer>();
-        dashTimer = gameObject.AddComponent<Timer>();
-        dashCoolDownTimer = gameObject.AddComponent<Timer>();
+        slideTimer = gameObject.AddComponent<Timer>();
 
         capsuleOriginalHeight = capsule.height;
         capsuleOriginalCenter = capsule.center;
@@ -82,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
         UpdateAnimations();
         PlayFootstepSounds();
 
-        if (isDashing) return;
+        if (isSliding) return;
 
         movementInput = InputManager.Instance.MovementVector;
         animator.SetFloat("InputX", movementInput.x);
@@ -96,25 +99,43 @@ public class PlayerMovement : MonoBehaviour
         Vector3 movement = new Vector3(movementInput.x, 0f, movementInput.y);
         movement = movement.normalized;
 
-        movementController.MoveLocal(movement, walkMoveSpeed * movementReduction, acceleration, deceleration);
+        CheckMoveSpeed();
+        movementController.MoveLocal(movement, walkMoveSpeed * movementMultiplier, acceleration, deceleration);
     }
 
     private void CheckMoveSpeed()
     {
+        float multiplier = 1f;
         if(isCrouching)
         {
-            movementReduction = crouchMoveReduction;
+            multiplier = crouchMoveMultiplier;
+        }
+        else if(isSprinting)
+        {
+            multiplier = sprintMoveMultiplier;
         }
         else
         {
-            movementReduction = 1.0f;
+            multiplier = 1f;
         }
+
+        if (playerController.weaponHolder.currentWeapon != null)
+        {
+            if(playerController.weaponHolder.currentWeapon.isAiming)
+            {
+                multiplier -= playerController.weaponHolder.currentWeapon.aimingMoveReduction;
+            }
+        }
+
+        movementMultiplier = multiplier;
     }
 
     private void UpdateAnimations()
     {
         animator.SetBool("IsMoving", movementController.movement);
         animator.SetBool("IsCrouching", isCrouching);
+        animator.SetBool("IsSprinting", isSprinting);
+        animator.SetBool("IsSliding", isSliding);
     }
 
     void Jump()
@@ -145,17 +166,36 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private void StartCrouching()
-    {
-        isCrouching = true;
+    {   
+        if(isSprinting)
+        {
+            Slide(transform.forward, slideForce, slideDuration);
+        }
+        else
+        {
+            isCrouching = true;
+        }
+
         SetCapsuleHeight(crouchHeightMultiplier);
-        CheckMoveSpeed();
     }
 
     private void EndCrouching()
     {
         isCrouching = false;
-        SetCapsuleHeight(1.0f);
-        CheckMoveSpeed();
+        if(!isSliding)
+        {
+            SetCapsuleHeight(1.0f);
+        }
+    }
+
+    private void StartSprinting()
+    {
+        isSprinting = true;
+    }
+
+    private void EndSprinting()
+    {
+        isSprinting = false;
     }
 
     private void SetCapsuleHeight(float crouchHeightMultiplier)
@@ -164,43 +204,37 @@ public class PlayerMovement : MonoBehaviour
         capsule.center = new Vector3(capsuleOriginalCenter.x, capsuleOriginalCenter.y * crouchHeightMultiplier, capsuleOriginalCenter.z);
     }
 
-    public void Dash(Vector3 dashDirection, float dashForce, float dashDuration, bool ignoreInput = false)
+    public void Slide(Vector3 slideDirection, float slideForce, float slideDuration, bool ignoreInput = false)
     {
-        if (canDash)
+        if (canSlide)
         {
             // If input detected then apply it
             if (movementInput.sqrMagnitude > Mathf.Epsilon && !ignoreInput)
             {
-                dashDirection = new Vector3(movementInput.x, 0, movementInput.y);
-                dashDirection.Normalize();
-                dashDirection = transform.TransformDirection(dashDirection);
+                slideDirection = new Vector3(movementInput.x, 0, movementInput.y);
+                slideDirection.Normalize();
+                slideDirection = transform.TransformDirection(slideDirection);
             }
 
             movementController.ResetVerticalVelocity();
             movementController.ResetHorizontalVelocity();
-            movementController.AddForce(dashDirection * dashForce);
-            movementController.SetFriction(false);
-            isDashing = true;
-            canDash = false;
-            dashTimer.StopTimer();
-            dashTimer.SetTimer(dashDuration, EndDash);
-
-            dashCoolDownTimer.StopTimer();
-            dashCoolDownTimer.SetTimer(dashCooldown, RefreshDash);
+            movementController.AddForce(slideDirection * slideForce);
+            //movementController.SetFriction(false);
+            isSliding = true;
+            canSlide = false;
+            slideTimer.StopTimer();
+            slideTimer.SetTimer(slideDuration, EndSlide);
         }
     }
 
-    void EndDash()
+    void EndSlide()
     {
-        isDashing = false;
-        movementController.SetFriction(true);
+        isSliding = false;
+        SetCapsuleHeight(1.0f);
+        canSlide = true;
+        //movementController.SetFriction(true);
     }
 
-    void RefreshDash()
-    {
-        movementController.SetFriction(true);
-        canDash = true;
-    }
     private void PlayFootstepSounds()
     {
         if (movementController.isGrounded && horizontalMovementSpeed.sqrMagnitude > 0.1f)

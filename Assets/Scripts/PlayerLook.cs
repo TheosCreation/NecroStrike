@@ -77,6 +77,7 @@ public class PlayerLook : MonoBehaviour
     private void Look()
     {
         if (PauseManager.Instance.isPaused) return;
+
         Vector2 currentMouseDelta = InputManager.Instance.currentMouseDelta;
 
         // Calculate vertical rotation and clamp it

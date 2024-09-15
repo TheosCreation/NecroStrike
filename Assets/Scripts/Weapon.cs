@@ -73,6 +73,7 @@ public class Weapon : MonoBehaviour, IInteractable
     [Header("Aiming")]
     [SerializeField] private float aimingZoomLevel = 1.2f;
     [SerializeField] private float cameraZOffset = 0.05f;
+    public float aimingMoveReduction = 0.2f;
 
     [Header("Reloading")]
     [SerializeField] private float reloadTime = 0.5f;

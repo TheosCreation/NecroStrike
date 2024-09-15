@@ -74,7 +74,7 @@ public class WeaponAnim : MonoBehaviour
             float bobbingReduction = player.weaponHolder.currentWeapon.isAiming ? player.weaponHolder.currentWeapon.motionReduction * 0.4f : 1.0f;
 
             // Increase the bob timer based on the bobbing speed
-            bobTimer += Time.deltaTime * bobbingSpeed * player.playerMovement.movementReduction;
+            bobTimer += Time.deltaTime * bobbingSpeed * player.playerMovement.movementMultiplier;
 
             // Calculate the bobbing offset for both X (side-to-side) and Y (up-and-down)
             bobOffsetX = Mathf.Sin(bobTimer * 0.5f) * bobbingAmount * movementVector.x * 0.1f * bobbingReduction; // Side-to-side bobbing
