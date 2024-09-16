@@ -243,15 +243,19 @@ public class Weapon : MonoBehaviour, IInteractable
             {
                 if (attachedScope && holder)
                 {
-                    attachedScope.SetZoom(true, holder.player.playerLook);
+                    attachedScope.SetZoom(true);
+                    holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset, attachedScope.cameraFov / 30);
                 }
-                holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset);
+                else
+                {
+                    holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset, 0.8f);
+                }
             }
             else
             {
                 if (attachedScope && holder)
                 {
-                    attachedScope.SetZoom(false, holder.player.playerLook);
+                    attachedScope.SetZoom(false);
                 }
                 holder.player.playerLook.ResetZoomLevel();
             }

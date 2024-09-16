@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.LowLevel;
 
 public class PlayerLook : MonoBehaviour
 {
@@ -137,11 +138,13 @@ public class PlayerLook : MonoBehaviour
     {
         cameraTargetLocalPosition = originalCameraPosition;
         targetFov = fov;
+        sensitivityMultiplier = 1;
     }
 
-    public void SetZoomLevel(float zoomLevel, float cameraZoomZ)
+    public void SetZoomLevel(float zoomLevel, float cameraZoomZ, float multiplier)
     {
         targetFov = fov * (2 - zoomLevel);
         cameraTargetLocalPosition = new Vector3(originalCameraPosition.x, originalCameraPosition.y, cameraZoomZ);
+        sensitivityMultiplier = multiplier;
     }
 }

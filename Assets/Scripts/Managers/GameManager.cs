@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     //[HideInInspector] public GameState GameState;
     public string mainMenuScene = "MainMenu";
+    public string gameScene = "GameScene";
     private string[] levelScenes;
 
     //private IDataService DataService = new JsonDataService();
@@ -15,7 +16,6 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-
         if (Instance == null)
         {
             Instance = this;
@@ -69,15 +69,7 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        //if (levelScenes.Length > 0)
-        //{
-        //    GameState.currentLevelIndex = 0;
-        //    SceneManager.LoadScene(levelScenes[GameState.currentLevelIndex]);
-        //}
-        //else
-        //{
-        //    Debug.LogError("No levels found that start with 'Level'.");
-        //}
+        SceneManager.LoadScene(gameScene);
     }
 
     public void OpenNextLevel()
