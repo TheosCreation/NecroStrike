@@ -72,7 +72,6 @@ public class MovementController : MonoBehaviour
         {
             rb.velocity = Vector3.zero;
         }
-
     }
 
     private void OnDrawGizmos()

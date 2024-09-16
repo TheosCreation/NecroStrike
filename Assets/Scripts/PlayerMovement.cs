@@ -7,6 +7,8 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector] public MovementController movementController;
     [Header("Audio Clips")]
     [SerializeField] private AudioClip audioClipWalking;
+    [SerializeField] private AudioClip audioClipCrouching;
+    [SerializeField] private AudioClip audioClipSprinting;
 
     [Header("Movement")]
     [SerializeField] private float walkMoveSpeed = 4.0f;
@@ -36,7 +38,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private bool canSlide = true;
     [SerializeField] private float slideForce = 15.0f;
     [SerializeField] private float slideDuration = 0.2f;
+    [SerializeField] private float slideRefreashTime = 0.2f;
     Timer slideTimer;
+    Timer slideRefreashTimer;
 
     Vector2 movementInput = Vector2.zero;
     private Rigidbody rb;
@@ -66,6 +70,7 @@ public class PlayerMovement : MonoBehaviour
 
         jumpTimer = gameObject.AddComponent<Timer>();
         slideTimer = gameObject.AddComponent<Timer>();
+        slideRefreashTimer = gameObject.AddComponent<Timer>();
 
         capsuleOriginalHeight = capsule.height;
         capsuleOriginalCenter = capsule.center;
@@ -88,8 +93,11 @@ public class PlayerMovement : MonoBehaviour
         if (isSliding) return;
 
         movementInput = InputManager.Instance.MovementVector;
-        animator.SetFloat("InputX", movementInput.x);
-        animator.SetFloat("InputY", movementInput.y);
+
+        Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
+        animator.SetFloat("SpeedX", localVelocity.x);
+        animator.SetFloat("SpeedY", localVelocity.z);
+
         if (movementInput == Vector2.zero)
         {
             movementController.movement = false;
@@ -156,6 +164,14 @@ public class PlayerMovement : MonoBehaviour
         isJumping = true;
         jumpTimer.StopTimer();
         jumpTimer.SetTimer(jumpDuration, JumpEnd);
+
+        //cancel slide
+        if(isSliding)
+        {
+            slideTimer.StopTimer();
+            EndSlide();
+            animator.SetTrigger("SlideCancel");
+        }
     }
 
 
@@ -167,7 +183,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartCrouching()
     {   
-        if(isSprinting)
+        if(isSprinting && Mathf.Abs(horizontalMovementSpeed.magnitude) > walkMoveSpeed)
         {
             Slide(transform.forward, slideForce, slideDuration);
         }
@@ -206,7 +222,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void Slide(Vector3 slideDirection, float slideForce, float slideDuration, bool ignoreInput = false)
     {
-        if (canSlide)
+        if (!isSliding && canSlide)
         {
             // If input detected then apply it
             if (movementInput.sqrMagnitude > Mathf.Epsilon && !ignoreInput)
@@ -231,15 +247,31 @@ public class PlayerMovement : MonoBehaviour
     {
         isSliding = false;
         SetCapsuleHeight(1.0f);
-        canSlide = true;
+        slideRefreashTimer.SetTimer(slideRefreashTime, ResetSlide);
         //movementController.SetFriction(true);
+    }
+
+    void ResetSlide()
+    {
+        canSlide = true;
     }
 
     private void PlayFootstepSounds()
     {
         if (movementController.isGrounded && horizontalMovementSpeed.sqrMagnitude > 0.1f)
         {
-            //audioSource.clip = playerCharacter.IsRunning() ? audioClipRunning : audioClipWalking;
+            if (playerController.playerMovement.isSprinting)
+            {
+                audioSource.clip = audioClipSprinting;
+            }
+            else if (playerController.playerMovement.isCrouching)
+            {
+                audioSource.clip = audioClipCrouching;
+            }
+            else
+            {
+                audioSource.clip = audioClipWalking;
+            }
 
             if (!audioSource.isPlaying)
             {
