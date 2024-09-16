@@ -84,6 +84,7 @@ public class ChaseState : IEnemyState
         timer -= Time.deltaTime;
         if (timer < 0.0f)
         {
+            enemy.animator.SetBool("IsMoving", true);
             timer = enemy.updatePathTime;
             if (enemy.target == null) return;
             enemy.agent.SetDestination(enemy.target.position);
