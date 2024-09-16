@@ -689,7 +689,6 @@ GameObject:
   - component: {fileID: 92971900393900197}
   - component: {fileID: 8195467889489816839}
   - component: {fileID: 1322863690021069834}
-  - component: {fileID: 8786451909153584218}
   - component: {fileID: 4412766892687370242}
   m_Layer: 0
   m_Name: L96 AWS
@@ -904,43 +903,11 @@ MonoBehaviour:
   isReloading: 0
   isInspecting: 0
   isBoltAction: 0
-  fireRatePerSecond: 1
-  weaponClass: 2
+  settings: {fileID: 11400000, guid: 0b4314602aa90d84880c5ae3b7ba05fb, type: 2}
   hitLayers:
     serializedVersion: 2
     m_Bits: 1
-  bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
-  muzzleFlashPrefabs:
-  - {fileID: 5348497005603808379, guid: e243a78d231bd62469b81d52947672b5, type: 3}
-  - {fileID: 7753099619729208491, guid: d2153674aced80f4caa7cf11a146d828, type: 3}
-  - {fileID: 1815961635446674128, guid: 0eb5441a5b11b674e958d132d8740e8a, type: 3}
-  - {fileID: 3083625860547727936, guid: 0679d9862f73a534bbff228d82c04758, type: 3}
-  casingPrefab: {fileID: 114121961160874846, guid: 6c61b7126be9465419a6a00e511f329a, type: 3}
-  firemode: 2
-  penetrationFactor: 0.9
-  allowedHitCount: 4
-  burstCooldown: 1
   recoil: {x: 0, y: 0}
-  recoilPattern: {fileID: 8786451909153584218}
-  recoilResetTimeSeconds: 0.25
-  screenShakeDuration: 0.05
-  screenShakeAmount: 0.15
-  magSize: 5
-  startingAmmoReserve: 35
-  baseDamage: 125
-  damageFallOffDistance: 100
-  headShotMultiplier: 1.5
-  aimingZoomLevel: 1.5
-  cameraZOffset: 0.25
-  reloadTime: 2.25
-  boltDelay: 0.2
-  boltActionLength: 0.65
-  firingSounds:
-  - {fileID: 8300000, guid: 6f5081526eb877942b528816635fb2f9, type: 3}
-  reloadSound: {fileID: 8300000, guid: 05e9acaebe65a6e4aaff3930e73bef32, type: 3}
-  aimInSound: {fileID: 8300000, guid: 8d13914dead02c342a47ec0f1e8090fa, type: 3}
-  pickUpClip: {fileID: 8300000, guid: 0ac707ff464a85b448240fd04e59795f, type: 3}
-  boltAction: {fileID: 8300000, guid: 488d07af8774b0945b2c562e1756bbeb, type: 3}
   IKRightHandPos: {fileID: 2251300493469007936}
   IKRightIndexPos: {fileID: 6883977347147949213}
   IKRightMiddlePos: {fileID: 2735462030228187670}
@@ -959,31 +926,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3196aadea98b02c44bbdfb16e7688384, type: 2}
   - {fileID: 11400000, guid: 2d93296b06859ac4b804e6c414f5cd53, type: 2}
   - {fileID: 11400000, guid: cb512e5c57379414b925ef5ea0309584, type: 2}
---- !u!114 &8786451909153584218
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8010655482920579706}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddec9696e79231a4c8a7c4bd9eb435fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pattern:
-  - {x: 0.1, y: 0.2}
-  - {x: 0.1, y: 0.2}
-  - {x: 0.1, y: 0.2}
-  - {x: 0.1, y: 0.2}
-  - {x: 0.1, y: 0.2}
-  - {x: 0.1, y: 0.2}
-  - {x: 0.2, y: 0.1}
-  - {x: 0.2, y: 0.1}
-  - {x: 0.2, y: 0.1}
-  - {x: 0.2, y: 0.1}
-  - {x: 0.2, y: 0.1}
-  - {x: 0.2, y: 0.1}
 --- !u!114 &4412766892687370242
 MonoBehaviour:
   m_ObjectHideFlags: 0

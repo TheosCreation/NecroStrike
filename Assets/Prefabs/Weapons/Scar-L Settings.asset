@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
+  m_Name: Scar-L Settings
+  m_EditorClassIdentifier: 
+  fireRatePerSecond: 10.41
+  weaponClass: 0
+  bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
+  muzzleFlashPrefabs:
+  - {fileID: 3083625860547727936, guid: 0679d9862f73a534bbff228d82c04758, type: 3}
+  casingPrefab: {fileID: 114121961160874846, guid: 6c61b7126be9465419a6a00e511f329a, type: 3}
+  firemode: 0
+  screenShakeDuration: 0.1
+  screenShakeAmount: 0.25
+  penetrationFactor: 0.5
+  allowedHitCount: 3
+  burstCooldown: 1
+  recoilResetTimeSeconds: 1
+  recoilPattern: {fileID: 11400000, guid: 209a4df42d515034a810021c824201bb, type: 2}
+  magSize: 30
+  startingAmmoReserve: 1000
+  baseDamage: 50
+  damageFallOffDistance: 100
+  headShotMultiplier: 1.5
+  spreadAmount: 0.08
+  aimingZoomLevel: 1.2
+  cameraZOffset: 0.23
+  aimingMoveReduction: 0.2
+  reloadTime: 3
+  boltDelay: 0.2
+  boltActionLength: 0.5
+  firingSounds:
+  - {fileID: 8300000, guid: 001691cfd4b9ddf41a00c200a5325751, type: 3}
+  reloadSound: {fileID: 8300000, guid: 1d3bf58db76a313428a506e6e19d2372, type: 3}
+  aimInSound: {fileID: 8300000, guid: 8d13914dead02c342a47ec0f1e8090fa, type: 3}
+  pickUpClip: {fileID: 8300000, guid: eed5c0946144a3e4ea74a3dfe13134d1, type: 3}
+  boltAction: {fileID: 0}

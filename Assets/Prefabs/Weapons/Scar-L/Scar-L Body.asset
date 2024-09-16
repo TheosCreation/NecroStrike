@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c264583a48c450847aafc84f51cd196f, type: 3}
+  m_Name: Scar-L Body
+  m_EditorClassIdentifier: 
+  body: 7
+  prefab: {fileID: 2010128736881114374, guid: 17be5dce64983b845803c69b5742391a, type: 3}
+  weaponPartListSO: {fileID: 11400000, guid: 3c5ddc0031eec384b8f23b90f4a62ba2, type: 2}

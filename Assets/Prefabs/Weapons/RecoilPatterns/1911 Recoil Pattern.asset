@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddec9696e79231a4c8a7c4bd9eb435fe, type: 3}
+  m_Name: 1911 Recoil Pattern
+  m_EditorClassIdentifier: 
+  pattern:
+  - {x: -0.13444379, y: 0.30918056}
+  - {x: -0.027136162, y: 0.3538577}
+  - {x: 0.05344764, y: 0.34801072}
+  - {x: 0.009182841, y: 0.3300574}
+  - {x: 0.030059658, y: 0.4047942}
+  - {x: -0.008770488, y: 0.3271339}
+  - {x: 0.032570817, y: 0.38684082}
+  - {x: -0.006259337, y: 0.37181103}
+  - {x: -0.113566965, y: 0.37473452}
+  - {x: -0.048012994, y: 0.4344415}
+  - {x: 0.08976664, y: 0.31210405}
+  - {x: 0.18538027, y: 0.3509342}
+  - {x: 0.06649271, y: 0.4340292}
+  - {x: -0.017014593, y: 0.39227557}
+  - {x: -0.10052189, y: 0.4340292}
+  - {x: -0.18402919, y: 0.39227554}

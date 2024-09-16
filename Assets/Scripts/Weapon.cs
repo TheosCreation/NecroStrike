@@ -11,6 +11,7 @@ public enum Firemode
 public enum WeaponClass
 {
     Rifle,
+    Smg,
     Pistol,
     Sniper
 }
@@ -33,63 +34,26 @@ public class Weapon : MonoBehaviour, IInteractable
     public bool isInspecting = false;
     public bool isBoltAction = false;
 
+    public WeaponSettings settings;
+
     [Header("Attacking")]
-    [SerializeField] private float fireRatePerSecond = 3f;
-    [SerializeField] private WeaponClass weaponClass = WeaponClass.Rifle;
     protected float lastShotTime = 0;
     [SerializeField] protected LayerMask hitLayers;
-    [SerializeField] private BulletTrail bulletTrailPrefab;
-    [SerializeField] private MuzzleFlash[] muzzleFlashPrefabs;
-    [SerializeField] private Casing casingPrefab;
-    [SerializeField] protected Firemode firemode = Firemode.Auto;
 
-    [Header("Penetration")] 
-    [SerializeField] private float penetrationFactor = 0.5f;
-    [SerializeField] private int allowedHitCount = 3;
-
-    [Header("Burst Firing")]
-    [SerializeField] private float burstCooldown = 1f;
     private int burstShotsFired = 0;
     private float timeSinceLastBurst = 0f;
 
     [Header("Recoil")]
     public Vector2 recoil;
-    [SerializeField] private RecoilPattern recoilPattern;
-    [SerializeField] private float recoilResetTimeSeconds = 1f;
     private int currentRecoilIndex = 0;
 
-    [SerializeField] protected float screenShakeDuration = 0.1f;
-    [SerializeField] protected float screenShakeAmount = 1.0f;
-
-    [Header("Ammo and Damage")]
-    [SerializeField] private int magSize = 30;
-    [SerializeField] private int startingAmmoReserve = 1000;
-    [SerializeField] private float baseDamage = 50.0f;
-    [SerializeField] protected float damageFallOffDistance = 100.0f;
-    [SerializeField] private float headShotMultiplier = 1.5f;
     private int ammoLeft = 0;
     private int ammoReserve = 0;
 
-    [Header("Aiming")]
-    [SerializeField] private float aimingZoomLevel = 1.2f;
-    [SerializeField] private float cameraZOffset = 0.05f;
-    public float aimingMoveReduction = 0.2f;
-
-    [Header("Reloading")]
-    [SerializeField] private float reloadTime = 0.5f;
     private Timer reloadTimer;
 
-    [Header("Bolt Action")]
-    [SerializeField] private float boltDelay = 0.2f;
-    [SerializeField] private float boltActionLength = 0.5f;
     private Timer boltActionTimer;
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip[] firingSounds;
-    [SerializeField] private AudioClip reloadSound; 
-    [SerializeField] private AudioClip aimInSound; 
-    [SerializeField] private AudioClip pickUpClip;
-    [SerializeField] private AudioClip boltAction; //optional
     private AudioSource audioSource;
 
     [Header("Right Hand Setup")]
@@ -137,7 +101,7 @@ public class Weapon : MonoBehaviour, IInteractable
         holder = transform.root.GetComponent<WeaponHolder>();
         reloadTimer = gameObject.AddComponent<Timer>();
 
-        if(weaponClass == WeaponClass.Sniper && firemode == Firemode.Single)
+        if(settings.weaponClass == WeaponClass.Sniper && settings.firemode == Firemode.Single)
         {
             boltActionTimer = gameObject.AddComponent<Timer>();
         }
@@ -162,7 +126,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     void Start()
     {
-        ammoReserve = startingAmmoReserve;
+        ammoReserve = settings.startingAmmoReserve;
         FillMag();
 
         if (holder != null)
@@ -244,11 +208,11 @@ public class Weapon : MonoBehaviour, IInteractable
                 if (attachedScope && holder)
                 {
                     attachedScope.SetZoom(true);
-                    holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset, attachedScope.cameraFov / 30);
+                    holder.player.playerLook.SetZoomLevel(settings.aimingZoomLevel, settings.cameraZOffset, attachedScope.cameraFov / 30);
                 }
                 else
                 {
-                    holder.player.playerLook.SetZoomLevel(aimingZoomLevel, cameraZOffset, 0.8f);
+                    holder.player.playerLook.SetZoomLevel(settings.aimingZoomLevel, settings.cameraZOffset, 0.8f);
                 }
             }
             else
@@ -264,10 +228,10 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private bool CanShoot()
     {
-        if (firemode == Firemode.Burst)
+        if (settings.firemode == Firemode.Burst)
         {
             // Check if we are within the burst cooldown
-            if (Time.time - lastShotTime >= 1 / fireRatePerSecond)
+            if (Time.time - lastShotTime >= 1 / settings.fireRatePerSecond)
             {
                 // Allow to shoot until 3 shots are fired
                 if (burstShotsFired < 3)
@@ -279,7 +243,7 @@ public class Weapon : MonoBehaviour, IInteractable
                 else
                 {
                     // If 3 shots are fired, reset burst shots after cooldown
-                    if (Time.time - timeSinceLastBurst >= burstCooldown)
+                    if (Time.time - timeSinceLastBurst >= settings.burstCooldown)
                     {
                         burstShotsFired = 0; // Reset burst shots
                         timeSinceLastBurst = Time.time; // Reset time since the last burst
@@ -292,7 +256,7 @@ public class Weapon : MonoBehaviour, IInteractable
         else
         {
             // Handle Auto and Single Fire modes
-            if (Time.time - lastShotTime >= 1 / fireRatePerSecond)
+            if (Time.time - lastShotTime >= 1 / settings.fireRatePerSecond)
             {
                 return true;
             }
@@ -334,12 +298,24 @@ public class Weapon : MonoBehaviour, IInteractable
     protected virtual void Attack()
     {
         Vector3 shootDirection = holder.player.playerLook.playerCamera.transform.forward;
-        Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
-        Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
-        RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, damageFallOffDistance, hitLayers);
+        //if not aiming we add spread
+        if (!isAiming)
+        {
+            float spread = settings.spreadAmount;
+            shootDirection.x += Random.Range(-spread, spread);
+            shootDirection.y += Random.Range(-spread, spread);
+            shootDirection.z += Random.Range(-spread, spread);
 
-        float remainingDamage = baseDamage; 
-        int remainingHits = allowedHitCount;
+            shootDirection.Normalize();
+        }
+
+        Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
+
+        Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
+        RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, settings.damageFallOffDistance, hitLayers);
+
+        float remainingDamage = settings.baseDamage; 
+        int remainingHits = settings.allowedHitCount;
         if (hits.Length > 0)
         {
             foreach (RaycastHit hit in hits)
@@ -347,7 +323,7 @@ public class Weapon : MonoBehaviour, IInteractable
                 HandleHit(hit, remainingDamage); // Handle hit with remaining damage
 
                 // Reduce penetration force after each hit
-                remainingDamage *= penetrationFactor;
+                remainingDamage *= settings.penetrationFactor;
 
                 // Decrease the remaining allowed hits
                 remainingHits--;
@@ -368,7 +344,7 @@ public class Weapon : MonoBehaviour, IInteractable
             ApplyRecoil();
 
         TakeAmmoFromMag(1);
-        holder.player.playerLook.TriggerScreenShake(screenShakeDuration, screenShakeAmount * motionReduction * 0.01f);
+        holder.player.playerLook.TriggerScreenShake(settings.screenShakeDuration, settings.screenShakeAmount * motionReduction * 0.01f);
         PlayRandomFiringSound(); 
         SpawnRandomMuzzleFlash(); 
         SpawnCasing();
@@ -377,12 +353,16 @@ public class Weapon : MonoBehaviour, IInteractable
         // Update the last shot time
         lastShotTime = Time.time;
 
-        if(firemode == Firemode.Single)
+        if(settings.firemode == Firemode.Single)
         {
             isAttacking = false;
-            if (weaponClass == WeaponClass.Sniper) PullBolt();
+            if (settings.weaponClass == WeaponClass.Sniper) PullBolt();
         }
 
+        if(ammoLeft <= 0)
+        {
+            Reload();
+        }
     }
 
     protected void ApplyRecoil()
@@ -390,17 +370,17 @@ public class Weapon : MonoBehaviour, IInteractable
         float aimingReduction = isAiming ? motionReduction : 1f;
 
         // Ensure recoil is updated only when enough time has passed
-        if (Time.time - lastShotTime >= recoilResetTimeSeconds)
+        if (Time.time - lastShotTime >= settings.recoilResetTimeSeconds)
         {
             recoil = Vector2.zero;
-            recoil += recoilPattern.pattern[0] * aimingReduction;
+            recoil += settings.recoilPattern.pattern[0] * aimingReduction;
             currentRecoilIndex = 1;
         }
         else
         {
-            recoil += recoilPattern.pattern[currentRecoilIndex] * aimingReduction;
+            recoil += settings.recoilPattern.pattern[currentRecoilIndex] * aimingReduction;
 
-            if (currentRecoilIndex + 1 < recoilPattern.pattern.Length)
+            if (currentRecoilIndex + 1 < settings.recoilPattern.pattern.Length)
             {
                 currentRecoilIndex++;
             }
@@ -414,7 +394,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     protected void HandleHit(RaycastHit hit, float damage)
     {
-        BulletTrail bulletTrail = Instantiate(bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
+        BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
         bulletTrail.Init(hit.point, hit.normal);
         var collider = hit.collider;
         var damageable = collider.GetComponent<IDamageable>();
@@ -422,7 +402,7 @@ public class Weapon : MonoBehaviour, IInteractable
         if (damageable != null)
         {
             float hitDamage = damage;
-            if (collider.tag == "Head") hitDamage *= headShotMultiplier;
+            if (collider.tag == "Head") hitDamage *= settings.headShotMultiplier;
 
             damageable.Damage(hitDamage, hit.point, hit.normal);
             bulletTrail.hitCharacter = true;
@@ -431,9 +411,9 @@ public class Weapon : MonoBehaviour, IInteractable
 
     protected void HandleMiss(Vector3 shootDirection)
     {
-        BulletTrail bulletTrail = Instantiate(bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
+        BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
 
-        Vector3 pointAlongShootDirection = shootDirection * damageFallOffDistance;
+        Vector3 pointAlongShootDirection = shootDirection * settings.damageFallOffDistance;
         bulletTrail.Init(pointAlongShootDirection, Vector3.zero);
         bulletTrail.spawnImpact = false;
     }
@@ -455,7 +435,7 @@ public class Weapon : MonoBehaviour, IInteractable
         
         isBoltAction = true;
         animator.SetBool("BoltAction", true);
-        boltActionTimer.SetTimer(boltActionLength, FinishBolt);
+        boltActionTimer.SetTimer(settings.boltActionLength, FinishBolt);
     }
 
     private void FinishBolt()
@@ -467,7 +447,7 @@ public class Weapon : MonoBehaviour, IInteractable
     private void FillMag()
     {
         // Calculate the amount of ammo needed to fill the magazine
-        int ammoNeeded = magSize - ammoLeft;
+        int ammoNeeded = settings.magSize - ammoLeft;
 
         // Check if the reserve has enough ammo
         if (ammoReserve >= ammoNeeded)
@@ -498,56 +478,56 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private void PlayPickUpSound()
     {
-        if(pickUpClip == null)
+        if(settings.pickUpClip == null)
         {
             Debug.Log("Weapon does not have a assigned pickup sound");
         }
-        audioSource.PlayOneShot(pickUpClip);
+        audioSource.PlayOneShot(settings.pickUpClip);
     }
     
     private void PlayBoltActionSound()
     {
-        if(boltAction == null)
+        if(settings.boltAction == null)
         {
             Debug.Log("Weapon does not have a assigned bolt action sound");
         }
-        audioSource.clip = boltAction;
-        audioSource.PlayDelayed(boltDelay);
+        audioSource.clip = settings.boltAction;
+        audioSource.PlayDelayed(settings.boltDelay);
     }
 
     protected void PlayRandomFiringSound()
     {
-        if(firingSounds.Length == 0) return; //cannot play a firing sound because none is set
+        if(settings.firingSounds.Length == 0) return; //cannot play a firing sound because none is set
 
-        int randomIndex = Random.Range(0, firingSounds.Length);
-        AudioClip randomClip = firingSounds[randomIndex];
+        int randomIndex = Random.Range(0, settings.firingSounds.Length);
+        AudioClip randomClip = settings.firingSounds[randomIndex];
 
         audioSource.PlayOneShot(randomClip);
     }
 
     protected void SpawnRandomMuzzleFlash()
     {
-        if (muzzleFlashPrefabs.Length == 0) return; //cannot spawn a muzzle flash because none is set
+        if (settings.muzzleFlashPrefabs.Length == 0) return; //cannot spawn a muzzle flash because none is set
 
-        int randomIndex = Random.Range(0, muzzleFlashPrefabs.Length);
-        Instantiate(muzzleFlashPrefabs[randomIndex], muzzleTransform.position, muzzleTransform.rotation, muzzleTransform);
+        int randomIndex = Random.Range(0, settings.muzzleFlashPrefabs.Length);
+        Instantiate(settings.muzzleFlashPrefabs[randomIndex], muzzleTransform.position, muzzleTransform.rotation, muzzleTransform);
     }
 
     protected void SpawnCasing()
     {
-        if (casingPrefab == null) return;
+        if (settings.casingPrefab == null) return;
 
-        Instantiate(casingPrefab, casingEjectionTransform.position, casingEjectionTransform.rotation);
+        Instantiate(settings.casingPrefab, casingEjectionTransform.position, casingEjectionTransform.rotation);
     }
 
     private void PlayReloadSound()
     {
-        audioSource.PlayOneShot(reloadSound);
+        audioSource.PlayOneShot(settings.reloadSound);
     }
     
     private void PlayAimInSound()
     {
-        audioSource.PlayOneShot(aimInSound);
+        audioSource.PlayOneShot(settings.aimInSound);
     }
 
     public void StopAttacking()
@@ -575,14 +555,14 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public void Reload()
     {
-        if (!isReloading && ammoLeft < magSize && ammoReserve > 0 && !isInspecting)
+        if (!isReloading && ammoLeft < settings.magSize && ammoReserve > 0 && !isInspecting)
         {
             isReloading = true;
 
             PlayReloadSound(); 
             animator.SetTrigger("Reload");
 
-            reloadTimer.SetTimer(reloadTime, FinishReload);
+            reloadTimer.SetTimer(settings.reloadTime, FinishReload);
         }
     }
 

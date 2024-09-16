@@ -127,11 +127,12 @@ public class PlayerMovement : MonoBehaviour
             multiplier = 1f;
         }
 
-        if (playerController.weaponHolder.currentWeapon != null)
+        Weapon currentWeapon = playerController.weaponHolder.currentWeapon;
+        if (currentWeapon != null)
         {
-            if(playerController.weaponHolder.currentWeapon.isAiming)
+            if(currentWeapon.isAiming)
             {
-                multiplier -= playerController.weaponHolder.currentWeapon.aimingMoveReduction;
+                multiplier -= currentWeapon.settings.aimingMoveReduction;
             }
         }
 

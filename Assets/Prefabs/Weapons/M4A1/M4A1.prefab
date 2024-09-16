@@ -524,7 +524,6 @@ GameObject:
   - component: {fileID: 6088994580049030370}
   - component: {fileID: 1197272105455557920}
   - component: {fileID: 2764274788240866195}
-  - component: {fileID: 5966889508760973696}
   - component: {fileID: 3226344994966046469}
   m_Layer: 6
   m_Name: M4A1
@@ -738,36 +737,12 @@ MonoBehaviour:
   isAttacking: 0
   isReloading: 0
   isInspecting: 0
-  damage: 50
-  damageFallOffDistance: 100
-  fireRatePerSecond: 11.6
-  weaponClass: 0
+  isBoltAction: 0
+  settings: {fileID: 11400000, guid: 7906876e2bde73648aea65ead0d7875a, type: 2}
   hitLayers:
     serializedVersion: 2
     m_Bits: 1
-  bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
-  muzzleFlashPrefabs:
-  - {fileID: 5348497005603808379, guid: e243a78d231bd62469b81d52947672b5, type: 3}
-  - {fileID: 7753099619729208491, guid: d2153674aced80f4caa7cf11a146d828, type: 3}
-  - {fileID: 1815961635446674128, guid: 0eb5441a5b11b674e958d132d8740e8a, type: 3}
-  - {fileID: 3083625860547727936, guid: 0679d9862f73a534bbff228d82c04758, type: 3}
-  casingPrefab: {fileID: 114121961160874846, guid: 6c61b7126be9465419a6a00e511f329a, type: 3}
-  firemode: 0
-  burstCooldown: 0.5
   recoil: {x: 0, y: 0}
-  recoilPattern: {fileID: 5966889508760973696}
-  recoilResetTimeSeconds: 0.25
-  screenShakeDuration: 0.1
-  screenShakeAmount: 0.075
-  magSize: 30
-  startingAmmoReserve: 180
-  aimingZoomLevel: 1.2
-  cameraZOffset: 0.05
-  reloadTime: 2.25
-  firingSounds:
-  - {fileID: 8300000, guid: 05d4208f1977f0d4f81c0237ff900011, type: 3}
-  reloadSound: {fileID: 8300000, guid: bba630f63376da942816529c178ebc4a, type: 3}
-  aimInSound: {fileID: 8300000, guid: 8d13914dead02c342a47ec0f1e8090fa, type: 3}
   IKRightHandPos: {fileID: 1639090217820611416}
   IKRightIndexPos: {fileID: 385855749276888850}
   IKRightMiddlePos: {fileID: 8009535121124142920}
@@ -782,42 +757,6 @@ MonoBehaviour:
   IKLeftThumbPos: {fileID: 6750061837941721771}
   applyRecoil: 1
   defaultWeaponPartSOList: []
---- !u!114 &5966889508760973696
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7086361851052307497}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddec9696e79231a4c8a7c4bd9eb435fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pattern:
-  - {x: -0.07181331, y: 0.22567326}
-  - {x: -0.08976664, y: 0.20771994}
-  - {x: -0.07181331, y: 0.24362658}
-  - {x: 0.071813315, y: 0.22567329}
-  - {x: 0.07181331, y: 0.27953324}
-  - {x: 0.053859986, y: 0.24362658}
-  - {x: -0.07181331, y: 0.2615799}
-  - {x: -0.08976664, y: 0.22567326}
-  - {x: -0.07181331, y: 0.20771994}
-  - {x: -0.089766644, y: 0.22567326}
-  - {x: 0.08976664, y: 0.20771994}
-  - {x: 0.14362662, y: 0.22567327}
-  - {x: 0.15, y: 0.1}
-  - {x: 0.15, y: 0.1}
-  - {x: 0.15, y: 0.1}
-  - {x: 0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
 --- !u!114 &3226344994966046469
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -830,6 +769,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa6b35e0972461e41ad911fe0d672756, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponSkin: {fileID: 0}
+  baseBody: {fileID: 0}
   weaponBodySO: {fileID: 0}
   partTypeAttachPointList: []
 --- !u!1 &7305627433445693762

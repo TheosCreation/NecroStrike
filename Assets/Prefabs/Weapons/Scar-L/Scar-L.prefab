@@ -24,8 +24,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 139062884126846392}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.12760715, y: 0.028543197, z: -0.20932318, w: -0.9690643}
-  m_LocalPosition: {x: -0.0566, y: 0.0551, z: 0.0194}
+  m_LocalRotation: {x: -0.21707171, y: 0.008975859, z: -0.21106963, w: -0.953021}
+  m_LocalPosition: {x: -0.0585, y: 0.0572, z: 0.0278}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -45,7 +45,6 @@ GameObject:
   - component: {fileID: 3493601448495647976}
   - component: {fileID: 8455122666095078168}
   - component: {fileID: 7658068025310844199}
-  - component: {fileID: 4247676955769884738}
   - component: {fileID: 8664736661331157272}
   m_Layer: 6
   m_Name: Scar-L
@@ -260,43 +259,12 @@ MonoBehaviour:
   isReloading: 0
   isInspecting: 0
   isBoltAction: 0
-  fireRatePerSecond: 11.6
-  weaponClass: 0
+  settings: {fileID: 11400000, guid: e74b45d7bed988a4593bd131f6757614, type: 2}
   hitLayers:
     serializedVersion: 2
     m_Bits: 1
-  bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
-  muzzleFlashPrefabs:
-  - {fileID: 5348497005603808379, guid: e243a78d231bd62469b81d52947672b5, type: 3}
-  - {fileID: 7753099619729208491, guid: d2153674aced80f4caa7cf11a146d828, type: 3}
-  - {fileID: 1815961635446674128, guid: 0eb5441a5b11b674e958d132d8740e8a, type: 3}
-  - {fileID: 3083625860547727936, guid: 0679d9862f73a534bbff228d82c04758, type: 3}
-  casingPrefab: {fileID: 114121961160874846, guid: 6c61b7126be9465419a6a00e511f329a, type: 3}
-  firemode: 0
-  penetrationFactor: 0.5
-  allowedHitCount: 3
-  burstCooldown: 0.5
   recoil: {x: 0, y: 0}
-  recoilPattern: {fileID: 4247676955769884738}
-  recoilResetTimeSeconds: 0.25
-  screenShakeDuration: 0.05
-  screenShakeAmount: 0.2
-  magSize: 30
-  startingAmmoReserve: 180
-  baseDamage: 50
-  damageFallOffDistance: 100
-  headShotMultiplier: 1.5
-  aimingZoomLevel: 1.2
-  cameraZOffset: 0.23
-  reloadTime: 2.25
-  boltDelay: 0.2
-  boltActionLength: 0.5
-  firingSounds:
-  - {fileID: 8300000, guid: 001691cfd4b9ddf41a00c200a5325751, type: 3}
-  reloadSound: {fileID: 8300000, guid: 1d3bf58db76a313428a506e6e19d2372, type: 3}
-  aimInSound: {fileID: 8300000, guid: 8d13914dead02c342a47ec0f1e8090fa, type: 3}
-  pickUpClip: {fileID: 8300000, guid: eed5c0946144a3e4ea74a3dfe13134d1, type: 3}
-  boltAction: {fileID: 0}
+  recoilPattern: {fileID: 11400000, guid: 209a4df42d515034a810021c824201bb, type: 2}
   IKRightHandPos: {fileID: 6547684579339515662}
   IKRightIndexPos: {fileID: 3004442211967128505}
   IKRightMiddlePos: {fileID: 8683439017628512757}
@@ -311,42 +279,6 @@ MonoBehaviour:
   IKLeftThumbPos: {fileID: 8140396113563256367}
   applyRecoil: 1
   defaultWeaponPartSOList: []
---- !u!114 &4247676955769884738
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 168088244643594973}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddec9696e79231a4c8a7c4bd9eb435fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pattern:
-  - {x: -0.07181331, y: 0.22567326}
-  - {x: -0.08976664, y: 0.20771994}
-  - {x: -0.07181331, y: 0.24362658}
-  - {x: 0.071813315, y: 0.22567329}
-  - {x: 0.07181331, y: 0.27953324}
-  - {x: 0.053859986, y: 0.24362658}
-  - {x: -0.07181331, y: 0.2615799}
-  - {x: -0.08976664, y: 0.22567326}
-  - {x: -0.07181331, y: 0.20771994}
-  - {x: -0.089766644, y: 0.22567326}
-  - {x: 0.08976664, y: 0.20771994}
-  - {x: 0.14362662, y: 0.22567327}
-  - {x: 0.15, y: 0.1}
-  - {x: 0.15, y: 0.1}
-  - {x: 0.15, y: 0.1}
-  - {x: 0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
-  - {x: -0.15, y: 0.1}
 --- !u!114 &8664736661331157272
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -528,7 +460,7 @@ Transform:
   m_GameObject: {fileID: 2038729197165307970}
   serializedVersion: 2
   m_LocalRotation: {x: 0.70666516, y: 0.32476208, z: 0.024988122, w: 0.6281159}
-  m_LocalPosition: {x: 0, y: 0.012797892, z: -0.01201725}
+  m_LocalPosition: {x: 0, y: 0.012797892, z: 0.015982628}
   m_LocalScale: {x: 99.99997, y: 99.999985, z: 99.99998}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -590,7 +522,7 @@ Transform:
   m_GameObject: {fileID: 3638174203645200732}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0, y: -0.017, z: 0.4771}
+  m_LocalPosition: {x: 0, y: -0.017, z: 0.5050999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -781,7 +713,7 @@ Transform:
   m_GameObject: {fileID: 6373734172053646527}
   serializedVersion: 2
   m_LocalRotation: {x: 0.4308958, y: -0.4522317, z: -0.48602214, w: 0.6112265}
-  m_LocalPosition: {x: 0.0042000115, y: -0.10519993, z: -0.15770006}
+  m_LocalPosition: {x: 0.0082, y: -0.1275, z: -0.1206}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -946,7 +878,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8041695022846440551}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5265183, y: -0.000000029802312, z: 0.000000029802312, w: 0.85016376}
+  m_LocalRotation: {x: 0.52651834, y: -0.000000029802314, z: 0.000000029802314, w: 0.8501638}
   m_LocalPosition: {x: 0.0267, y: 0.1092, z: 0.0056}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -977,7 +909,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8408796942651766073}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.6025264, y: 0.08577181, z: 0.099620454, w: 0.7871981}
+  m_LocalRotation: {x: 0.718833, y: 0.100372046, z: 0.08489114, w: 0.6826405}
   m_LocalPosition: {x: -0.0263, y: 0.124, z: 0.0109}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1009,7 +941,7 @@ Transform:
   m_GameObject: {fileID: 8682159376837939341}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 8.089154e-20, w: 1}
-  m_LocalPosition: {x: -1.109, y: -0.116999984, z: -0.085999966}
+  m_LocalPosition: {x: -1.109, y: -0.116999984, z: -0.05800006}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1126,7 +1058,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 1450d28fba9233f4c935bcaa9a352d38, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1450d28fba9233f4c935bcaa9a352d38, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1134,7 +1066,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1450d28fba9233f4c935bcaa9a352d38, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.079
+      value: -0.051
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1450d28fba9233f4c935bcaa9a352d38, type: 3}
       propertyPath: m_LocalRotation.w

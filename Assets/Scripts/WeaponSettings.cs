@@ -1,0 +1,56 @@
+using UnityEngine;
+
+[CreateAssetMenu()]
+public class WeaponSettings : ScriptableObject
+{
+    [Header("Attacking")]
+    public float fireRatePerSecond = 3f;
+    public WeaponClass weaponClass = WeaponClass.Rifle;
+    public BulletTrail bulletTrailPrefab;
+    public MuzzleFlash[] muzzleFlashPrefabs;
+    public Casing casingPrefab;
+    public Firemode firemode = Firemode.Auto;
+
+    public float screenShakeDuration = 0.1f;
+    public float screenShakeAmount = 1.0f;
+
+    [Header("Penetration")]
+    public float penetrationFactor = 0.5f;
+    public int allowedHitCount = 3;
+
+    [Header("Burst Firing")]
+    public float burstCooldown = 1f;
+
+    [Header("Recoil")]
+    public float recoilResetTimeSeconds = 1f;
+    public RecoilPattern recoilPattern;
+
+    [Header("Ammo and Damage")]
+    public int magSize = 30;
+    public int startingAmmoReserve = 1000;
+    public float baseDamage = 50.0f;
+    public float damageFallOffDistance = 100.0f;
+    public float headShotMultiplier = 1.5f;
+
+    [Header("Hipfire")]
+    public float spreadAmount = 0.05f;
+
+    [Header("Aiming")]
+    public float aimingZoomLevel = 1.2f;
+    public float cameraZOffset = 0.05f;
+    public float aimingMoveReduction = 0.2f;
+
+    [Header("Reloading")]
+    public float reloadTime = 0.5f;
+
+    [Header("Bolt Action")]
+    public float boltDelay = 0.2f;
+    public float boltActionLength = 0.5f;
+
+    [Header("Audio")]
+    public AudioClip[] firingSounds;
+    public AudioClip reloadSound;
+    public AudioClip aimInSound;
+    public AudioClip pickUpClip;
+    public AudioClip boltAction; //optional
+}

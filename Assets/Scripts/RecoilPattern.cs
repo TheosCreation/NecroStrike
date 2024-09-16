@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class RecoilPattern : MonoBehaviour
+[CreateAssetMenu(fileName = "NewRecoilPattern", menuName = "Recoil/Pattern")]
+public class RecoilPattern : ScriptableObject
 {
     [SerializeField]
     public Vector2[] pattern = new Vector2[23]
