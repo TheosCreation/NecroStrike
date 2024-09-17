@@ -42,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
     Timer slideTimer;
     Timer slideRefreashTimer;
 
+    public Vector3 localVelocity = Vector2.zero;
     Vector2 movementInput = Vector2.zero;
     private Rigidbody rb;
     private CapsuleCollider capsule;
@@ -94,7 +95,7 @@ public class PlayerMovement : MonoBehaviour
 
         movementInput = InputManager.Instance.MovementVector;
 
-        Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
+        localVelocity = transform.InverseTransformDirection(rb.velocity);
         animator.SetFloat("SpeedX", localVelocity.x);
         animator.SetFloat("SpeedY", localVelocity.z);
 

@@ -148,7 +148,8 @@ MonoBehaviour:
   - {fileID: -216041616328929038}
   - {fileID: -3732416717930010475}
   - {fileID: 4864290084294701945}
-  m_RendererFeatureMap: f0864c855d1588b856e61bdf3950ef64f250036a4b7700fd95680d2ec5ca33cc7933d73e0f6e8143
+  - {fileID: 8864399702653610600}
+  m_RendererFeatureMap: f0864c855d1588b856e61bdf3950ef64f250036a4b7700fd95680d2ec5ca33cc7933d73e0f6e8143682abf5f90ac047b
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -271,3 +272,16 @@ MonoBehaviour:
       restoreCamera: 1
       offset: {x: 0, y: 0, z: 0, w: 0}
       cameraFieldOfView: 72
+--- !u!114 &8864399702653610600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b69ab0e062774a40afda93d1a7d0f15, type: 3}
+  m_Name: AltosRenderFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1

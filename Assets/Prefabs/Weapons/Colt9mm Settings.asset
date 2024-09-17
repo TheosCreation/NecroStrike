@@ -19,6 +19,9 @@ MonoBehaviour:
   - {fileID: 3083625860547727936, guid: 0679d9862f73a534bbff228d82c04758, type: 3}
   casingPrefab: {fileID: 114121961160874846, guid: 633c0705919754a47bba3f1bcc49c794, type: 3}
   firemode: 0
+  hitLayers:
+    serializedVersion: 2
+    m_Bits: 513
   screenShakeDuration: 0.1
   screenShakeAmount: 0.25
   penetrationFactor: 0.5

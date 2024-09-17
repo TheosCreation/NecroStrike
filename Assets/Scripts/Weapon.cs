@@ -38,7 +38,6 @@ public class Weapon : MonoBehaviour, IInteractable
 
     [Header("Attacking")]
     protected float lastShotTime = 0;
-    [SerializeField] protected LayerMask hitLayers;
 
     private int burstShotsFired = 0;
     private float timeSinceLastBurst = 0f;
@@ -312,7 +311,7 @@ public class Weapon : MonoBehaviour, IInteractable
         Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
 
         Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
-        RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, settings.damageFallOffDistance, hitLayers);
+        RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, settings.damageFallOffDistance, settings.hitLayers);
 
         float remainingDamage = settings.baseDamage; 
         int remainingHits = settings.allowedHitCount;
@@ -320,6 +319,7 @@ public class Weapon : MonoBehaviour, IInteractable
         {
             foreach (RaycastHit hit in hits)
             {
+                if (hit.collider.isTrigger) return;
                 HandleHit(hit, remainingDamage); // Handle hit with remaining damage
 
                 // Reduce penetration force after each hit
@@ -396,6 +396,10 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
         bulletTrail.Init(hit.point, hit.normal);
+        if(hit.collider.gameObject.layer == 9) //enemy layer
+        {
+            bulletTrail.hitCharacter = true;
+        }
         var collider = hit.collider;
         var damageable = collider.GetComponent<IDamageable>();
         if(damageable == null) damageable = collider.transform.root.GetComponent<IDamageable>();
@@ -405,7 +409,6 @@ public class Weapon : MonoBehaviour, IInteractable
             if (collider.tag == "Head") hitDamage *= settings.headShotMultiplier;
 
             damageable.Damage(hitDamage, hit.point, hit.normal);
-            bulletTrail.hitCharacter = true;
         }
     }
 

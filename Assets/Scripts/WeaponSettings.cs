@@ -10,6 +10,7 @@ public class WeaponSettings : ScriptableObject
     public MuzzleFlash[] muzzleFlashPrefabs;
     public Casing casingPrefab;
     public Firemode firemode = Firemode.Auto;
+    public LayerMask hitLayers;
 
     public float screenShakeDuration = 0.1f;
     public float screenShakeAmount = 1.0f;

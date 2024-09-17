@@ -63,24 +63,29 @@ public class WeaponAnim : MonoBehaviour
     {
         if (player.weaponHolder.currentWeapon == null) return;
 
-        // Get the movement vector from the InputManager
-        Vector2 movementVector = InputManager.Instance.MovementVector;
         float bobOffsetX = 0;
         float bobOffsetY = 0;
 
         // Check if the player is moving and grounded
-        if (movementVector.magnitude > 0.1f && player.playerMovement.movementController.isGrounded)
+        Vector3 localVelocity = player.playerMovement.localVelocity;
+        if (Mathf.Abs(localVelocity.magnitude) > 0.1f && player.playerMovement.movementController.isGrounded)
         {
             float bobbingReduction = player.weaponHolder.currentWeapon.isAiming ? player.weaponHolder.currentWeapon.motionReduction * 0.4f : 1.0f;
 
             // Increase the bob timer based on the bobbing speed
             bobTimer += Time.deltaTime * bobbingSpeed * player.playerMovement.movementMultiplier;
 
-            // Calculate the bobbing offset for both X (side-to-side) and Y (up-and-down)
-            bobOffsetX = Mathf.Sin(bobTimer * 0.5f) * bobbingAmount * movementVector.x * 0.1f * bobbingReduction; // Side-to-side bobbing
-            bobOffsetY = Mathf.Sin(bobTimer) * bobbingAmount * movementVector.y * 0.1f * bobbingReduction; // Up-and-down bobbing
+            // Separate forward/backward and left/right movement
+            float forwardMovement = localVelocity.z;  // Moving forward/backward
+            float strafeMovement = localVelocity.x;   // Moving left/right
+
+            // Calculate the bobbing offset for forward/backward and left/right
+            bobOffsetX = Mathf.Sin(bobTimer * 0.5f) * bobbingAmount * strafeMovement * 0.1f * bobbingReduction;  // Side-to-side bobbing
+            bobOffsetY = Mathf.Sin(bobTimer) * bobbingAmount * forwardMovement * 0.1f * bobbingReduction;         // Forward/backward bobbing
         }
 
+        // Apply the final bobbing offset
         bobbingOffset = new Vector3(bobOffsetX, bobOffsetY, 0);
     }
+
 }

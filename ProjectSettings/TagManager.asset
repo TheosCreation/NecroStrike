@@ -15,8 +15,8 @@ TagManager:
   - Weapon
   - Player
   - PlayerHead
-  - 
-  - 
+  - Enemy
+  - NoCharacterCollisions
   - 
   - 
   - 

@@ -262,9 +262,8 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: e74b45d7bed988a4593bd131f6757614, type: 2}
   hitLayers:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 513
   recoil: {x: 0, y: 0}
-  recoilPattern: {fileID: 11400000, guid: 209a4df42d515034a810021c824201bb, type: 2}
   IKRightHandPos: {fileID: 6547684579339515662}
   IKRightIndexPos: {fileID: 3004442211967128505}
   IKRightMiddlePos: {fileID: 8683439017628512757}

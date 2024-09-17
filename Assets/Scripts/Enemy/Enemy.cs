@@ -6,6 +6,7 @@ public class Enemy : MonoBehaviour, IDamageable
 {
     [HideInInspector] public NavMeshAgent agent;
     [HideInInspector] public Animator animator;
+    [HideInInspector] public Ragdoll ragdoll;
     public Transform target;
     [HideInInspector] public EnemyStateMachine StateMachine;
 
@@ -50,6 +51,7 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        ragdoll = GetComponent<Ragdoll>();
 
 
         StateMachine = new EnemyStateMachineBuilder()
@@ -110,7 +112,9 @@ public class Enemy : MonoBehaviour, IDamageable
     private void Die()
     {
         OnDeath?.Invoke();
-        Destroy(gameObject);
+        ragdoll.ActivateRagdoll();
+        Destroy(agent);
+        Destroy(this);
     }
 
     public void LookTowardsTarget()
