@@ -296,6 +296,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     protected virtual void Attack()
     {
+        bool spawnedBulletTrail = false;
         Vector3 shootDirection = holder.player.playerLook.playerCamera.transform.forward;
         //if not aiming we add spread
         if (!isAiming)
@@ -313,31 +314,40 @@ public class Weapon : MonoBehaviour, IInteractable
         Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
         RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, settings.damageFallOffDistance, settings.hitLayers);
 
-        float remainingDamage = settings.baseDamage; 
-        int remainingHits = settings.allowedHitCount;
+        // Instantiate the bullet trail only once, at the start of the muzzle
+        BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
+
         if (hits.Length > 0)
         {
+            float remainingDamage = settings.baseDamage;
+
+            // Loop through all hits and handle each hit
             foreach (RaycastHit hit in hits)
             {
-                if (hit.collider.isTrigger) return;
-                HandleHit(hit, remainingDamage); // Handle hit with remaining damage
+                if (hit.collider.isTrigger) break;
 
-                // Reduce penetration force after each hit
+                if (!spawnedBulletTrail)
+                {
+                    // Initialize bullet trail with hit info
+                    bulletTrail.Init(hit.point, hit.normal);
+                    spawnedBulletTrail = true;
+                }
+
+                HandleHit(hit, remainingDamage, bulletTrail); // Handle hit with remaining damage
                 remainingDamage *= settings.penetrationFactor;
 
-                // Decrease the remaining allowed hits
-                remainingHits--;
-
-                if (remainingHits <= 0 || remainingDamage <= 0)
+                if (remainingDamage <= 0)
                 {
-                    // Stop if we've reached the hit limit or damage is too low
-                    break;
+                    break; // Stop if damage is too low to continue
                 }
             }
         }
         else
         {
-            HandleMiss(shootDirection); // Handle the case where no enemies are hit
+            // Handle miss case, use the shoot direction for the bullet trail
+            Vector3 missPosition = startPosition + shootDirection * settings.damageFallOffDistance;
+            bulletTrail.Init(missPosition, Vector3.zero);
+            bulletTrail.spawnImpact = false;
         }
 
         if (applyRecoil)
@@ -392,19 +402,14 @@ public class Weapon : MonoBehaviour, IInteractable
 
     }
 
-    protected void HandleHit(RaycastHit hit, float damage)
+    protected void HandleHit(RaycastHit hit, float damage, BulletTrail trail)
     {
-        BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
-        bulletTrail.Init(hit.point, hit.normal);
-        if(hit.collider.gameObject.layer == 9) //enemy layer
-        {
-            bulletTrail.hitCharacter = true;
-        }
         var collider = hit.collider;
         var damageable = collider.GetComponent<IDamageable>();
         if(damageable == null) damageable = collider.transform.root.GetComponent<IDamageable>();
         if (damageable != null)
         {
+            trail.hitCharacter = true;
             float hitDamage = damage;
             if (collider.tag == "Head")
             {
@@ -415,15 +420,6 @@ public class Weapon : MonoBehaviour, IInteractable
 
             damageable.Damage(hitDamage, hit.point, hit.normal);
         }
-    }
-
-    protected void HandleMiss(Vector3 shootDirection)
-    {
-        BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
-
-        Vector3 pointAlongShootDirection = shootDirection * settings.damageFallOffDistance;
-        bulletTrail.Init(pointAlongShootDirection, Vector3.zero);
-        bulletTrail.spawnImpact = false;
     }
 
     protected void TakeAmmoFromMag(int magChange)
