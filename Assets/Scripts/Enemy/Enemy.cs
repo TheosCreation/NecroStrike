@@ -14,6 +14,8 @@ public class Enemy : MonoBehaviour, IDamageable
     [SerializeField] private Impact bloodImpactPrefab;
     [SerializeField] private Collider swingCheck;
     [SerializeField] private SkinnedMeshRenderer modelRenderer;
+    [SerializeField] private Transform head;
+    [SerializeField] private ParticleSystem bloodParticles;
 
     [Header("Spawn")]
     public float spawnDelay = 1.0f;
@@ -28,6 +30,8 @@ public class Enemy : MonoBehaviour, IDamageable
     [Header("States")]
     [SerializeField] private EnemyState defaultState = EnemyState.Chasing;
     public EnemyState currentState;
+
+    [SerializeField] private bool hasHead = true;
 
     public int maxHealth = 100;
     private float health;
@@ -44,6 +48,7 @@ public class Enemy : MonoBehaviour, IDamageable
             }
         }
     }
+
 
     public event Action OnDeath;
 
@@ -150,5 +155,15 @@ public class Enemy : MonoBehaviour, IDamageable
     public void SetModel(Mesh newMesh)
     {
         modelRenderer.sharedMesh = newMesh;
+    }
+
+    public void HitHead()
+    {
+        if (!hasHead) return;
+
+        hasHead = false;
+        head.localScale = new Vector3(0.001f, 0.001f, 0.001f);
+        // Activate the blood particles
+        bloodParticles.Play();
     }
 }

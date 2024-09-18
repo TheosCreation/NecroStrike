@@ -406,7 +406,12 @@ public class Weapon : MonoBehaviour, IInteractable
         if (damageable != null)
         {
             float hitDamage = damage;
-            if (collider.tag == "Head") hitDamage *= settings.headShotMultiplier;
+            if (collider.tag == "Head")
+            {
+                damageable.HitHead();
+
+                hitDamage *= settings.headShotMultiplier;
+            }
 
             damageable.Damage(hitDamage, hit.point, hit.normal);
         }

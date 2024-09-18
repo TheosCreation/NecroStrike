@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
 
+    [SerializeField] private bool hasHead = true;
     public event Action OnDeath;
     [SerializeField] private Impact bloodImpactPrefab;
 
@@ -124,5 +125,10 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void Die()
     {
         OnDeath?.Invoke();
+    }
+
+    public void HitHead()
+    {
+        hasHead = false;
     }
 }
