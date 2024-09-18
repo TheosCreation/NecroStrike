@@ -38,4 +38,4 @@ MonoBehaviour:
   initialTime: 12
   editorTime: 12
   timeSystem: 12
-  dayNightCycleDuration: 1
+  dayNightCycleDuration: 0.1

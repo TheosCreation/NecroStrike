@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 177d3710922c833488099b40104d4837, type: 3}
   m_Name: Atmosphere
   m_EditorClassIdentifier: 
-  start: 0
+  start: 16.18
   end: 20000

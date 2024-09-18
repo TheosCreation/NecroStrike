@@ -15,5 +15,5 @@ MonoBehaviour:
   averageTemperatureAtSeaLevel: -6.1
   maximumDiurnalTemperatureVariation: 10
   maximumTemperatureAnomaly: 3
-  dynamicTemperature: 1
-  currentTemperatureAtSeaLevel: -3.0828028
+  dynamicTemperature: 0
+  currentTemperatureAtSeaLevel: -6.1
