@@ -21,7 +21,7 @@ public class Weapon : MonoBehaviour, IInteractable
 {
     protected Animator animator;
     private Rigidbody rb;
-    protected WeaponHolder holder;
+    public WeaponHolder holder;
     [SerializeField] private Collider collisionCollider;
     [SerializeField] private Transform muzzleTransform;
     [SerializeField] private Transform casingEjectionTransform;

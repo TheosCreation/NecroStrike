@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -5,11 +8,16 @@ public class WeaponHolder : MonoBehaviour
 {
     [HideInInspector] public PlayerController player;
     public Weapon currentWeapon;
+    [SerializeField] private Weapon[] weapons;
+    [SerializeField] private int maxHeldWeaponCount = 2;
     [SerializeField] private float throwForce = 0.5f;
     [SerializeField] private Transform currentWeaponPosition;
     [SerializeField] private Transform idlePos;
     [SerializeField] private Transform aimingPos;
+    [SerializeField] float scrollSwitchDelay = 0.1f;
     [SerializeField] float transitionSpeed = 5.0f;
+    int currentWeaponIndex = 0;
+    private bool isSwitching = false;
 
     [Header("Right Hand Target")]
     //Base Hand
@@ -59,13 +67,14 @@ public class WeaponHolder : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         player = GetComponent<PlayerController>();
-        InputManager.Instance.playerInput.InGame.Attack.started += _ctx => TryStartAttacking();
-        InputManager.Instance.playerInput.InGame.Attack.canceled += _ctx => TryStopAttacking();
-        InputManager.Instance.playerInput.InGame.Aim.started += _ctx => TryStartAiming();
-        InputManager.Instance.playerInput.InGame.Aim.canceled += _ctx => TryStopAiming();
+        InputManager.Instance.playerInput.InGame.WeaponSwitch.performed += ctx => WeaponSwitch(ctx.ReadValue<Vector2>());
+        InputManager.Instance.playerInput.InGame.Attack.started += _ctx => currentWeapon?.StartAttacking();
+        InputManager.Instance.playerInput.InGame.Attack.canceled += _ctx => currentWeapon?.StopAttacking();
+        InputManager.Instance.playerInput.InGame.Aim.started += _ctx => currentWeapon?.StartAiming();
+        InputManager.Instance.playerInput.InGame.Aim.canceled += _ctx => currentWeapon?.StopAiming();
         InputManager.Instance.playerInput.InGame.Drop.started += _ctx => TryDropWeapon();
-        InputManager.Instance.playerInput.InGame.Reload.started += _ctx => TryReload();
-        InputManager.Instance.playerInput.InGame.Inspect.started += _ctx => TryInspect();
+        InputManager.Instance.playerInput.InGame.Reload.started += _ctx => currentWeapon?.Reload();
+        InputManager.Instance.playerInput.InGame.Inspect.started += _ctx => currentWeapon?.Inspect();
     }
 
     private void Update()
@@ -90,99 +99,134 @@ public class WeaponHolder : MonoBehaviour
             transformToAttachWeapon = aimingPos;
         }
 
-        //set the position and rotation of the hand targets to the ik target on rifle
-        leftHandTarget.position = currentWeapon.IKLeftHandPos.position;
-        leftHandTarget.rotation = currentWeapon.IKLeftHandPos.rotation;
-        //left index
-        leftIndexTarget.position = currentWeapon.IKLeftIndexPos.position;
-        leftIndexTarget.rotation = currentWeapon.IKLeftIndexPos.rotation;
-        //left middle
-        leftMiddleTarget.position = currentWeapon.IKLeftMiddlePos.position;
-        leftMiddleTarget.rotation = currentWeapon.IKLeftMiddlePos.rotation;
-        //left pinky
-        leftPinkyTarget.position = currentWeapon.IKLeftPinkyPos.position;
-        leftPinkyTarget.rotation = currentWeapon.IKLeftPinkyPos.rotation;
-        //left ring
-        leftRingTarget.position = currentWeapon.IKLeftRingPos.position;
-        leftRingTarget.rotation = currentWeapon.IKLeftRingPos.rotation;
-        //left thumb
-        leftThumbTarget.position = currentWeapon.IKLeftThumbPos.position;
-        leftThumbTarget.rotation = currentWeapon.IKLeftThumbPos.rotation;
-
-        //Right Hand
-        rightHandTarget.position = currentWeapon.IKRightHandPos.position;
-        rightHandTarget.rotation = currentWeapon.IKRightHandPos.rotation;
-        // Right Index
-        rightIndexTarget.position = currentWeapon.IKRightIndexPos.position;
-        rightIndexTarget.rotation = currentWeapon.IKRightIndexPos.rotation;
-        // Right Middle
-        rightMiddleTarget.position = currentWeapon.IKRightMiddlePos.position;
-        rightMiddleTarget.rotation = currentWeapon.IKRightMiddlePos.rotation;
-        // Right Ring
-        rightRingTarget.position = currentWeapon.IKRightRingPos.position;
-        rightRingTarget.rotation = currentWeapon.IKRightRingPos.rotation;
-        // Right Pinky
-        rightPinkyTarget.position = currentWeapon.IKRightPinkyPos.position;
-        rightPinkyTarget.rotation = currentWeapon.IKRightPinkyPos.rotation;
-        // Right Thumb
-        rightThumbTarget.position = currentWeapon.IKRightThumbPos.position;
-        rightThumbTarget.rotation = currentWeapon.IKRightThumbPos.rotation;
+        UpdateHandTargets();
 
         // Smoothly interpolate weapon's position and rotation to the target transform
         currentWeapon.transform.position = Vector3.Lerp(currentWeapon.transform.position, transformToAttachWeapon.position, Time.deltaTime * transitionSpeed);
         currentWeapon.transform.rotation = Quaternion.Slerp(currentWeapon.transform.rotation, transformToAttachWeapon.rotation, Time.deltaTime * transitionSpeed);
         currentWeapon.transform.parent = transformToAttachWeapon;
     }
-
-    private void TryStartAttacking()
+    private void UpdateHandTargets()
     {
-        if (currentWeapon == null) return;
+        // Left Hand and fingers
+        SetHandIK(leftHandTarget, currentWeapon.IKLeftHandPos);
+        SetHandIK(leftIndexTarget, currentWeapon.IKLeftIndexPos);
+        SetHandIK(leftMiddleTarget, currentWeapon.IKLeftMiddlePos);
+        SetHandIK(leftPinkyTarget, currentWeapon.IKLeftPinkyPos);
+        SetHandIK(leftRingTarget, currentWeapon.IKLeftRingPos);
+        SetHandIK(leftThumbTarget, currentWeapon.IKLeftThumbPos);
 
-        currentWeapon.StartAttacking();
+        // Right Hand and fingers
+        SetHandIK(rightHandTarget, currentWeapon.IKRightHandPos);
+        SetHandIK(rightIndexTarget, currentWeapon.IKRightIndexPos);
+        SetHandIK(rightMiddleTarget, currentWeapon.IKRightMiddlePos);
+        SetHandIK(rightRingTarget, currentWeapon.IKRightRingPos);
+        SetHandIK(rightPinkyTarget, currentWeapon.IKRightPinkyPos);
+        SetHandIK(rightThumbTarget, currentWeapon.IKRightThumbPos);
     }
-    private void TryStopAttacking()
+    private void SetHandIK(Transform handTarget, Transform ikTarget)
     {
-        if (currentWeapon == null) return;
-
-        currentWeapon.StopAttacking();
-    }
-
-    private void TryStartAiming()
-    {
-        if (currentWeapon == null) return;
-
-        currentWeapon.StartAiming();
-    }
-    
-    private void TryStopAiming()
-    {
-        if (currentWeapon == null) return;
-
-        currentWeapon.StopAiming();
+        // Set the hand target's position and rotation based on the IK target from the weapon
+        handTarget.position = ikTarget.position;
+        handTarget.rotation = ikTarget.rotation;
     }
 
     public void Add(Weapon weapon)
     {
-        currentWeapon = weapon;
-        currentWeapon.Equip();
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] == null)
+            {
+                weapons[i] = weapon;
+                SelectWeapon(weapon);
+                return;
+            }
+        }
+
+        // If array is full, replace the current weapon
+        if (weapons.Length >= maxHeldWeaponCount)
+        {
+            weapons[currentWeaponIndex] = weapon;
+            SelectWeapon(currentWeaponIndex);
+        }
     }
 
     private void TryDropWeapon()
     {
         if (currentWeapon == null) return;
         currentWeapon.Drop(throwForce);
+        weapons[currentWeaponIndex] = null;
         currentWeapon = null;
+        SelectWeapon(0);
+    }
+    private void WeaponSwitch(Vector2 direction)
+    {
+        if (!isSwitching)
+        {
+            StartCoroutine(WeaponSwitchDelay(direction));
+        }
     }
 
-    private void TryReload()
+    private IEnumerator WeaponSwitchDelay(Vector2 direction)
     {
-        if (currentWeapon == null) return;
-        currentWeapon.Reload();
+        isSwitching = true;
+        if (direction.y > 0)
+        {
+            // Scroll up, switch to the next weapon
+            currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Length;
+        }
+        else if (direction.y < 0)
+        {
+            // Scroll down, switch to the previous weapon
+            currentWeaponIndex = (currentWeaponIndex - 1 + weapons.Length) % weapons.Length;
+        }
+
+        SelectWeapon(currentWeaponIndex);
+
+        yield return new WaitForSeconds(scrollSwitchDelay);
+
+        isSwitching = false;
     }
 
-    private void TryInspect()
+    private void SelectWeapon(Weapon weapon)
     {
-        if (currentWeapon == null) return;
-        currentWeapon.Inspect();
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] != null)
+            {
+                weapons[i].gameObject.SetActive(weapons[i] == weapon);
+                weapons[i].isAttacking = false;
+
+                if (weapons[i] == weapon)
+                {
+                    currentWeaponIndex = i;
+                    currentWeapon = weapons[i];
+                    currentWeapon.holder = this;
+                    currentWeapon.Equip();
+                }
+            }
+        }
+    }
+
+    private void SelectWeapon(int index)
+    {
+        if (weapons[index] == null) return;
+
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] != null)
+            {
+                weapons[i].gameObject.SetActive(i == index);
+                weapons[i].isAttacking = false;
+
+                if (i == index)
+                {
+                    currentWeaponIndex = i;
+                    currentWeapon = weapons[i];
+                    currentWeapon.holder = this;
+                    currentWeapon.Equip();
+                }
+            }
+        }
     }
 }

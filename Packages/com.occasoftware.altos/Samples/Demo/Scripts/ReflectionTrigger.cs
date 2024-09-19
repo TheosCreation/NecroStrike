@@ -10,6 +10,7 @@ namespace OccaSoftware.Altos.Demo
 
         private void OnTriggerEnter(Collider other)
         {
+            if (other.tag != "Player") return;
             Setup();
             Add();
         }

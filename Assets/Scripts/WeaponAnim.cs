@@ -18,8 +18,12 @@ public class WeaponAnim : MonoBehaviour
     [SerializeField] private float bobbingSpeed = 1f;
     [SerializeField] private float bobbingAmount = 1f;
 
+    [Header("Weapon Strafe")]
+    [SerializeField] private float strafeAmount = 1f;
+
     private float bobTimer = 0f;
     private Vector3 bobbingOffset;
+    private Vector3 strafeOffset;
 
 
     private void Awake()
@@ -37,10 +41,15 @@ public class WeaponAnim : MonoBehaviour
     {
         CalculateSway();
         CalculateBobbing();
+        CalculateStrafe();
+        // Calculate the combined final position and rotation including bobbing, strafe, and sway
+        Vector3 finalPosition = initialPosition + bobbingOffset + strafeOffset - swayPositionOffset;
+        Quaternion finalRotation = initialRotation * swayRotationOffset;
 
-        // Apply the sway effects to the local position and rotation
-        transform.localPosition = Vector3.Lerp(transform.localPosition, (initialPosition + bobbingOffset) - swayPositionOffset, Time.deltaTime * swaySmoothness);
-        transform.localRotation = Quaternion.Lerp(transform.localRotation, initialRotation * swayRotationOffset, Time.deltaTime * swaySmoothness);
+        // Apply the sway, strafe, and bobbing effects to the local position and rotation
+        transform.localPosition = Vector3.Lerp(transform.localPosition, finalPosition, Time.deltaTime * swaySmoothness);
+        transform.localRotation = Quaternion.Lerp(transform.localRotation, finalRotation, Time.deltaTime * swaySmoothness);
+
     }
 
     private void CalculateSway()
@@ -63,7 +72,6 @@ public class WeaponAnim : MonoBehaviour
     {
         if (player.weaponHolder.currentWeapon == null) return;
 
-        float bobOffsetX = 0;
         float bobOffsetY = 0;
 
         // Check if the player is moving and grounded
@@ -75,17 +83,31 @@ public class WeaponAnim : MonoBehaviour
             // Increase the bob timer based on the bobbing speed
             bobTimer += Time.deltaTime * bobbingSpeed * player.playerMovement.movementMultiplier;
 
-            // Separate forward/backward and left/right movement
-            float forwardMovement = localVelocity.z;  // Moving forward/backward
-            float strafeMovement = localVelocity.x;   // Moving left/right
-
-            // Calculate the bobbing offset for forward/backward and left/right
-            bobOffsetX = Mathf.Sin(bobTimer * 0.5f) * bobbingAmount * strafeMovement * 0.1f * bobbingReduction;  // Side-to-side bobbing
-            bobOffsetY = Mathf.Sin(bobTimer) * bobbingAmount * forwardMovement * 0.1f * bobbingReduction;         // Forward/backward bobbing
+            // Calculate the bobbing offset for forward/backward
+            bobOffsetY = Mathf.Sin(bobTimer) * bobbingAmount * 0.1f * bobbingReduction;         // Forward/backward bobbing
         }
 
         // Apply the final bobbing offset
-        bobbingOffset = new Vector3(bobOffsetX, bobOffsetY, 0);
+        bobbingOffset = new Vector3(0, bobOffsetY, 0);
     }
+    private void CalculateStrafe()
+    {
+        if (player.weaponHolder.currentWeapon == null) return;
 
+        float strafeOffsetX = 0;
+
+        // Check if the player is moving and grounded
+        float inputX = InputManager.Instance.MovementVector.x;
+        if (Mathf.Abs(inputX) > 0.1f && player.playerMovement.movementController.isGrounded)
+        {
+            float strafeReduction = player.weaponHolder.currentWeapon.isAiming ? player.weaponHolder.currentWeapon.motionReduction * 0.4f : 1.0f;
+
+            // Apply static offset based on left/right movement
+            float strafeDirection = Mathf.Sign(inputX); // +1 for right, -1 for left
+            strafeOffsetX = strafeDirection * strafeAmount * strafeReduction; // Static amount offset
+        }
+
+        // Apply the final strafe offset
+        strafeOffset = new Vector3(strafeOffsetX, 0, 0);
+    }
 }
