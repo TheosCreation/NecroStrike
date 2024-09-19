@@ -248,6 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e67e49fe39aea0c4abb85cb048110d61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  holder: {fileID: 0}
   collisionCollider: {fileID: 4419324841226117222}
   muzzleTransform: {fileID: 1345262695081890881}
   casingEjectionTransform: {fileID: 392658451342895032}
@@ -260,9 +261,6 @@ MonoBehaviour:
   isInspecting: 0
   isBoltAction: 0
   settings: {fileID: 11400000, guid: e74b45d7bed988a4593bd131f6757614, type: 2}
-  hitLayers:
-    serializedVersion: 2
-    m_Bits: 513
   recoil: {x: 0, y: 0}
   IKRightHandPos: {fileID: 6547684579339515662}
   IKRightIndexPos: {fileID: 3004442211967128505}

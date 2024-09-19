@@ -298,14 +298,14 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         bool spawnedBulletTrail = false;
         Vector3 shootDirection = holder.player.playerLook.playerCamera.transform.forward;
-        //if not aiming we add spread
+
+        // If not aiming, add spread
         if (!isAiming)
         {
             float spread = settings.spreadAmount;
             shootDirection.x += Random.Range(-spread, spread);
             shootDirection.y += Random.Range(-spread, spread);
             shootDirection.z += Random.Range(-spread, spread);
-
             shootDirection.Normalize();
         }
 
@@ -314,66 +314,73 @@ public class Weapon : MonoBehaviour, IInteractable
         Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
         RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, settings.damageFallOffDistance, settings.hitLayers);
 
-        // Instantiate the bullet trail only once, at the start of the muzzle
+        // Sort the hits by distance to ensure the closest object is processed first
+        System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+
+        // Instantiate the bullet trail at the muzzle position
         BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
 
         if (hits.Length > 0)
         {
             float remainingDamage = settings.baseDamage;
 
-            // Loop through all hits and handle each hit
+            // Loop through sorted hits and process each hit
             foreach (RaycastHit hit in hits)
             {
-                if (hit.collider.isTrigger) break;
+                // Ignore trigger colliders
+                if (hit.collider.isTrigger) continue;
 
                 if (!spawnedBulletTrail)
                 {
-                    // Initialize bullet trail with hit info
+                    // Spawn bullet trail on the first (closest) hit point
                     bulletTrail.Init(hit.point, hit.normal);
                     spawnedBulletTrail = true;
                 }
 
-                HandleHit(hit, remainingDamage, bulletTrail); // Handle hit with remaining damage
+                // Handle the hit and reduce damage based on penetration factor
+                HandleHit(hit, remainingDamage, bulletTrail);
                 remainingDamage *= settings.penetrationFactor;
 
+                // Stop processing if the remaining damage is too low
                 if (remainingDamage <= 0)
                 {
-                    break; // Stop if damage is too low to continue
+                    break;
                 }
             }
         }
         else
         {
-            // Handle miss case, use the shoot direction for the bullet trail
+            // No hits, create a bullet trail toward the maximum distance
             Vector3 missPosition = startPosition + shootDirection * settings.damageFallOffDistance;
             bulletTrail.Init(missPosition, Vector3.zero);
             bulletTrail.spawnImpact = false;
         }
 
-        if (applyRecoil)
-            ApplyRecoil();
-
+        // Apply recoil and handle ammo consumption
+        if (applyRecoil) ApplyRecoil();
         TakeAmmoFromMag(1);
         holder.player.playerLook.TriggerScreenShake(settings.screenShakeDuration, settings.screenShakeAmount * motionReduction * 0.01f);
-        PlayRandomFiringSound(); 
-        SpawnRandomMuzzleFlash(); 
+        PlayRandomFiringSound();
+        SpawnRandomMuzzleFlash();
         SpawnCasing();
         animator.SetTrigger("Shoot");
 
-        // Update the last shot time
+        // Update the last shot time and handle weapon fire mode
         lastShotTime = Time.time;
 
-        if(settings.firemode == Firemode.Single)
+        if (settings.firemode == Firemode.Single)
         {
             isAttacking = false;
             if (settings.weaponClass == WeaponClass.Sniper) PullBolt();
         }
 
-        if(ammoLeft <= 0)
+        // Reload if out of ammo
+        if (ammoLeft <= 0)
         {
             Reload();
         }
     }
+
 
     protected void ApplyRecoil()
     {

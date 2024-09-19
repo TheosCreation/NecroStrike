@@ -7,8 +7,8 @@ using UnityEngine.Animations.Rigging;
 public class WeaponHolder : MonoBehaviour
 {
     [HideInInspector] public PlayerController player;
-    public Weapon currentWeapon;
-    [SerializeField] private Weapon[] weapons;
+    public Weapon currentWeapon; 
+    [SerializeField] private List<Weapon> weapons = new List<Weapon>();
     [SerializeField] private int maxHeldWeaponCount = 2;
     [SerializeField] private float throwForce = 0.5f;
     [SerializeField] private Transform currentWeaponPosition;
@@ -133,21 +133,17 @@ public class WeaponHolder : MonoBehaviour
 
     public void Add(Weapon weapon)
     {
-        for (int i = 0; i < weapons.Length; i++)
+        if (weapons.Count < maxHeldWeaponCount)
         {
-            if (weapons[i] == null)
-            {
-                weapons[i] = weapon;
-                SelectWeapon(weapon);
-                return;
-            }
+            weapons.Add(weapon); // Add the weapon to the dynamic list
+            SelectWeapon(weapon);
         }
-
-        // If array is full, replace the current weapon
-        if (weapons.Length >= maxHeldWeaponCount)
+        else
         {
-            weapons[currentWeaponIndex] = weapon;
-            SelectWeapon(currentWeaponIndex);
+            // Replace the current weapon if max count is reached
+            TryDropWeapon(); 
+            weapons.Add(weapon); // Add the weapon to the dynamic list
+            SelectWeapon(weapon);
         }
     }
 
@@ -155,13 +151,14 @@ public class WeaponHolder : MonoBehaviour
     {
         if (currentWeapon == null) return;
         currentWeapon.Drop(throwForce);
-        weapons[currentWeaponIndex] = null;
+        weapons.RemoveAt(currentWeaponIndex); // Remove the dropped weapon
         currentWeapon = null;
         SelectWeapon(0);
     }
+
     private void WeaponSwitch(Vector2 direction)
     {
-        if (!isSwitching)
+        if (!isSwitching && weapons.Count > 0)
         {
             StartCoroutine(WeaponSwitchDelay(direction));
         }
@@ -172,25 +169,21 @@ public class WeaponHolder : MonoBehaviour
         isSwitching = true;
         if (direction.y > 0)
         {
-            // Scroll up, switch to the next weapon
-            currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Length;
+            currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Count;
         }
         else if (direction.y < 0)
         {
-            // Scroll down, switch to the previous weapon
-            currentWeaponIndex = (currentWeaponIndex - 1 + weapons.Length) % weapons.Length;
+            currentWeaponIndex = (currentWeaponIndex - 1 + weapons.Count) % weapons.Count;
         }
 
         SelectWeapon(currentWeaponIndex);
-
         yield return new WaitForSeconds(scrollSwitchDelay);
-
         isSwitching = false;
     }
 
     private void SelectWeapon(Weapon weapon)
     {
-        for (int i = 0; i < weapons.Length; i++)
+        for (int i = 0; i < weapons.Count; i++)
         {
             if (weapons[i] != null)
             {
@@ -210,9 +203,10 @@ public class WeaponHolder : MonoBehaviour
 
     private void SelectWeapon(int index)
     {
+        if (weapons.Count == 0) return;
         if (weapons[index] == null) return;
 
-        for (int i = 0; i < weapons.Length; i++)
+        for (int i = 0; i < weapons.Count; i++)
         {
             if (weapons[i] != null)
             {
