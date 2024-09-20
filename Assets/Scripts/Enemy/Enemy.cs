@@ -26,6 +26,7 @@ public class Enemy : MonoBehaviour, IDamageable
     public float attackStartDelay = 0.1f;
     public float attackDelay = 1.5f;
     public float loseDistance = 5f;
+    public float headBleedoutTime = 1f;
 
     [Header("States")]
     [SerializeField] private EnemyState defaultState = EnemyState.Chasing;
@@ -165,5 +166,6 @@ public class Enemy : MonoBehaviour, IDamageable
         head.localScale = new Vector3(0.001f, 0.001f, 0.001f);
         // Activate the blood particles
         bloodParticles.Play();
+        gameObject.AddComponent<Timer>().SetTimer(headBleedoutTime + UnityEngine.Random.Range(0f, 1f), Die);
     }
 }

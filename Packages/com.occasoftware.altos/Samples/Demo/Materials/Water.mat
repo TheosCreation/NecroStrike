@@ -97,9 +97,9 @@ Material:
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
     - _Float: 54.8
-    - _Foam_Difference: 15
+    - _Foam_Difference: 3
     - _Foam_Speed: 0.4
-    - _Foam_Tiling: 1
+    - _Foam_Tiling: 8
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -115,8 +115,8 @@ Material:
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _Water_Difference: 20
-    - _Wave_Speed: 1
+    - _Water_Difference: 4
+    - _Wave_Speed: 0.15
     - _Wave_Strength: 0.12
     - _Wave_Tiling: 0.05
     - _WorkflowMode: 1

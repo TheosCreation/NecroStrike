@@ -434,9 +434,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraFov: 6
   scopeCamera: {fileID: 3786745368342216384}
-  zoomGameObject: {fileID: 6487759869580406149}
   crosshairPrefab: {fileID: -7277097086494773385, guid: 781bac5fced7cd443b7fb94def6b8b29, type: 3}
   crosshairAttachmentTransform: {fileID: 5951340721347405842}
+  reflectiveObject: {fileID: 0}
 --- !u!1 &5887520638314014499
 GameObject:
   m_ObjectHideFlags: 0

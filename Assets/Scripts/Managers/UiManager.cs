@@ -11,7 +11,7 @@ public class UiManager : MonoBehaviour
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject deathScreen;
 
-    [SerializeField] private GameObject crosshair;
+    public UiCrosshair crosshair;
 
 
     [SerializeField] private FlashImage hitMarker;
@@ -88,7 +88,7 @@ public class UiManager : MonoBehaviour
 
     public void SetCrosshair(bool active)
     {
-        crosshair.SetActive(active);
+        crosshair.gameObject.SetActive(active);
     }
 
     public void SetPlayerWeak(bool weak)

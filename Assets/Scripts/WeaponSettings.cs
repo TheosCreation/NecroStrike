@@ -35,6 +35,9 @@ public class WeaponSettings : ScriptableObject
 
     [Header("Hipfire")]
     public float spreadAmount = 0.05f;
+    public float spreadIncreasePerShot = 0.01f;
+    public float maxSpread = 0.2f;
+    public float spreadRecoverRate = 1.5f;
 
     [Header("Aiming")]
     public float aimingZoomLevel = 1.2f;

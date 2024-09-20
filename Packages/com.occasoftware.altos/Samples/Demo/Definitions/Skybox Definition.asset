@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a6db46ea1f40743af6eb0ed0193136, type: 3}
   m_Name: Skybox Definition
   m_EditorClassIdentifier: 
-  environmentLightingExposure: 1
-  environmentLightingSaturation: 1
+  environmentLightingExposure: 10
+  environmentLightingSaturation: 0.3
   periodsOfDay:
   - description: Night End
     startTime: 5.5
@@ -45,7 +45,7 @@ MonoBehaviour:
     horizonColor: {r: 0.091091126, g: 0.09612672, b: 0.21698111, a: 0}
     zenithColor: {r: 0.107600555, g: 0.107600555, b: 0.24528301, a: 0}
     groundColor: {r: 0.05660379, g: 0.049928814, b: 0.05660379, a: 0}
-  initialTime: 11
-  editorTime: 13
-  timeSystem: 13
-  dayNightCycleDuration: 2
+  initialTime: 21
+  editorTime: 21
+  timeSystem: 21
+  dayNightCycleDuration: 0

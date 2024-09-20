@@ -41,6 +41,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private int burstShotsFired = 0;
     private float timeSinceLastBurst = 0f;
+    public float currentSpread = 0f;
 
     [Header("Recoil")]
     public Vector2 recoil;
@@ -223,6 +224,9 @@ public class Weapon : MonoBehaviour, IInteractable
                 holder.player.playerLook.ResetZoomLevel();
             }
         }
+
+        //spread return
+        currentSpread = Mathf.Lerp(currentSpread, settings.spreadAmount, Time.deltaTime * settings.spreadRecoverRate);
     }
 
     private bool CanShoot()
@@ -365,6 +369,10 @@ public class Weapon : MonoBehaviour, IInteractable
         SpawnCasing();
         animator.SetTrigger("Shoot");
 
+        //Add spread
+        currentSpread += settings.spreadIncreasePerShot;
+        currentSpread = Mathf.Clamp(currentSpread, settings.spreadAmount, settings.maxSpread);
+
         // Update the last shot time and handle weapon fire mode
         lastShotTime = Time.time;
 
@@ -420,7 +428,10 @@ public class Weapon : MonoBehaviour, IInteractable
             float hitDamage = damage;
             if (collider.tag == "Head")
             {
-                damageable.HitHead();
+                if (Random.Range(0, 100) < 20)  // 20% chance (0-19 out of 100)
+                {
+                    damageable.HitHead();
+                }
 
                 hitDamage *= settings.headShotMultiplier;
             }

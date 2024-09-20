@@ -23,7 +23,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 513
   screenShakeDuration: 0.1
-  screenShakeAmount: 0.25
+  screenShakeAmount: 0.1
   penetrationFactor: 0.5
   allowedHitCount: 3
   burstCooldown: 1
@@ -35,8 +35,11 @@ MonoBehaviour:
   damageFallOffDistance: 100
   headShotMultiplier: 1.5
   spreadAmount: 0.05
+  spreadIncreasePerShot: 0.05
+  maxSpread: 0.25
+  spreadRecoverRate: 4
   aimingZoomLevel: 1.2
-  cameraZOffset: 0.05
+  cameraZOffset: 0.35
   aimingMoveReduction: 0.2
   reloadTime: 0.5
   boltDelay: 0.2

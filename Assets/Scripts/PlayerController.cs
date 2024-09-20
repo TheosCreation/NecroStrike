@@ -125,6 +125,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     private void Die()
     {
         OnDeath?.Invoke();
+        GameManager.Instance.ExitToMainMenu();
     }
 
     public void HitHead()

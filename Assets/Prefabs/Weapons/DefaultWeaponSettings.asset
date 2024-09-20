@@ -35,6 +35,9 @@ MonoBehaviour:
   damageFallOffDistance: 100
   headShotMultiplier: 1.5
   spreadAmount: 0.05
+  spreadIncreasePerShot: 0.05
+  maxSpread: 0.25
+  spreadRecoverRate: 4
   aimingZoomLevel: 1.2
   cameraZOffset: 0.05
   aimingMoveReduction: 0.2
