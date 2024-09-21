@@ -7,7 +7,10 @@ using UnityEngine.Animations.Rigging;
 public class WeaponHolder : MonoBehaviour
 {
     [HideInInspector] public PlayerController player;
-    public Weapon currentWeapon; 
+    public Weapon currentWeapon;
+    public MeleeWeapon meleeWeapon;
+    private Weapon previousWeapon;
+    Timer meleeTimer;
     [SerializeField] private List<Weapon> weapons = new List<Weapon>();
     [SerializeField] private int maxHeldWeaponCount = 2;
     [SerializeField] private float throwForce = 0.5f;
@@ -18,6 +21,7 @@ public class WeaponHolder : MonoBehaviour
     [SerializeField] float transitionSpeed = 5.0f;
     int currentWeaponIndex = 0;
     private bool isSwitching = false;
+    [SerializeField] private bool isMeleeing = false;
 
     [Header("Right Hand Target")]
     //Base Hand
@@ -66,7 +70,8 @@ public class WeaponHolder : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        player = GetComponent<PlayerController>();
+        player = GetComponent<PlayerController>(); 
+        meleeTimer = gameObject.AddComponent<Timer>();
         InputManager.Instance.playerInput.InGame.WeaponSwitch.performed += ctx => WeaponSwitch(ctx.ReadValue<Vector2>());
         InputManager.Instance.playerInput.InGame.Attack.started += _ctx => TryStartAttacking();
         InputManager.Instance.playerInput.InGame.Attack.canceled += _ctx => currentWeapon?.StopAttacking();
@@ -75,6 +80,9 @@ public class WeaponHolder : MonoBehaviour
         InputManager.Instance.playerInput.InGame.Drop.started += _ctx => TryDropWeapon();
         InputManager.Instance.playerInput.InGame.Reload.started += _ctx => currentWeapon?.Reload();
         InputManager.Instance.playerInput.InGame.Inspect.started += _ctx => currentWeapon?.Inspect();
+        InputManager.Instance.playerInput.InGame.Melee.started += _ctx => Melee();
+
+        meleeWeapon.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -149,7 +157,7 @@ public class WeaponHolder : MonoBehaviour
 
     private void TryDropWeapon()
     {
-        if (currentWeapon == null) return;
+        if (currentWeapon == null && isMeleeing) return;
         currentWeapon.Drop(throwForce);
         weapons.RemoveAt(currentWeaponIndex); // Remove the dropped weapon
         currentWeapon = null;
@@ -234,5 +242,36 @@ public class WeaponHolder : MonoBehaviour
     {
         player.playerMovement.EndSprinting();
         currentWeapon?.StartAiming();
+    }
+
+    private void Melee()
+    {
+        if(isMeleeing) return;
+        player.playerMovement.EndSprinting();
+        if (currentWeapon != null)
+        {
+            currentWeapon.gameObject.SetActive(false);
+            currentWeapon.isAttacking = false;
+            previousWeapon = currentWeapon;
+        }
+        isMeleeing = true;
+        meleeWeapon.gameObject.SetActive(true);
+        meleeWeapon.Swing();
+        currentWeapon = meleeWeapon;
+        meleeTimer.SetTimer(meleeWeapon.swingDuration, EndMelee);
+    }
+
+    private void EndMelee()
+    {
+        isMeleeing = false;
+        meleeWeapon.gameObject.SetActive(false);
+        if(previousWeapon == null)
+        {
+            currentWeapon = null;
+        }
+        else
+        {
+            SelectWeapon(previousWeapon);
+        }
     }
 }

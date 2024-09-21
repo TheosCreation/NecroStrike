@@ -134,6 +134,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Melee"",
+                    ""type"": ""Button"",
+                    ""id"": ""1b3b090e-ec91-4fb0-8441-2bec35108690"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -312,6 +321,39 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""WeaponSwitch"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""be72845b-f904-4f7f-b1d3-264c5dead223"",
+                    ""path"": ""<Keyboard>/v"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Melee"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""993e5cae-23e2-4ed4-9a11-a8b4499e0829"",
+                    ""path"": ""<Mouse>/backButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Melee"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c65ee1e6-539b-434f-87b4-5ad89dfc7f2e"",
+                    ""path"": ""<Keyboard>/9"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Melee"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -360,6 +402,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_InGame_Inspect = m_InGame.FindAction("Inspect", throwIfNotFound: true);
         m_InGame_Crouch = m_InGame.FindAction("Crouch", throwIfNotFound: true);
         m_InGame_WeaponSwitch = m_InGame.FindAction("WeaponSwitch", throwIfNotFound: true);
+        m_InGame_Melee = m_InGame.FindAction("Melee", throwIfNotFound: true);
         // Ui
         m_Ui = asset.FindActionMap("Ui", throwIfNotFound: true);
         m_Ui_Pause = m_Ui.FindAction("Pause", throwIfNotFound: true);
@@ -436,6 +479,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_InGame_Inspect;
     private readonly InputAction m_InGame_Crouch;
     private readonly InputAction m_InGame_WeaponSwitch;
+    private readonly InputAction m_InGame_Melee;
     public struct InGameActions
     {
         private @PlayerInput m_Wrapper;
@@ -452,6 +496,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Inspect => m_Wrapper.m_InGame_Inspect;
         public InputAction @Crouch => m_Wrapper.m_InGame_Crouch;
         public InputAction @WeaponSwitch => m_Wrapper.m_InGame_WeaponSwitch;
+        public InputAction @Melee => m_Wrapper.m_InGame_Melee;
         public InputActionMap Get() { return m_Wrapper.m_InGame; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -497,6 +542,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @WeaponSwitch.started += instance.OnWeaponSwitch;
             @WeaponSwitch.performed += instance.OnWeaponSwitch;
             @WeaponSwitch.canceled += instance.OnWeaponSwitch;
+            @Melee.started += instance.OnMelee;
+            @Melee.performed += instance.OnMelee;
+            @Melee.canceled += instance.OnMelee;
         }
 
         private void UnregisterCallbacks(IInGameActions instance)
@@ -537,6 +585,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @WeaponSwitch.started -= instance.OnWeaponSwitch;
             @WeaponSwitch.performed -= instance.OnWeaponSwitch;
             @WeaponSwitch.canceled -= instance.OnWeaponSwitch;
+            @Melee.started -= instance.OnMelee;
+            @Melee.performed -= instance.OnMelee;
+            @Melee.canceled -= instance.OnMelee;
         }
 
         public void RemoveCallbacks(IInGameActions instance)
@@ -614,6 +665,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnInspect(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
         void OnWeaponSwitch(InputAction.CallbackContext context);
+        void OnMelee(InputAction.CallbackContext context);
     }
     public interface IUiActions
     {

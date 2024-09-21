@@ -150,7 +150,7 @@ public class Weapon : MonoBehaviour, IInteractable
         //holder = transform.root.GetComponent<WeaponHolder>();
     }
 
-    public void Drop(float _force)
+    public virtual void Drop(float _force)
     {
         StopAiming();
         StopAttacking();
@@ -283,7 +283,7 @@ public class Weapon : MonoBehaviour, IInteractable
         return false;
     }
 
-    public void Inspect()
+    public virtual void Inspect()
     {
         if (isReloading || isInspecting) return;
 
@@ -561,7 +561,7 @@ public class Weapon : MonoBehaviour, IInteractable
         isAttacking = false;
     }
 
-    public void StartAiming()
+    public virtual void StartAiming()
     {
         if(isInspecting) return;
 
@@ -579,7 +579,7 @@ public class Weapon : MonoBehaviour, IInteractable
         UiManager.Instance.SetCrosshair(true);
     }
 
-    public void Reload()
+    public virtual void Reload()
     {
         if (!isReloading && ammoLeft < settings.magSize && ammoReserve > 0 && !isInspecting)
         {

@@ -161,7 +161,7 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("IsMoving", movementController.movement);
         animator.SetBool("IsCrouching", isCrouching);
-        animator.SetFloat("Movement", movementMultiplier);
+        animator.SetFloat("Movement", movementMultiplier * 1.5f); //multiplied by constant for more effect
         animator.SetBool("IsSliding", isSliding);
     }
 
