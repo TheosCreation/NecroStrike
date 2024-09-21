@@ -157,6 +157,15 @@ public class Weapon : MonoBehaviour, IInteractable
         CancelReload();
         Unequip();
 
+        if (attachedScope && holder)
+        {
+            attachedScope.SetZoom(false);
+        }
+        if (holder != null)
+        {
+            holder.player.playerLook.ResetZoomLevel();
+        }
+
         holder = null;
         transform.parent = null;
         isHeld = false;
@@ -230,10 +239,12 @@ public class Weapon : MonoBehaviour, IInteractable
 
     private bool CanShoot()
     {
+        float timeBetweenShots = 60f / settings.rateOfFire; // Converts RPM to seconds per shot
+
         if (settings.firemode == Firemode.Burst)
         {
             // Check if we are within the burst cooldown
-            if (Time.time - lastShotTime >= 1 / settings.fireRatePerSecond)
+            if (Time.time - lastShotTime >= timeBetweenShots)
             {
                 // Allow to shoot until 3 shots are fired
                 if (burstShotsFired < 3)
@@ -258,7 +269,7 @@ public class Weapon : MonoBehaviour, IInteractable
         else
         {
             // Handle Auto and Single Fire modes
-            if (Time.time - lastShotTime >= 1 / settings.fireRatePerSecond)
+            if (Time.time - lastShotTime >= timeBetweenShots)
             {
                 return true;
             }
@@ -578,21 +589,26 @@ public class Weapon : MonoBehaviour, IInteractable
             animator.SetTrigger("Reload");
 
             reloadTimer.SetTimer(settings.reloadTime, FinishReload);
+
+            holder.player.playerMovement.canSprint = false;
         }
     }
 
     private void FinishReload()
     {
         isReloading = false;
+        holder.player.playerMovement.canSprint = true;
         FillMag();
     }
 
-    private void CancelReload()
+    public void CancelReload()
     {
         if(isReloading)
         {
             reloadTimer.StopTimer();
             isReloading = false;
+            holder.player.playerMovement.canSprint = true;
+            audioSource.Stop();
             animator.SetTrigger("CancelReload");
         }
     }

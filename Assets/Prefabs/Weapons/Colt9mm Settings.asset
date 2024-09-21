@@ -39,7 +39,7 @@ MonoBehaviour:
   maxSpread: 0.25
   spreadRecoverRate: 4
   aimingZoomLevel: 1.2
-  cameraZOffset: 0.05
+  cameraZOffset: 0.27
   aimingMoveReduction: 0.2
   reloadTime: 0.5
   boltDelay: 0.2

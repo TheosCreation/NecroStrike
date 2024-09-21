@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
   m_Name: 1911 Settings
   m_EditorClassIdentifier: 
-  fireRatePerSecond: 6
+  rateOfFire: 450
   weaponClass: 2
   bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
   muzzleFlashPrefabs:
@@ -29,10 +29,10 @@ MonoBehaviour:
   burstCooldown: 1
   recoilResetTimeSeconds: 1
   recoilPattern: {fileID: 11400000, guid: e572114a4b6da0a4e8b36c6638b9a989, type: 2}
-  magSize: 30
+  magSize: 8
   startingAmmoReserve: 1000
-  baseDamage: 50
-  damageFallOffDistance: 100
+  baseDamage: 20
+  damageFallOffDistance: 50
   headShotMultiplier: 1.5
   spreadAmount: 0.02
   spreadIncreasePerShot: 0.05
@@ -41,7 +41,7 @@ MonoBehaviour:
   aimingZoomLevel: 1.2
   cameraZOffset: 0.2
   aimingMoveReduction: 0.2
-  reloadTime: 0.5
+  reloadTime: 2.3
   boltDelay: 0.2
   boltActionLength: 0.5
   firingSounds:

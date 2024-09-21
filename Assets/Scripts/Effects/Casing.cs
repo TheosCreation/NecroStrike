@@ -1,31 +1,32 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Audio;
 
 public class Casing : MonoBehaviour {
 
 	[Header("Force X")]
 	[Tooltip("Minimum force on X axis")]
-	public float minimumXForce;		
+	public float minimumXForce = 25f;		
 	[Tooltip("Maimum force on X axis")]
-	public float maximumXForce;
+	public float maximumXForce = 40f;
 	[Header("Force Y")]
 	[Tooltip("Minimum force on Y axis")]
-	public float minimumYForce;
+	public float minimumYForce = 10f;
 	[Tooltip("Maximum force on Y axis")]
-	public float maximumYForce;
+	public float maximumYForce = 20f;
 	[Header("Force Z")]
 	[Tooltip("Minimum force on Z axis")]
-	public float minimumZForce;
+	public float minimumZForce = -12f;
 	[Tooltip("Maximum force on Z axis")]
-	public float maximumZForce;
+	public float maximumZForce = 12f;
 	[Header("Rotation Force")]
 	[Tooltip("Minimum initial rotation value")]
-	public float minimumRotation;
+	public float minimumRotation = -360f;
 	[Tooltip("Maximum initial rotation value")]
-	public float maximumRotation;
+	public float maximumRotation = 360f;
 	[Header("Despawn Time")]
 	[Tooltip("How long after spawning that the casing is destroyed")]
-	public float despawnTime;
+	public float despawnTime = 1f;
 
 	[Header("Audio")]
 	public AudioClip[] casingSounds;
@@ -55,12 +56,14 @@ public class Casing : MonoBehaviour {
 
 	private void Start ()
     {
+		//Destroy casings after some time
         Destroy(gameObject, despawnTime);
 
 		//Set random rotation at start
 		transform.rotation = Random.rotation;
-		//Start play sound coroutine
-		StartCoroutine (PlaySound ());
+
+        //Start play sound
+        PlaySound();
 	}
 
 	private void FixedUpdate () 
@@ -70,14 +73,13 @@ public class Casing : MonoBehaviour {
 		transform.Rotate (Vector3.down, speed * Time.deltaTime);
 	}
 
-	private IEnumerator PlaySound () 
+	private void PlaySound () 
 	{
-		//Wait for random time before playing sound clip
-		yield return new WaitForSeconds (Random.Range(0.25f, 0.85f));
 		//Get a random casing sound from the array 
 		audioSource.clip = casingSounds
 			[Random.Range(0, casingSounds.Length)];
-		//Play the random casing sound
-		audioSource.Play();
+
+		//play after short time
+		audioSource.PlayDelayed(Random.Range(0.25f, 0.85f));
 	}
 }

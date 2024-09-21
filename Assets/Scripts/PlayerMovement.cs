@@ -121,7 +121,7 @@ public class PlayerMovement : MonoBehaviour
         {
             multiplier = crouchMoveMultiplier;
         }
-        else if (isSprinting)
+        else if (isSprinting && canSprint)
         {
             if (playerController.weaponHolder.currentWeapon != null)
             {
@@ -228,6 +228,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isSprinting || isCrouching) return;
         isSprinting = true;
+        playerController.weaponHolder.currentWeapon?.CancelReload();
     }
 
     public void EndSprinting()

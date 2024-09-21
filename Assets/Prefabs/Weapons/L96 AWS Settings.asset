@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
   m_Name: L96 AWS Settings
   m_EditorClassIdentifier: 
-  fireRatePerSecond: 1
+  rateOfFire: 50
   weaponClass: 3
   bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
   muzzleFlashPrefabs:

@@ -4,7 +4,8 @@ using UnityEngine;
 public class WeaponSettings : ScriptableObject
 {
     [Header("Attacking")]
-    public float fireRatePerSecond = 3f;
+    [Tooltip("Minimum force on Z axis")]
+    public float rateOfFire = 700f;
     public WeaponClass weaponClass = WeaponClass.Rifle;
     public BulletTrail bulletTrailPrefab;
     public MuzzleFlash[] muzzleFlashPrefabs;

@@ -127,16 +127,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b04bdb266ef9dd646ac0bd215d9c96d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minimumXForce: 0
-  maximumXForce: 0
-  minimumYForce: 0
-  maximumYForce: 0
-  minimumZForce: 0
-  maximumZForce: 0
-  minimumRotation: 0
-  maximumRotation: 0
-  despawnTime: 0
-  casingSounds: []
+  minimumXForce: 25
+  maximumXForce: 40
+  minimumYForce: 10
+  maximumYForce: 20
+  minimumZForce: -12
+  maximumZForce: 12
+  minimumRotation: -360
+  maximumRotation: 360
+  despawnTime: 1
+  casingSounds:
+  - {fileID: 8300000, guid: 90602b60324612d4d96ae38178bc395f, type: 3}
+  - {fileID: 8300000, guid: dec2611564313f94fa8b86075b6debb3, type: 3}
+  - {fileID: 8300000, guid: 454726d0ce29d064b8a95d0a69487fa0, type: 3}
   audioSource: {fileID: 82444821930212418}
   speed: 2500
 --- !u!82 &82444821930212418

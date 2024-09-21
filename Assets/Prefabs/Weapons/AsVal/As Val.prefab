@@ -249,7 +249,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 2443968964500441627, guid: a9e633874a33dc84fa5fd9fc36be00d5, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -446,7 +446,7 @@ MonoBehaviour:
   applyRecoil: 1
   defaultWeaponPartSOList:
   - {fileID: 11400000, guid: e3d670e2094610845b2e4794f6624742, type: 2}
-  - {fileID: 11400000, guid: 1c27eb89ae022ae42ab69d08ca01e064, type: 2}
+  - {fileID: 11400000, guid: 8baa7a0a7e656eb4fafc4fc72d9bde7f, type: 2}
 --- !u!114 &3337116250769456355
 MonoBehaviour:
   m_ObjectHideFlags: 0
