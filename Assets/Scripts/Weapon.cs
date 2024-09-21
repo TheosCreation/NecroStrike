@@ -154,6 +154,7 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         StopAiming();
         StopAttacking();
+        CancelReload();
         Unequip();
 
         holder = null;
@@ -169,7 +170,6 @@ public class Weapon : MonoBehaviour, IInteractable
     public void Equip()
     {
         isEquip = true;
-
         UiManager.Instance.UpdateAmmoText(ammoLeft);
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
@@ -178,8 +178,7 @@ public class Weapon : MonoBehaviour, IInteractable
     {
         isEquip = false;
 
-        UiManager.Instance.UpdateAmmoText(0);
-        UiManager.Instance.UpdateAmmoReserveText(0);
+        CancelReload();
     }
 
     void Update()
@@ -187,9 +186,9 @@ public class Weapon : MonoBehaviour, IInteractable
         //attacking
         if (isAttacking)
         {
-            if (CanShoot() && isEquip && !isReloading && !isInspecting)
+            if (CanShoot() && isEquip && !isInspecting)
             {
-                if (ammoLeft > 0)
+                if (ammoLeft > 0 && !isReloading)
                 {
                     Attack();
                 }
@@ -380,12 +379,6 @@ public class Weapon : MonoBehaviour, IInteractable
         {
             isAttacking = false;
             if (settings.weaponClass == WeaponClass.Sniper) PullBolt();
-        }
-
-        // Reload if out of ammo
-        if (ammoLeft <= 0)
-        {
-            Reload();
         }
     }
 
@@ -594,6 +587,16 @@ public class Weapon : MonoBehaviour, IInteractable
         FillMag();
     }
 
+    private void CancelReload()
+    {
+        if(isReloading)
+        {
+            reloadTimer.StopTimer();
+            isReloading = false;
+            animator.SetTrigger("CancelReload");
+        }
+    }
+
     public void SetPart(WeaponPartSO weaponPartSO)
     {
         // Destroy currently attached part
@@ -610,7 +613,7 @@ public class Weapon : MonoBehaviour, IInteractable
         Transform attachPointTransform = attachedWeaponPart.partTypeAttachPoint.attachPointTransform;
         spawnedPartTransform.parent = attachPointTransform;
         spawnedPartTransform.localEulerAngles = Vector3.zero;
-        spawnedPartTransform.localPosition = Vector3.zero;
+        spawnedPartTransform.localPosition = weaponPartSO.spawnOffset;
         spawnedPartTransform.localScale = new Vector3(1,1,1);
 
         attachedWeaponPart.weaponPartSO = weaponPartSO;

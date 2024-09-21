@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 121704961758036636}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0.1371, z: 0.1563}
+  m_LocalPosition: {x: -0, y: 0.13675, z: 0.1563}
   m_LocalScale: {x: 0.83, y: 0.83, z: 0.83}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -449,7 +449,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4948621772067647318}
   m_Layer: 0
-  m_Name: Animation
+  m_Name: AnimationMotion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -892,6 +892,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e67e49fe39aea0c4abb85cb048110d61, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  holder: {fileID: 0}
   collisionCollider: {fileID: 92971900393900197}
   muzzleTransform: {fileID: 4287732897404794088}
   casingEjectionTransform: {fileID: 8448374165828151181}
@@ -904,9 +905,7 @@ MonoBehaviour:
   isInspecting: 0
   isBoltAction: 0
   settings: {fileID: 11400000, guid: 0b4314602aa90d84880c5ae3b7ba05fb, type: 2}
-  hitLayers:
-    serializedVersion: 2
-    m_Bits: 1
+  currentSpread: 0
   recoil: {x: 0, y: 0}
   IKRightHandPos: {fileID: 2251300493469007936}
   IKRightIndexPos: {fileID: 6883977347147949213}

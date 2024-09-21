@@ -188,7 +188,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraFov: 15
   scopeCamera: {fileID: 7309710146846926402}
-  crosshairPrefab: {fileID: 2509236587251976708, guid: 1a0816e45241ba4478b83685518468f7, type: 3}
+  Crosshair: {fileID: 11400000, guid: 3fb7aeb141065bb4b9243ae87a30f0f6, type: 2}
   crosshairAttachmentTransform: {fileID: 1541771377324519438}
 --- !u!1 &895755785333425500
 GameObject:

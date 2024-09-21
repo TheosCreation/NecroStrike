@@ -32,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Sprinting")]
     [SerializeField] public bool isSprinting = false;
+    [SerializeField] public bool canSprint = true;
 
     [Header("Sliding")]
     [SerializeField] public bool isSliding = false;
@@ -115,13 +116,29 @@ public class PlayerMovement : MonoBehaviour
     private void CheckMoveSpeed()
     {
         float multiplier = 1f;
-        if(isCrouching)
+
+        if (isCrouching)
         {
             multiplier = crouchMoveMultiplier;
         }
-        else if(isSprinting)
+        else if (isSprinting)
         {
-            multiplier = sprintMoveMultiplier;
+            if (playerController.weaponHolder.currentWeapon != null)
+            {
+                // Ensure we are not aiming or attacking while sprinting
+                if (!playerController.weaponHolder.currentWeapon.isAiming && !playerController.weaponHolder.currentWeapon.isAttacking)
+                {
+                    // Check if moving forward (positive y direction) to allow sprinting
+                    if (movementInput.y > 0)
+                    {
+                        multiplier = sprintMoveMultiplier;
+                    }
+                }
+            }
+            else if (movementInput.y > 0) // Sprint only if moving forward
+            {
+                multiplier = sprintMoveMultiplier;
+            }
         }
         else
         {
@@ -131,7 +148,7 @@ public class PlayerMovement : MonoBehaviour
         Weapon currentWeapon = playerController.weaponHolder.currentWeapon;
         if (currentWeapon != null)
         {
-            if(currentWeapon.isAiming)
+            if (currentWeapon.isAiming)
             {
                 multiplier -= currentWeapon.settings.aimingMoveReduction;
             }
@@ -144,7 +161,7 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("IsMoving", movementController.movement);
         animator.SetBool("IsCrouching", isCrouching);
-        animator.SetBool("IsSprinting", isSprinting);
+        animator.SetFloat("Movement", movementMultiplier);
         animator.SetBool("IsSliding", isSliding);
     }
 
@@ -184,14 +201,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private void StartCrouching()
-    {   
-        if(isSprinting && Mathf.Abs(horizontalMovementSpeed.magnitude) > walkMoveSpeed)
+    {
+        if (isSprinting && Mathf.Abs(horizontalMovementSpeed.magnitude) > walkMoveSpeed)
         {
             Slide(transform.forward, slideForce, slideDuration);
         }
         else
         {
             isCrouching = true;
+            EndSprinting();
         }
 
         SetCapsuleHeight(crouchHeightMultiplier);
@@ -208,10 +226,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartSprinting()
     {
+        if (isSprinting || isCrouching) return;
         isSprinting = true;
     }
 
-    private void EndSprinting()
+    public void EndSprinting()
     {
         isSprinting = false;
     }

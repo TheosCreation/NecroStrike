@@ -135,10 +135,15 @@ MonoBehaviour:
   maximumZForce: 0
   minimumRotation: 0
   maximumRotation: 0
-  despawnTime: 0
-  casingSounds: []
-  audioSource: {fileID: 0}
-  speed: 2500
+  despawnTime: 0.85
+  casingSounds:
+  - {fileID: 8300000, guid: ce061822bd3ea954799cd9ca8f267b30, type: 3}
+  - {fileID: 8300000, guid: 448d5d92d435b104b86b680d06b949da, type: 3}
+  - {fileID: 8300000, guid: b16da7f52d398714da81c62f2c94dc97, type: 3}
+  - {fileID: 8300000, guid: 187e517e6d4aa504db111733a892b595, type: 3}
+  - {fileID: 8300000, guid: 736e1b0b2319b96489c058313f18eb2d, type: 3}
+  audioSource: {fileID: 82444821930212418}
+  speed: 100
 --- !u!82 &82444821930212418
 AudioSource:
   m_ObjectHideFlags: 0

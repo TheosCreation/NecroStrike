@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 5
   prefab: {fileID: 4952537147660608, guid: c9a1c2f3ae73bde40841835e0bd84c3f, type: 3}
+  spawnOffset: {x: 0, y: 0.0032, z: 0}

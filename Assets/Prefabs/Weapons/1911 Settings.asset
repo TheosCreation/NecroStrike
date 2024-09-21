@@ -17,8 +17,8 @@ MonoBehaviour:
   bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
   muzzleFlashPrefabs:
   - {fileID: 3083625860547727936, guid: 0679d9862f73a534bbff228d82c04758, type: 3}
-  casingPrefab: {fileID: 114121961160874846, guid: 6c61b7126be9465419a6a00e511f329a, type: 3}
-  firemode: 0
+  casingPrefab: {fileID: 114121961160874846, guid: 633c0705919754a47bba3f1bcc49c794, type: 3}
+  firemode: 2
   hitLayers:
     serializedVersion: 2
     m_Bits: 513
@@ -39,7 +39,7 @@ MonoBehaviour:
   maxSpread: 0.25
   spreadRecoverRate: 4
   aimingZoomLevel: 1.2
-  cameraZOffset: 0.05
+  cameraZOffset: 0.2
   aimingMoveReduction: 0.2
   reloadTime: 0.5
   boltDelay: 0.2

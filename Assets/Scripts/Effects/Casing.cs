@@ -53,10 +53,10 @@ public class Casing : MonoBehaviour {
 			Random.Range (minimumZForce, maximumZForce)); //Z Axis		     
 	}
 
-	private void Start () 
-	{
-		//Start the remove/destroy coroutine
-		StartCoroutine (RemoveCasing ());
+	private void Start ()
+    {
+        Destroy(gameObject, despawnTime);
+
 		//Set random rotation at start
 		transform.rotation = Random.rotation;
 		//Start play sound coroutine
@@ -79,13 +79,5 @@ public class Casing : MonoBehaviour {
 			[Random.Range(0, casingSounds.Length)];
 		//Play the random casing sound
 		audioSource.Play();
-	}
-
-	private IEnumerator RemoveCasing () 
-	{
-		//Destroy the casing after set amount of seconds
-		yield return new WaitForSeconds (despawnTime);
-		//Destroy casing object
-		Destroy (gameObject);
 	}
 }

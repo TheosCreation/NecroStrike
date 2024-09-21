@@ -68,9 +68,9 @@ public class WeaponHolder : MonoBehaviour
         animator = GetComponent<Animator>();
         player = GetComponent<PlayerController>();
         InputManager.Instance.playerInput.InGame.WeaponSwitch.performed += ctx => WeaponSwitch(ctx.ReadValue<Vector2>());
-        InputManager.Instance.playerInput.InGame.Attack.started += _ctx => currentWeapon?.StartAttacking();
+        InputManager.Instance.playerInput.InGame.Attack.started += _ctx => TryStartAttacking();
         InputManager.Instance.playerInput.InGame.Attack.canceled += _ctx => currentWeapon?.StopAttacking();
-        InputManager.Instance.playerInput.InGame.Aim.started += _ctx => currentWeapon?.StartAiming();
+        InputManager.Instance.playerInput.InGame.Aim.started += _ctx => TryStartAiming();
         InputManager.Instance.playerInput.InGame.Aim.canceled += _ctx => currentWeapon?.StopAiming();
         InputManager.Instance.playerInput.InGame.Drop.started += _ctx => TryDropWeapon();
         InputManager.Instance.playerInput.InGame.Reload.started += _ctx => currentWeapon?.Reload();
@@ -175,7 +175,7 @@ public class WeaponHolder : MonoBehaviour
         {
             currentWeaponIndex = (currentWeaponIndex - 1 + weapons.Count) % weapons.Count;
         }
-
+        currentWeapon?.Unequip();
         SelectWeapon(currentWeaponIndex);
         yield return new WaitForSeconds(scrollSwitchDelay);
         isSwitching = false;
@@ -222,5 +222,17 @@ public class WeaponHolder : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void TryStartAttacking()
+    {
+        player.playerMovement.EndSprinting();
+        currentWeapon?.StartAttacking();
+    }
+    
+    private void TryStartAiming()
+    {
+        player.playerMovement.EndSprinting();
+        currentWeapon?.StartAiming();
     }
 }

@@ -22,6 +22,6 @@ public class WeaponPartSO : ScriptableObject
 
     public PartType partType;
     public Transform prefab;
-
+    public Vector3 spawnOffset = Vector3.zero;
 
 }

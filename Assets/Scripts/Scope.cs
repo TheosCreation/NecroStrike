@@ -4,12 +4,12 @@ public class Scope : MonoBehaviour
 {
     public float cameraFov = 30f;
     public Camera scopeCamera;
-    [SerializeField] private Crosshair crosshairPrefab;
+    [SerializeField] private CrosshairSO Crosshair;
     [SerializeField] private Transform crosshairAttachmentTransform;
 
     private void Awake()
     {
-        Crosshair crosshair = Instantiate(crosshairPrefab);
+        Crosshair crosshair = Instantiate(Crosshair.prefab);
 
         crosshair.transform.parent = crosshairAttachmentTransform;
         crosshair.transform.localEulerAngles = Vector3.zero;
@@ -19,12 +19,16 @@ public class Scope : MonoBehaviour
 
     private void Start()
     {
+        if (scopeCamera == null) return;
+
         scopeCamera.transform.parent.gameObject.SetActive(false);
         scopeCamera.fieldOfView = cameraFov;
     }
 
     public void SetZoom(bool zoom)
     {
+        if (scopeCamera == null) return;
+
         if (zoom)
         {
             scopeCamera.transform.parent.gameObject.SetActive(true);
