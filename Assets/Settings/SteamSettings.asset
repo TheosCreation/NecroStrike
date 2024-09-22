@@ -26,7 +26,7 @@ MonoBehaviour:
     serverId:
       m_SteamID: 0
     usingGameServerAuthApi: 0
-    enableHeartbeats: 1
+    enableHeartbeats: 0
     supportSpectators: 0
     spectatorServerName: Usually GameDescription + Spectator
     anonymousServerLogin: 0

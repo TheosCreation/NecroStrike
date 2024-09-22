@@ -55,7 +55,7 @@ public class Weapon : MonoBehaviour, IInteractable
     private Timer inspectTimer;
     private Timer boltActionTimer;
 
-    private AudioSource audioSource;
+    protected AudioSource audioSource;
 
     [Header("Right Hand Setup")]
     public Transform IKRightHandPos;

@@ -22,6 +22,7 @@ public class WeaponHolder : MonoBehaviour
     int currentWeaponIndex = 0;
     private bool isSwitching = false;
     [SerializeField] private bool isMeleeing = false;
+    private float lastMeleeTime = 0f;
 
     [Header("Right Hand Target")]
     //Base Hand
@@ -263,7 +264,8 @@ public class WeaponHolder : MonoBehaviour
 
     private void Melee()
     {
-        if(isMeleeing) return;
+        if (isMeleeing || Time.time < lastMeleeTime + meleeWeapon.swingDuration + meleeWeapon.meleeCooldown) return;
+        lastMeleeTime = Time.time;
         player.playerMovement.EndSprinting();
         if (currentWeapon != null)
         {
