@@ -117,8 +117,6 @@ public class WaveSpawner : MonoBehaviour
         {
             zombie.OnDeath += HandleZombieDeath;
         }
-
-        Debug.Log("Zombie spawned at " + spawnPoint.position);
     }
 
     private void HandleZombieDeath()
