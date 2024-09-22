@@ -43,6 +43,7 @@ public class Enemy : MonoBehaviour, IDamageable
     public EnemyState currentState;
 
     [SerializeField] private bool hasHead = true;
+    [SerializeField] private bool isDead = false;
 
     public int maxHealth = 100;
     private float health;
@@ -137,9 +138,15 @@ public class Enemy : MonoBehaviour, IDamageable
         Health = Mathf.Clamp(newHealth, 0, maxHealth);
     }
 
-    private void Die()
+    public void Die()
     {
-        OnDeath?.Invoke(); 
+        if (isDead) return;
+
+        isDead = true;
+        if (OnDeath != null)
+        {
+            OnDeath.Invoke();
+        }
         ragdoll.ActivateRagdoll();
 
         swingCheck.gameObject.SetActive(false);

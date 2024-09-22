@@ -7,25 +7,34 @@ public class WaveSpawner : MonoBehaviour
     [SerializeField] private PlayerController player;
     [SerializeField] private Transform[] spawnPoints; // Points where zombies will spawn
     [SerializeField] private float preparationTime = 5.0f; // Time to prepare before wave starts
-    [SerializeField] private float waveDuration = 20.0f; // Time duration for the wave
-    [SerializeField] private int zombiesPerWave = 10; // Total number of zombies to spawn per wave
-    [SerializeField] private float timeBetweenSpawns = 1.0f; // Time between spawning each zombie
-    [SerializeField] private float waveCooldown = 10.0f; // Cooldown time between waves
-    [SerializeField] private float spawnOffsetRange = 2.0f; // Range for random offsets
+    [SerializeField] private float timeBetweenRounds = 10.0f; // Cooldown between rounds
+    [SerializeField] private float baseZombiesPerSecond = 0.5f; // Zombies spawn rate per second at the first round
+    [SerializeField] private int baseZombies = 10; // Base zombies per round
+    [SerializeField] private float healthIncreaseMultiplier = 1.1f;
+    [SerializeField] private float zombiesMoveSpeedAdd = 0.2f;
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip roundStartClip;
+    [SerializeField] private AudioClip roundEndClip;
 
-    private float preparationStartTime;
-    private float spawnStartTime;
-    private float nextSpawnTime;
-    private float nextWaveStartTime;
+    private int currentRound = 1;
+    private int zombiesLeftToSpawn;
+    private int zombiesAlive;
+    [SerializeField] private int zombiesCurrentHealth = 150;
+    [SerializeField] private float zombiesMoveSpeed = 2.0f;
+    private bool isSpawning = false;
     private bool isPreparing = true;
-    private bool isWaveActive = false;
-    private bool isCooldown = false;
-    private int zombiesRemaining;
-    private int activeZombies;
+    private float spawnTimer;
+    private float spawnInterval;
 
+    private float roundCooldownTimer;
+    private float preparationTimer;
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
     private void Start()
     {
-        preparationStartTime = Time.time;
+        StartRound();
     }
 
     private void Update()
@@ -34,11 +43,11 @@ public class WaveSpawner : MonoBehaviour
         {
             HandlePreparation();
         }
-        else if (isWaveActive)
+        else if (isSpawning)
         {
             HandleSpawning();
         }
-        else if (isCooldown)
+        else
         {
             HandleCooldown();
         }
@@ -46,51 +55,68 @@ public class WaveSpawner : MonoBehaviour
 
     private void HandlePreparation()
     {
-        if (Time.time - preparationStartTime >= preparationTime)
+        preparationTimer += Time.deltaTime;
+        if (preparationTimer >= preparationTime)
         {
-            // Start the wave
-            isPreparing = false;
-            isWaveActive = true;
-            spawnStartTime = Time.time;
-            nextSpawnTime = Time.time;
-            zombiesRemaining = zombiesPerWave;
-            activeZombies = zombiesRemaining;
-            Debug.Log("Wave started! Spawning zombies.");
+            // Start spawning zombies for the new round
+            StartSpawning();
         }
     }
 
     private void HandleSpawning()
     {
-        if (Time.time - spawnStartTime >= waveDuration || activeZombies <= 0)
+        spawnTimer -= Time.deltaTime;
+        if (spawnTimer <= 0 && zombiesLeftToSpawn > 0 && zombiesAlive < GetMaxZombiesAlive())
         {
-            // End the wave and start cooldown
-            isWaveActive = false;
-            isCooldown = true;
-            nextWaveStartTime = Time.time;
-            Debug.Log(activeZombies > 0 ? $"Wave ended. {activeZombies} zombies left." : "Wave completed!");
-            return;
+            SpawnZombie();
+            spawnTimer = spawnInterval;
         }
 
-        if (Time.time >= nextSpawnTime && zombiesRemaining > 0)
+        if (zombiesAlive <= 0 && zombiesLeftToSpawn <= 0)
         {
-            // Spawn a zombie with variations
-            SpawnZombie();
-            zombiesRemaining--;
-            // Schedule the next spawn
-            nextSpawnTime = Time.time + timeBetweenSpawns;
+            EndRound();
         }
     }
 
     private void HandleCooldown()
     {
-        if (Time.time - nextWaveStartTime >= waveCooldown)
+        roundCooldownTimer += Time.deltaTime;
+        if (roundCooldownTimer >= timeBetweenRounds)
         {
-            // Start the next wave
-            isCooldown = false;
-            preparationStartTime = Time.time;
-            isPreparing = true;
-            Debug.Log("Cooldown over. Preparing for the next wave.");
+            StartRound();
         }
+    }
+
+    private void StartRound()
+    {
+        UiManager.Instance.UpdateRoundCount(currentRound);
+        isPreparing = true;
+        isSpawning = false;
+        preparationTimer = 0;
+        zombiesLeftToSpawn = GetZombiesForCurrentRound();
+        zombiesCurrentHealth = GetZombieHealth();
+        zombiesMoveSpeed = GetZombieSpeed();
+
+        audioSource.PlayOneShot(roundStartClip);
+        Debug.Log("Round " + currentRound + " starting!");
+    }
+
+    private void StartSpawning()
+    {
+        isPreparing = false;
+        isSpawning = true;
+        spawnInterval = 1f / GetZombieSpawnRate();
+        spawnTimer = 0;
+    }
+
+    private void EndRound()
+    {
+        isSpawning = false;
+        isPreparing = false;
+        roundCooldownTimer = 0;
+        currentRound++;
+        audioSource.PlayOneShot(roundEndClip);
+        Debug.Log("Round " + (currentRound - 1) + " ended!");
     }
 
     private void SpawnZombie()
@@ -101,36 +127,60 @@ public class WaveSpawner : MonoBehaviour
             return;
         }
 
-        // Select a random spawn point
         Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
 
-        // Add random offset to spawn position
-        spawnPoint.position += new Vector3(
-            Random.Range(-spawnOffsetRange, spawnOffsetRange),
-            0f,
-            Random.Range(-spawnOffsetRange, spawnOffsetRange)
-        );
-
-        // Spawn the zombie at the calculated position
-        Zombie zombie = factory.SpawnZombie(spawnPoint, player.transform);
+        Zombie zombie = factory.SpawnZombie(spawnPoint, player.transform, zombiesCurrentHealth, zombiesMoveSpeed);
         if (zombie != null)
         {
+            zombiesAlive++;
+            zombiesLeftToSpawn--;
+
+            Debug.Log("Spawned Zombie! Zombies alive: " + zombiesAlive + ", Zombies left to spawn: " + zombiesLeftToSpawn);
+
+            // Subscribe to the OnDeath event to decrement zombiesAlive when the zombie dies
             zombie.OnDeath += HandleZombieDeath;
         }
     }
 
     private void HandleZombieDeath()
     {
-        activeZombies--;
-        Debug.Log("Zombie killed. Active zombies remaining: " + activeZombies);
+        zombiesAlive--;
 
-        // If all zombies are dead, end the wave
-        if (activeZombies <= 0)
+        Debug.Log("Zombie died! Zombies alive: " + zombiesAlive);
+
+        // Make sure zombiesAlive doesn't go negative
+        if (zombiesAlive < 0)
         {
-            isWaveActive = false;
-            isCooldown = true;
-            nextWaveStartTime = Time.time;
-            Debug.Log("Wave completed!");
+            Debug.LogError("zombiesAlive went negative! Fixing it to 0.");
+            zombiesAlive = 0;
         }
+    }
+
+
+    // Helper functions for calculating round progression
+
+    private int GetZombiesForCurrentRound()
+    {
+        return Mathf.RoundToInt(baseZombies * Mathf.Pow(currentRound, 1.1f)); // Example scaling factor
+    }
+
+    private int GetZombieHealth()
+    {
+        return Mathf.RoundToInt(zombiesCurrentHealth * Mathf.Pow(healthIncreaseMultiplier, currentRound - 1));
+    }
+
+    private float GetZombieSpeed()
+    {
+        return zombiesMoveSpeed + (zombiesMoveSpeedAdd * (currentRound - 1));
+    }
+
+    private float GetZombieSpawnRate()
+    {
+        return Mathf.Min(baseZombiesPerSecond + (currentRound * 0.05f), 10f); // Caps at 10 zombies per second
+    }
+
+    private int GetMaxZombiesAlive()
+    {
+        return Mathf.Min(24, currentRound * 4); // Limit active zombies to 24, scaling with rounds
     }
 }

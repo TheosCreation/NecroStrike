@@ -6,11 +6,14 @@ public class ZombieFactory : MonoBehaviour
     [SerializeField] private Mesh[] zombieModels;
 
     // Public method to spawn a zombie at a given location
-    public Zombie SpawnZombie(Transform spawnTransform, Transform followTarget)
+    public Zombie SpawnZombie(Transform spawnTransform, Transform followTarget, int health, float moveSpeed)
     {
         // Instantiate the zombie from the prefab at the provided spawn location
         Zombie zombieSpawned = Instantiate(zombiePrefab, spawnTransform.position, spawnTransform.rotation);
         zombieSpawned.target = followTarget;
+        zombieSpawned.maxHealth = health;
+        zombieSpawned.Health = health;
+        zombieSpawned.agent.speed = moveSpeed;
 
         // Assign a random model to the zombie
         Mesh randomZombieMesh = GetRandomZombieModel();

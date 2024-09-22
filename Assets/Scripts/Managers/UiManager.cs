@@ -19,6 +19,7 @@ public class UiManager : MonoBehaviour
     [SerializeField] private TMP_Text ammoText;
     [SerializeField] private TMP_Text ammoReserveText;
     [SerializeField] private TMP_Text speedText;
+    [SerializeField] private TMP_Text roundCounter;
     [SerializeField] private Image playerWeakOverlay;
 
     //public Image image;
@@ -74,6 +75,11 @@ public class UiManager : MonoBehaviour
     public void UpdateSpeedText(float speed)
     {
         speedText.text = speed.ToString("F2");
+    }
+    
+    public void UpdateRoundCount(int count)
+    {
+        roundCounter.text = count.ToString();
     }
 
     public void FlashHitMarker()
