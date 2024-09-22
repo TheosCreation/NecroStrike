@@ -9,16 +9,18 @@ public class BootstrapLogic : MonoBehaviour
 {
     [SerializeField]
     private LoadingScreenDisplay loadingScreenDisplay;
+    [SerializeField] private Texture2D cursor;
 
     void Start()
     {
         DontDestroyOnLoad(gameObject);
         StartCoroutine(Validate());
     }
-
     private IEnumerator Validate()
     {
         yield return null;
+
+        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
 
         Debug.Log("Waiting for 3 ...");
         yield return new WaitForSeconds(1f);
@@ -35,6 +37,7 @@ public class BootstrapLogic : MonoBehaviour
         //Show the loading screen
         loadingScreenDisplay.Progress = 0;
         loadingScreenDisplay.Showing = true;
+
 
         var operation = SceneManager.LoadSceneAsync(GameManager.Instance.mainMenuScene);
         // Tell unity to activate the scene soon as its ready

@@ -34,6 +34,12 @@ public class WeaponSettings : ScriptableObject
     public float damageFallOffDistance = 100.0f;
     public float headShotMultiplier = 1.5f;
 
+    [Header("Equip")]
+    public float equipTime = 0.3f;
+
+    [Header("Inspect")]
+    public float inspectTime = 2.2f;
+
     [Header("Hipfire")]
     public float spreadAmount = 0.05f;
     public float spreadIncreasePerShot = 0.01f;
@@ -44,6 +50,7 @@ public class WeaponSettings : ScriptableObject
     public float aimingZoomLevel = 1.2f;
     public float cameraZOffset = 0.05f;
     public float aimingMoveReduction = 0.2f;
+    public float aimingRecoilReduction = 0.5f;
 
     [Header("Reloading")]
     public float reloadTime = 0.5f;

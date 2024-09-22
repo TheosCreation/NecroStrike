@@ -157,11 +157,19 @@ public class WeaponHolder : MonoBehaviour
 
     private void TryDropWeapon()
     {
-        if (currentWeapon == null && isMeleeing) return;
-        currentWeapon.Drop(throwForce);
-        weapons.RemoveAt(currentWeaponIndex); // Remove the dropped weapon
-        currentWeapon = null;
-        SelectWeapon(0);
+        if (isMeleeing) return;
+        if(currentWeapon != null)
+        {
+            currentWeapon.Drop(throwForce);
+            weapons.RemoveAt(currentWeaponIndex); // Remove the dropped weapon
+            currentWeapon = null;
+            SelectWeapon(0);
+        }
+        else
+        {
+            UiManager.Instance.UpdateAmmoReserveText(0);
+            UiManager.Instance.UpdateAmmoText(0);
+        }
     }
 
     private void WeaponSwitch(Vector2 direction)

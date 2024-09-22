@@ -51,7 +51,8 @@ public class Weapon : MonoBehaviour, IInteractable
     private int ammoReserve = 0;
 
     private Timer reloadTimer;
-
+    private Timer equipTimer;
+    private Timer inspectTimer;
     private Timer boltActionTimer;
 
     private AudioSource audioSource;
@@ -100,6 +101,8 @@ public class Weapon : MonoBehaviour, IInteractable
         audioSource = GetComponent<AudioSource>();
         holder = transform.root.GetComponent<WeaponHolder>();
         reloadTimer = gameObject.AddComponent<Timer>();
+        equipTimer = gameObject.AddComponent<Timer>();
+        inspectTimer = gameObject.AddComponent<Timer>();
 
         if(settings.weaponClass == WeaponClass.Sniper && settings.firemode == Firemode.Single)
         {
@@ -178,9 +181,18 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public void Equip()
     {
-        isEquip = true;
+        animator.SetTrigger("Equip");
+
+        equipTimer.StopTimer();
+        equipTimer.SetTimer(settings.equipTime, FinishEquip);
+
         UiManager.Instance.UpdateAmmoText(ammoLeft);
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
+    }
+
+    private void FinishEquip()
+    {
+        isEquip = true;
     }
 
     public void Unequip()
@@ -192,10 +204,12 @@ public class Weapon : MonoBehaviour, IInteractable
 
     void Update()
     {
+        if (!isEquip) return;
+
         //attacking
         if (isAttacking)
         {
-            if (CanShoot() && isEquip && !isInspecting)
+            if (CanShoot() && !isInspecting)
             {
                 if (ammoLeft > 0 && !isReloading)
                 {
@@ -285,10 +299,21 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public virtual void Inspect()
     {
-        if (isReloading || isInspecting) return;
+        if (isReloading || isInspecting || isAiming) return;
 
         isInspecting = true;
         animator.SetTrigger("Inspect");
+        inspectTimer.SetTimer(settings.inspectTime, FinishInpect);
+    }
+
+    public void CancelInspect()
+    {   
+        if(isInspecting)
+        {
+            isInspecting = false;
+            inspectTimer.StopTimer();
+            animator.SetTrigger("CancelInspect");
+        }
     }
 
     public void FinishInpect()
@@ -306,6 +331,7 @@ public class Weapon : MonoBehaviour, IInteractable
     public void StartAttacking()
     {
         isAttacking = true;
+        CancelInspect();
     }
 
     protected virtual void Attack()
@@ -396,7 +422,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     protected void ApplyRecoil()
     {
-        float aimingReduction = isAiming ? motionReduction : 1f;
+        float aimingReduction = isAiming ? settings.aimingRecoilReduction : 1f;
 
         // Ensure recoil is updated only when enough time has passed
         if (Time.time - lastShotTime >= settings.recoilResetTimeSeconds)
@@ -563,7 +589,7 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public virtual void StartAiming()
     {
-        if(isInspecting) return;
+        CancelInspect();
 
         isAiming = true;
 
@@ -581,8 +607,10 @@ public class Weapon : MonoBehaviour, IInteractable
 
     public virtual void Reload()
     {
-        if (!isReloading && ammoLeft < settings.magSize && ammoReserve > 0 && !isInspecting)
+        if (!isReloading && ammoLeft < settings.magSize && ammoReserve > 0)
         {
+            CancelInspect();
+
             isReloading = true;
 
             PlayReloadSound(); 

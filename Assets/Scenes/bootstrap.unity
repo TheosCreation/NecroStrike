@@ -459,6 +459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loadingScreenDisplay: {fileID: 1911347983}
+  cursor: {fileID: 2800000, guid: 92b69e1a5b9106046ac2134f4cf59dfb, type: 3}
 --- !u!1 &1319389296
 GameObject:
   m_ObjectHideFlags: 0

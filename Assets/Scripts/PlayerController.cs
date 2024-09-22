@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public int maxHealth = 100;
     [SerializeField] private int weakHealthStatus = 25;
-    private float health;
+    [SerializeField] private float health;
     public float Health
     {
         get => health;

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
   m_Name: As Val Settings
   m_EditorClassIdentifier: 
-  fireRatePerSecond: 8
+  rateOfFire: 800
   weaponClass: 0
   bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
   muzzleFlashPrefabs:
@@ -34,6 +34,8 @@ MonoBehaviour:
   baseDamage: 50
   damageFallOffDistance: 100
   headShotMultiplier: 1.5
+  equipTime: 0.6
+  inspectTime: 2.2
   spreadAmount: 0.05
   spreadIncreasePerShot: 0.05
   maxSpread: 0.25
@@ -41,12 +43,13 @@ MonoBehaviour:
   aimingZoomLevel: 1.2
   cameraZOffset: 0.35
   aimingMoveReduction: 0.2
-  reloadTime: 0.5
+  aimingRecoilReduction: 0.5
+  reloadTime: 2.2
   boltDelay: 0.2
   boltActionLength: 0.5
   firingSounds:
-  - {fileID: 8300000, guid: cc8bb6267d1d65244b387de906e6c28b, type: 3}
-  reloadSound: {fileID: 8300000, guid: cf3c441cd4996494287bc243826a3a1c, type: 3}
+  - {fileID: 8300000, guid: dbd3479ec65236d468b7fc3a22118bc7, type: 3}
+  reloadSound: {fileID: 8300000, guid: 8f74913631935ad45ab14a716f086378, type: 3}
   aimInSound: {fileID: 8300000, guid: 8d13914dead02c342a47ec0f1e8090fa, type: 3}
   pickUpClip: {fileID: 8300000, guid: 556ae53dbfd634b4c92f8d27f1d0da8e, type: 3}
   boltAction: {fileID: 0}

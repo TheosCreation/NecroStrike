@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
   m_Name: DefaultWeaponSettings
   m_EditorClassIdentifier: 
-  fireRatePerSecond: 8
+  rateOfFire: 700
   weaponClass: 0
   bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
   muzzleFlashPrefabs:
@@ -34,6 +34,8 @@ MonoBehaviour:
   baseDamage: 50
   damageFallOffDistance: 100
   headShotMultiplier: 1.5
+  equipTime: 0.6
+  inspectTime: 2.2
   spreadAmount: 0.05
   spreadIncreasePerShot: 0.05
   maxSpread: 0.25
