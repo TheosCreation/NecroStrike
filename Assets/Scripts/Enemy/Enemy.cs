@@ -117,7 +117,8 @@ public class Enemy : MonoBehaviour, IDamageable
 
     private void Die()
     {
-        OnDeath?.Invoke();
+        OnDeath?.Invoke(); 
+        Destroy(swingCheck.gameObject);
         ragdoll.ActivateRagdoll();
         Destroy(agent);
         Destroy(this);
