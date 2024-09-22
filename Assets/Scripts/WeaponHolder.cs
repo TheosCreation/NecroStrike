@@ -157,32 +157,35 @@ public class WeaponHolder : MonoBehaviour
 
     private void TryDropWeapon()
     {
-        if (isMeleeing) return;
+        if (isMeleeing || weapons.Count <= 1) return;
         if(currentWeapon != null)
         {
             currentWeapon.Drop(throwForce);
             weapons.RemoveAt(currentWeaponIndex); // Remove the dropped weapon
             currentWeapon = null;
             SelectWeapon(0);
-        }
-        else
-        {
-            UiManager.Instance.UpdateAmmoReserveText(0);
-            UiManager.Instance.UpdateAmmoText(0);
+            if(currentWeapon == null)
+            {
+
+                UiManager.Instance.UpdateAmmoReserveText(0);
+                UiManager.Instance.UpdateAmmoText(0);
+            }
         }
     }
 
     private void WeaponSwitch(Vector2 direction)
     {
-        if (!isSwitching && weapons.Count > 0)
+        if (!isSwitching && weapons.Count > 1)
         {
             StartCoroutine(WeaponSwitchDelay(direction));
         }
     }
-
     private IEnumerator WeaponSwitchDelay(Vector2 direction)
     {
         isSwitching = true;
+
+        int previousWeaponIndex = currentWeaponIndex;
+
         if (direction.y > 0)
         {
             currentWeaponIndex = (currentWeaponIndex + 1) % weapons.Count;
@@ -191,8 +194,14 @@ public class WeaponHolder : MonoBehaviour
         {
             currentWeaponIndex = (currentWeaponIndex - 1 + weapons.Count) % weapons.Count;
         }
-        currentWeapon?.Unequip();
-        SelectWeapon(currentWeaponIndex);
+
+        // Don't switch if the next weapon is the current weapon
+        if (previousWeaponIndex != currentWeaponIndex)
+        {
+            currentWeapon?.Unequip();
+            SelectWeapon(currentWeaponIndex);
+        }
+
         yield return new WaitForSeconds(scrollSwitchDelay);
         isSwitching = false;
     }
@@ -261,6 +270,7 @@ public class WeaponHolder : MonoBehaviour
             currentWeapon.gameObject.SetActive(false);
             currentWeapon.isAttacking = false;
             previousWeapon = currentWeapon;
+            currentWeapon?.Unequip();
         }
         isMeleeing = true;
         meleeWeapon.gameObject.SetActive(true);

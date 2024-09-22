@@ -14,6 +14,7 @@ public class WeaponBodySO : ScriptableObject
         P1911,
         L96AWS,
         ScarL,
+        M4A1
     }
 
 

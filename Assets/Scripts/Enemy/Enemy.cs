@@ -7,6 +7,7 @@ public class Enemy : MonoBehaviour, IDamageable
     [HideInInspector] public NavMeshAgent agent;
     [HideInInspector] public Animator animator;
     [HideInInspector] public Ragdoll ragdoll;
+    private AudioSource audioSource;
     public Transform target;
     [HideInInspector] public EnemyStateMachine StateMachine;
 
@@ -16,6 +17,15 @@ public class Enemy : MonoBehaviour, IDamageable
     [SerializeField] private SkinnedMeshRenderer modelRenderer;
     [SerializeField] private Transform head;
     [SerializeField] private ParticleSystem bloodParticles;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] hurtSounds;
+    [SerializeField] private AudioClip[] attackSounds;
+    [SerializeField] private AudioClip[] headSmashSounds;
+    [SerializeField] private AudioClip[] ambientSounds;
+    [SerializeField] private float minInterval = 30f;
+    [SerializeField] private float maxInterval = 60f;
+    private float ambientSoundTimer = 0f;
 
     [Header("Spawn")]
     public float spawnDelay = 1.0f;
@@ -58,6 +68,7 @@ public class Enemy : MonoBehaviour, IDamageable
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         ragdoll = GetComponent<Ragdoll>();
+        audioSource = GetComponent<AudioSource>();
 
 
         StateMachine = new EnemyStateMachineBuilder()
@@ -87,6 +98,7 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         Health = maxHealth;
         swingCheck.gameObject.SetActive(false);
+        ambientSoundTimer = UnityEngine.Random.Range(minInterval, maxInterval);
     }
 
     private void Update()
@@ -99,6 +111,15 @@ public class Enemy : MonoBehaviour, IDamageable
 
         StateMachine.Update(this);
         currentState = StateMachine.GetCurrentState();
+
+        ambientSoundTimer -= Time.deltaTime;
+
+        if (ambientSoundTimer <= 0f)
+        {
+            PlayRandomAmbientSound();
+            // Reset timer with a new random interval
+            ambientSoundTimer = UnityEngine.Random.Range(minInterval, maxInterval);
+        }
     }
 
     public void Damage(float damageAmount, Vector3 point, Vector3 pointNormal)
@@ -106,6 +127,7 @@ public class Enemy : MonoBehaviour, IDamageable
         Health -= damageAmount;
         Vector3 offset = pointNormal * 0.01f;
 
+        PlayRandomHurtSound();
         Instantiate(bloodImpactPrefab, point + offset, Quaternion.LookRotation(pointNormal));
     }
 
@@ -118,8 +140,9 @@ public class Enemy : MonoBehaviour, IDamageable
     private void Die()
     {
         OnDeath?.Invoke(); 
-        Destroy(swingCheck.gameObject);
         ragdoll.ActivateRagdoll();
+
+        swingCheck.gameObject.SetActive(false);
         Destroy(agent);
         Destroy(this);
     }
@@ -163,10 +186,63 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         if (!hasHead) return;
 
+        PlayRandomHeadSmashSound();
         hasHead = false;
         head.localScale = new Vector3(0.001f, 0.001f, 0.001f);
         // Activate the blood particles
         bloodParticles.Play();
         gameObject.AddComponent<Timer>().SetTimer(headBleedoutTime + UnityEngine.Random.Range(0f, 1f), Die);
     }
+
+    public void PlayRandomAttackSound()
+    {
+        if (attackSounds.Length > 0)
+        {
+            // Select a random hurt sound
+            int randomIndex = UnityEngine.Random.Range(0, attackSounds.Length);
+            AudioClip randomHurtSound = attackSounds[randomIndex];
+
+            // Play the selected hurt sound
+            audioSource.PlayOneShot(randomHurtSound);
+        }
+    }
+
+    public void PlayRandomAmbientSound()
+    {
+        if (ambientSounds.Length > 0)
+        {
+            // Select a random hurt sound
+            int randomIndex = UnityEngine.Random.Range(0, ambientSounds.Length);
+            AudioClip randomHurtSound = ambientSounds[randomIndex];
+
+            // Play the selected hurt sound
+            audioSource.PlayOneShot(randomHurtSound);
+        }
+    }
+
+    public void PlayRandomHurtSound()
+    {
+        if (hurtSounds.Length > 0)
+        {
+            // Select a random hurt sound
+            int randomIndex = UnityEngine.Random.Range(0, hurtSounds.Length);
+            AudioClip randomHurtSound = hurtSounds[randomIndex];
+
+            // Play the selected hurt sound
+            audioSource.PlayOneShot(randomHurtSound);
+        }
+    }
+    public void PlayRandomHeadSmashSound()
+    {
+        if (headSmashSounds.Length > 0)
+        {
+            // Select a random hurt sound
+            int randomIndex = UnityEngine.Random.Range(0, headSmashSounds.Length);
+            AudioClip randomHurtSound = headSmashSounds[randomIndex];
+
+            // Play the selected hurt sound
+            audioSource.PlayOneShot(randomHurtSound);
+        }
+    }
+
 }

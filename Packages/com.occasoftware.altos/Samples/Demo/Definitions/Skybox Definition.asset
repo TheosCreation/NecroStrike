@@ -42,7 +42,7 @@ MonoBehaviour:
     groundColor: {r: 0.066037714, g: 0.040888004, b: 0.02953007, a: 0}
   - description: Night
     startTime: 20.54
-    horizonColor: {r: 0.13033998, g: 0.13929279, b: 0.2735849, a: 0}
+    horizonColor: {r: 0.016197924, g: 0.017944247, b: 0.03773582, a: 0}
     zenithColor: {r: 0.107600555, g: 0.107600555, b: 0.24528301, a: 0}
     groundColor: {r: 0.1509434, g: 0.12887149, b: 0.1509434, a: 0}
   initialTime: 21

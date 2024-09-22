@@ -52,6 +52,6 @@ public class Options : ScriptableObject
     public BoolSetting vSync = new BoolSetting("VSync", true);
     public BoolSetting fullscreen = new BoolSetting("Fullscreen", true);
     public FloatSetting screenShake = new FloatSetting("ScreenShake", 100.0f);
-    public IntSetting graphicsQuality = new IntSetting("GraphicsQuility", 2); //0-Low,1-Medium,2-High
+    public IntSetting graphicsQuality = new IntSetting("GraphicsQuility", 2); //0-Very Low, 1-Low, 2-Medium, 3-High, 4-Very High, 5-Ultra
     public IntSetting resolution = new IntSetting("Resolution", 1); //0-1280x720, 1-1920x1080, 2-2560x1440
 }

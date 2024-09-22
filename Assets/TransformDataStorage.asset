@@ -43,7 +43,7 @@ MonoBehaviour:
     localRotation: {x: 0.00000032782555, y: 5.044854e-12, z: -8.269287e-12, w: 1}
   - localPosition: {x: 0, y: 0, z: -0}
     localRotation: {x: 0.00000032782555, y: 5.044854e-12, z: -8.269287e-12, w: 1}
-  - localPosition: {x: -0, y: 0.1371, z: 0.1563}
+  - localPosition: {x: -0, y: 0.13675, z: 0.1563}
     localRotation: {x: -0, y: -0, z: -0, w: 1}
   - localPosition: {x: -0, y: 0.1313, z: 0.1468}
     localRotation: {x: -0, y: -0, z: -8.089154e-20, w: 1}
@@ -53,5 +53,5 @@ MonoBehaviour:
     localRotation: {x: 0, y: 0, z: 0, w: 1}
   - localPosition: {x: -0, y: 0.051, z: 0.149}
     localRotation: {x: 0, y: 0, z: 0, w: 1}
-  - localPosition: {x: -0.0014, y: -0.0639, z: 0.286}
+  - localPosition: {x: 0, y: 0.0475, z: 0.4085}
     localRotation: {x: 0, y: 0, z: 0, w: 1}

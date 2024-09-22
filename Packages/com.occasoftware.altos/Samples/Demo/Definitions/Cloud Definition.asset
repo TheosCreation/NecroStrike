@@ -16,7 +16,7 @@ MonoBehaviour:
   dynamicCloudiness: 1
   cloudinessMin: 0.5
   cloudinessMax: 0.8
-  currentCloudiness: 0.5515625
+  currentCloudiness: 0.575
   inScatteringMultiplier: 100
   inScatteringStrength: 0.8
   stepCount: 128
