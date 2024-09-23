@@ -10,16 +10,13 @@ public class PauseMenu : UiMenuPage
     [SerializeField] private OptionsMenu optionsMenu;
     [SerializeField] private GameObject mainPage;
 
-    private void Start()
-    {
-        OpenMainPage();
-    }
-
     private void OnEnable()
     {
         unpauseButton.onClick.AddListener(PauseManager.Instance.TogglePause);
         optionsButtion.onClick.AddListener(OpenOptionPage);
         exitToMainMenuButton.onClick.AddListener(GameManager.Instance.ExitToMainMenu);
+
+        OpenMainPage();
     }
 
     private void OnDisable()

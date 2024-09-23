@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class WaveSpawner : MonoBehaviour
+public class WaveSpawner : MonoBehaviour, IPausable
 {
     [SerializeField] private ZombieFactory factory;
     [SerializeField] private PlayerController player;
@@ -182,5 +182,15 @@ public class WaveSpawner : MonoBehaviour
     private int GetMaxZombiesAlive()
     {
         return Mathf.Min(24, currentRound * 4); // Limit active zombies to 24, scaling with rounds
+    }
+
+    public void OnPause()
+    {
+        audioSource.Pause();
+    }
+
+    public void OnUnPause()
+    {
+        audioSource.UnPause();
     }
 }

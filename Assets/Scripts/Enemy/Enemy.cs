@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour, IDamageable
+public class Enemy : MonoBehaviour, IDamageable, IPausable
 {
     [HideInInspector] public NavMeshAgent agent;
     [HideInInspector] public Animator animator;
@@ -252,4 +252,13 @@ public class Enemy : MonoBehaviour, IDamageable
         }
     }
 
+    public void OnPause()
+    {
+        audioSource.Pause();
+    }
+
+    public void OnUnPause()
+    {
+        audioSource.UnPause();
+    }
 }

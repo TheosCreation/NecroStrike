@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class PauseManager : MonoBehaviour
@@ -24,7 +25,6 @@ public class PauseManager : MonoBehaviour
     {
         CheckPaused();
     }
-
     private void CheckPaused()
     {
         if (!canUnpause) return;
@@ -57,6 +57,12 @@ public class PauseManager : MonoBehaviour
         UiManager.Instance.PauseMenu(true);
         Time.timeScale = 0;
 
+        IPausable[] pausables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IPausable>().ToArray();
+        foreach (IPausable p in pausables)
+        {
+            p.OnPause();
+        }
+
         Cursor.lockState = CursorLockMode.None;
     }
 
@@ -65,6 +71,12 @@ public class PauseManager : MonoBehaviour
         InputManager.Instance.DisableInGameInput();
         Time.timeScale = 0;
         Cursor.lockState = CursorLockMode.None;
+
+        IPausable[] pausables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IPausable>().ToArray();
+        foreach (IPausable p in pausables)
+        {
+            p.OnPause();
+        }
     }
 
     private void UnPause()
@@ -73,6 +85,11 @@ public class PauseManager : MonoBehaviour
         InputManager.Instance.EnableInGameInput();
         UiManager.Instance.PauseMenu(false);
 
+        IPausable[] pausables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IPausable>().ToArray();
+        foreach (IPausable p in pausables)
+        {
+            p.OnUnPause();
+        }
 
         Cursor.lockState = CursorLockMode.Locked;
     }

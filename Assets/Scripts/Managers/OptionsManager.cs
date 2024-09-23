@@ -1,6 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 
 public class OptionsManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class OptionsManager : MonoBehaviour
         {
      
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -23,9 +25,23 @@ public class OptionsManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         player = FindFirstObjectByType<PlayerController>();
+        if (player == null)
+        {
+            Debug.Log("No Player in Scene");
+        }
+
         ApplyAllSettings();
     }
 
@@ -62,21 +78,13 @@ public class OptionsManager : MonoBehaviour
 
     public void UpdateSensitivity(FloatSetting sensitivitySetting)
     {
-        if (player == null)
-        {
-            Debug.Log("Player does not exist yet");
-            return;
-        }
+        if (player == null) return;
         player.playerLook.lookSensitivity = PlayerPrefs.GetFloat(sensitivitySetting.name, sensitivitySetting.defaultValue) / 200;
     }
 
     public void UpdateLookSmoothing(BoolSetting lookSmoothingSetting)
     {
-        if (InputManager.Instance == null)
-        {
-            Debug.Log("Input has not been set yet");
-            return;
-        }
+        if (InputManager.Instance == null) return;
 
         int defaultValue = lookSmoothingSetting.defaultValue ? 1 : 0;
         int lookSmoothingStatus = PlayerPrefs.GetInt(lookSmoothingSetting.name, defaultValue);
@@ -85,6 +93,8 @@ public class OptionsManager : MonoBehaviour
 
     public void UpdateFov(FloatSetting fovSetting)
     {
+        if (player == null) return;
+
         float fov = PlayerPrefs.GetFloat(fovSetting.name, fovSetting.defaultValue);
         player.playerLook.fov = fov;
         player.playerLook.ResetZoomLevel();
@@ -92,11 +102,8 @@ public class OptionsManager : MonoBehaviour
 
     public void UpdateTilt(BoolSetting tiltSetting)
     {
-        if (player == null)
-        {
-            Debug.Log("Player does not exist yet");
-            return;
-        }
+        if (player == null) return;
+
         int defaultValue = tiltSetting.defaultValue ? 1 : 0;
         int tiltStatus = PlayerPrefs.GetInt(tiltSetting.name, defaultValue);
         player.playerLook.tiltStatus = tiltStatus;
@@ -115,11 +122,8 @@ public class OptionsManager : MonoBehaviour
     
     public void UpdateScreenShake(FloatSetting screenShakeSetting)
     {
-        if (player == null)
-        {
-            Debug.Log("Player does not exist yet");
-            return;
-        }
+        if (player == null) return;
+
         float screenShakePercentage = PlayerPrefs.GetFloat(screenShakeSetting.name, screenShakeSetting.defaultValue);
         float normalizedScreenShake = screenShakePercentage / 100f;
         player.playerLook.shakeAmount = normalizedScreenShake;

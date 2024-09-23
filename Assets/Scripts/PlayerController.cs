@@ -46,13 +46,13 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         weaponHolder = GetComponentInChildren<WeaponHolder>();
         playerMovement = GetComponent<PlayerMovement>();
+        playerLook = GetComponent<PlayerLook>();
 
         InputManager.Instance.playerInput.Ui.Pause.started += _ctx => PauseManager.Instance.TogglePause();
     }
 
     private void Start()
     {
-        playerLook = GetComponent<PlayerLook>();
         SetMaxHealth();
     }
 

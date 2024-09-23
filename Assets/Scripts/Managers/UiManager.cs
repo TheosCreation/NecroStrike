@@ -8,7 +8,7 @@ public class UiManager : MonoBehaviour
     public static UiManager Instance { get; private set; }
 
     [SerializeField] private GameObject playerHud;
-    [SerializeField] private GameObject pauseMenu;
+    [SerializeField] private PauseMenu pauseMenu;
     [SerializeField] private GameObject deathScreen;
 
     public UiCrosshair crosshair;
@@ -45,7 +45,7 @@ public class UiManager : MonoBehaviour
 
     public void PauseMenu(bool isPaused)
     {
-        pauseMenu.SetActive(isPaused);
+        pauseMenu.gameObject.SetActive(isPaused);
         playerHud.SetActive(!isPaused);
     }
 
@@ -53,7 +53,7 @@ public class UiManager : MonoBehaviour
     {
         playerHud.SetActive(true);
         deathScreen.SetActive(false);
-        pauseMenu.SetActive(false);
+        pauseMenu.gameObject.SetActive(false);
     }
 
     public void OpenDeathScreen()

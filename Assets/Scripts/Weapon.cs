@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public enum Firemode
 {
@@ -17,7 +18,7 @@ public enum WeaponClass
 }
 
 [RequireComponent(typeof(AudioSource))]
-public class Weapon : MonoBehaviour, IInteractable
+public class Weapon : MonoBehaviour, IInteractable, IPausable
 {
     protected Animator animator;
     private Rigidbody rb;
@@ -222,7 +223,7 @@ public class Weapon : MonoBehaviour, IInteractable
             }
         }
 
-        //zooming
+        //zooming and sprinting
         if (holder != null)
         {
             if (CanZoom())
@@ -244,6 +245,15 @@ public class Weapon : MonoBehaviour, IInteractable
                     attachedScope.SetZoom(false);
                 }
                 holder.player.playerLook.ResetZoomLevel();
+            }
+
+            if (holder.player.playerMovement.isSprinting)
+            {
+                animator.SetBool("Sprint", true);
+            }
+            else
+            {
+                animator.SetBool("Sprint", false);
             }
         }
 
@@ -697,5 +707,15 @@ public class Weapon : MonoBehaviour, IInteractable
     public WeaponBodySO GetWeaponBodySO()
     {
         return weaponBody.GetWeaponBodySO();
+    }
+
+    public void OnPause()
+    {
+        audioSource.Pause();
+    }
+
+    public void OnUnPause()
+    {
+        audioSource.UnPause();
     }
 }

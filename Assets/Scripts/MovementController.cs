@@ -53,7 +53,7 @@ public class MovementController : MonoBehaviour
         if (isGrounded)
         {
             SetGravity(false);
-            AddForce(Vector3.down * 0.01f);
+            AddForce(Vector3.down * 0.1f);
             if (!movement && useFriction)
             {
                 ApplyFriction(friction);
@@ -268,10 +268,14 @@ public class MovementController : MonoBehaviour
                         // Ensure the slope angle is within the allowed limit
                         if (stepSlopeAngle <= maxSlopeAngle)
                         {
-                            // Smoothly move the character up to the step height
-                            Vector3 newPosition = transform.position;
-                            newPosition.y += stepHeight;
-                            transform.position = Vector3.Lerp(transform.position, newPosition, stepSmooth * Time.deltaTime);
+                            // Ensure that the surface being stepped onto is not too steep
+                            if (!Physics.Raycast(origin, Vector3.down, out RaycastHit slopeHit, maxGroundDistance, groundMask) || Vector3.Angle(slopeHit.normal, Vector3.up) <= maxSlopeAngle)
+                            {
+                                // Smoothly move the character up to the step height
+                                Vector3 newPosition = transform.position;
+                                newPosition.y += stepHeight;
+                                transform.position = Vector3.Lerp(transform.position, newPosition, stepSmooth * Time.deltaTime);
+                            }
                         }
                     }
                 }

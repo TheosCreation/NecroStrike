@@ -31,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float crouchHeightMultiplier = 0.5f;
 
     [Header("Sprinting")]
+    [SerializeField] public bool sprintingInput = false;
     [SerializeField] public bool isSprinting = false;
     [SerializeField] public bool canSprint = true;
 
@@ -100,6 +101,7 @@ public class PlayerMovement : MonoBehaviour
         animator.SetFloat("SpeedX", localVelocity.x);
         animator.SetFloat("SpeedY", localVelocity.z);
 
+        CheckMoveSpeed();
         if (movementInput == Vector2.zero)
         {
             movementController.movement = false;
@@ -109,7 +111,6 @@ public class PlayerMovement : MonoBehaviour
         Vector3 movement = new Vector3(movementInput.x, 0f, movementInput.y);
         movement = movement.normalized;
 
-        CheckMoveSpeed();
         movementController.MoveLocal(movement, walkMoveSpeed * movementMultiplier, acceleration, deceleration);
     }
 
@@ -121,7 +122,7 @@ public class PlayerMovement : MonoBehaviour
         {
             multiplier = crouchMoveMultiplier;
         }
-        else if (isSprinting && canSprint)
+        else if (sprintingInput && canSprint)
         {
             if (playerController.weaponHolder.currentWeapon != null)
             {
@@ -131,17 +132,24 @@ public class PlayerMovement : MonoBehaviour
                     // Check if moving forward (positive y direction) to allow sprinting
                     if (movementInput.y > 0)
                     {
+                        isSprinting = true;
                         multiplier = sprintMoveMultiplier;
+                    }
+                    else
+                    {
+                        isSprinting = false;
                     }
                 }
             }
             else if (movementInput.y > 0) // Sprint only if moving forward
             {
                 multiplier = sprintMoveMultiplier;
+                isSprinting = true;
             }
         }
         else
         {
+            isSprinting = false;
             multiplier = 1f;
         }
 
@@ -202,7 +210,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartCrouching()
     {
-        if (isSprinting && Mathf.Abs(horizontalMovementSpeed.magnitude) > walkMoveSpeed)
+        if (sprintingInput && Mathf.Abs(horizontalMovementSpeed.magnitude) > walkMoveSpeed)
         {
             Slide(transform.forward, slideForce, slideDuration);
         }
@@ -226,14 +234,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartSprinting()
     {
-        if (isSprinting || isCrouching) return;
-        isSprinting = true;
+        if (sprintingInput || isCrouching) return;
+        sprintingInput = true;
         playerController.weaponHolder.currentWeapon?.CancelReload();
     }
 
     public void EndSprinting()
     {
-        isSprinting = false;
+        sprintingInput = false;
     }
 
     private void SetCapsuleHeight(float crouchHeightMultiplier)
@@ -282,7 +290,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (movementController.isGrounded && horizontalMovementSpeed.sqrMagnitude > 0.1f)
         {
-            if (playerController.playerMovement.isSprinting)
+            if (playerController.playerMovement.sprintingInput)
             {
                 audioSource.clip = audioClipSprinting;
             }

@@ -22,15 +22,6 @@ public class BootstrapLogic : MonoBehaviour
 
         Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
 
-        Debug.Log("Waiting for 3 ...");
-        yield return new WaitForSeconds(1f);
-
-        Debug.Log("Waiting for 2 ...");
-        yield return new WaitForSeconds(1f);
-
-        Debug.Log("Waiting for 1 ...");
-        yield return new WaitForSeconds(1f);
-
         yield return new WaitUntil(() => SteamSettings.Initialized);
         Debug.Log("Steam API is initalized as App " + AppClient.Id.ToString() + "Starting Scene Load!");
 

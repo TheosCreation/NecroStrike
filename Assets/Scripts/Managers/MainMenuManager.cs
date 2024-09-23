@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MainMenuManager : MonoBehaviour
+public class MainMenuManager : UiMenuPage
 {
     public static MainMenuManager Instance;
 
@@ -17,14 +17,29 @@ public class MainMenuManager : MonoBehaviour
     }
 
     [SerializeField] private StartPage startPage;
+    [SerializeField] private OptionsMenu optionsPage;
+    [SerializeField] private CreditsPage creditsPage;
 
     private void Start()
     {
-        OpenStartPage();
+        OpenMainPage();
     }
-
-    public void OpenStartPage()
+    public override void OpenMainPage()
     {
         startPage.gameObject.SetActive(true);
+        optionsPage.gameObject.SetActive(false);
+        creditsPage.gameObject.SetActive(false);
+    }
+
+    public void OpenOptionsPage()
+    {
+        optionsPage.gameObject.SetActive(true);
+        startPage.gameObject.SetActive(false);
+    }
+
+    public void OpenCreditsPage()
+    {
+        creditsPage.gameObject.SetActive(true);
+        startPage.gameObject.SetActive(false);
     }
 }
