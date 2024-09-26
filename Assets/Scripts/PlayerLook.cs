@@ -120,7 +120,7 @@ public class PlayerLook : MonoBehaviour
         if (weapon != null)
         {
             weapon.recoil = Vector2.Lerp(weapon.recoil, Vector2.zero, Time.deltaTime / recoilSmoothTime);
-            currentRecoilOffset = weapon.recoil;
+            currentRecoilOffset = weapon.recoil * 0.15f;
         }
         else
         {

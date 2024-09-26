@@ -54,6 +54,7 @@ public class PlayerMovement : MonoBehaviour
     private AudioSource audioSource;
 
     public Vector2 horizontalMovementSpeed = Vector2.zero;
+    public float timeSinceSprintEnd = 0.0f;
 
     private void Awake()
     {
@@ -242,6 +243,11 @@ public class PlayerMovement : MonoBehaviour
     public void EndSprinting()
     {
         sprintingInput = false;
+
+        if (isSprinting)
+        {
+            timeSinceSprintEnd = Time.time;
+        }
     }
 
     private void SetCapsuleHeight(float crouchHeightMultiplier)

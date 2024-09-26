@@ -7,9 +7,10 @@ public class RecoilPatternEditor : Editor
     private const float pointSize = 6f;
     private SerializedProperty recoilPatternProperty;
 
-    private int selectedPointIndex = -1;
-    private Vector2 offset = Vector2.zero; // No panning, initial offset set to center
-    private float zoom = 50.0f; // Adjust zoom level for better visibility
+    private int selectedPointIndex = -1; 
+    private float zoom = 100.0f; // Default zoom level
+    private float maxZoom = 500.0f; // More reasonable zoom in limit
+    private float minZoom = 25.0f;  // Zoom out limit
 
     private void OnEnable()
     {
@@ -65,20 +66,28 @@ public class RecoilPatternEditor : Editor
         // Handle zoom only
         HandleZoom(rect, evt);
     }
-
     private void DrawGrid(Rect rect)
     {
         Handles.BeginGUI();
         Handles.color = new Color(0.25f, 0.25f, 0.25f);
 
+        // Determine the vertical center as the bottom of the graph (y = 0 at the bottom)
+        float verticalCenter = rect.yMax; // y = 0 at the bottom of the rect
+
+        // Draw vertical grid lines
         for (float x = 0; x < rect.width; x += 20f)
         {
             Handles.DrawLine(new Vector2(rect.xMin + x, rect.yMin), new Vector2(rect.xMin + x, rect.yMax));
         }
 
+        // Draw horizontal grid lines only for positive y-values
         for (float y = 0; y < rect.height; y += 20f)
         {
-            Handles.DrawLine(new Vector2(rect.xMin, rect.yMin + y), new Vector2(rect.xMax, rect.yMin + y));
+            float yPosition = verticalCenter - y; // Start from bottom and move up
+            if (yPosition >= rect.yMin)
+            {
+                Handles.DrawLine(new Vector2(rect.xMin, yPosition), new Vector2(rect.xMax, yPosition));
+            }
         }
 
         Handles.color = Color.white;
@@ -90,11 +99,11 @@ public class RecoilPatternEditor : Editor
         Handles.BeginGUI();
         Handles.color = Color.gray;
 
-        // Draw x-axis
-        Handles.DrawLine(new Vector2(rect.xMin, rect.center.y), new Vector2(rect.xMax, rect.center.y));
+        // Draw x-axis (unmodified)
+        Handles.DrawLine(new Vector2(rect.xMin, rect.yMax), new Vector2(rect.xMax, rect.yMax));
 
-        // Draw y-axis
-        Handles.DrawLine(new Vector2(rect.center.x, rect.yMin), new Vector2(rect.center.x, rect.yMax));
+        // Draw y-axis but limit to positive y-values
+        Handles.DrawLine(new Vector2(rect.center.x, rect.yMax), new Vector2(rect.center.x, rect.yMin));
 
         Handles.EndGUI();
     }
@@ -113,15 +122,19 @@ public class RecoilPatternEditor : Editor
         {
             if (Vector2.Distance(evt.mousePosition, screenPoint) <= pointSize)
             {
-                selectedPointIndex = index;
+                selectedPointIndex = index - 1;
                 evt.Use();
             }
         }
 
         if (selectedPointIndex == index && evt.type == EventType.MouseDrag && evt.button == 0)
         {
-            Vector2 mouseDelta = evt.delta / zoom;
+            // Invert Y movement to match world coordinate space (since screen space Y goes down)
+            Vector2 mouseDelta = new Vector2(evt.delta.x / zoom, -evt.delta.y / zoom);
             Vector2 newPoint = point.vector2Value + mouseDelta;
+
+            // Ensure y-value doesn't go below zero (no negative y-values)
+            newPoint.y = Mathf.Max(newPoint.y, 0);
 
             point.vector2Value = newPoint;
             evt.Use();
@@ -130,9 +143,10 @@ public class RecoilPatternEditor : Editor
 
     private Vector2 TransformToScreenSpace(Vector2 point, Rect rect)
     {
-        // Center the first point at the middle of the graph
-        Vector2 center = new Vector2(rect.xMin + rect.width / 2, rect.yMin + rect.height / 2);
-        Vector2 transformed = new Vector2(point.x * zoom + center.x, -point.y * zoom + center.y);
+        // Set the x-axis in the middle and y-axis at the bottom (positive y going upwards)
+        Vector2 center = new Vector2(rect.xMin + rect.width / 2, rect.yMax);  // x-axis in the middle, y-axis at the bottom
+        Vector2 transformed = new Vector2(point.x * zoom + center.x, -point.y * zoom + center.y);  // Apply zoom to points
+
         return transformed;
     }
 
@@ -140,8 +154,8 @@ public class RecoilPatternEditor : Editor
     {
         if (evt.type == EventType.ScrollWheel)
         {
-            float zoomDelta = -evt.delta.y * 0.1f;
-            zoom = Mathf.Clamp(zoom + zoomDelta, 0.5f, 100f); // Adjust zoom levels for better control
+            float zoomDelta = -evt.delta.y * 0.5f; // Adjust sensitivity if needed
+            zoom = Mathf.Clamp(zoom + zoomDelta, minZoom, maxZoom); // Clamp zoom for better control
             evt.Use();
         }
     }

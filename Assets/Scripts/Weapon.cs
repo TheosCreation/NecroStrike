@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.WSA;
 
 public enum Firemode
 {
@@ -264,6 +265,12 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private bool CanShoot()
     {
         float timeBetweenShots = 60f / settings.rateOfFire; // Converts RPM to seconds per shot
+
+        // Ensure enough time has passed since sprinting to allow shooting
+        if (Time.time - holder.player.playerMovement.timeSinceSprintEnd < settings.sprintToFireDelay)
+        {
+            return false; // Block shooting until sprint-to-fire delay is over
+        }
 
         if (settings.firemode == Firemode.Burst)
         {
