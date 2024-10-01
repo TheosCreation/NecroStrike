@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
-using UnityEngine.WSA;
 
 public enum Firemode
 {
@@ -35,6 +33,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public bool isReloading = false;
     public bool isInspecting = false;
     public bool isBoltAction = false;
+    public bool canResetSprint = true;
 
     public WeaponSettings settings;
 
@@ -56,6 +55,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private Timer equipTimer;
     private Timer inspectTimer;
     private Timer boltActionTimer;
+    private Timer fireToSprintTimer;
 
     protected AudioSource audioSource;
 
@@ -105,6 +105,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         reloadTimer = gameObject.AddComponent<Timer>();
         equipTimer = gameObject.AddComponent<Timer>();
         inspectTimer = gameObject.AddComponent<Timer>();
+        fireToSprintTimer = gameObject.AddComponent<Timer>();
 
         if(settings.weaponClass == WeaponClass.Sniper && settings.firemode == Firemode.Single)
         {
@@ -136,7 +137,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
         if (holder != null)
         {
-            PickUp();
+            PickUp(false);
         }
         else
         {
@@ -144,14 +145,17 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         }
     }
 
-    public void PickUp()
+    public void PickUp(bool playSound)
     {
         isHeld = true;
         rb.isKinematic = true;
         collisionCollider.enabled = false;
         LayerController.Instance.SetGameObjectAndChildrenLayer(gameObject, LayerMask.NameToLayer("Weapon"));
 
-        PlayPickUpSound();
+        if(playSound)
+        {
+            PlayPickUpSound();
+        }
         //holder = transform.root.GetComponent<WeaponHolder>();
     }
 
@@ -342,7 +346,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     {
         player.weaponHolder.Add(this);
         holder = player.weaponHolder;
-        PickUp();
+        PickUp(true);
     }
 
     public void StartAttacking()
@@ -602,6 +606,17 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public void StopAttacking()
     {
         isAttacking = false;
+
+        canResetSprint = false;
+        fireToSprintTimer.StopTimer();
+        fireToSprintTimer.SetTimer(settings.fireToSprintDelay, () =>
+        {
+            canResetSprint = true;
+            if (holder && !isInspecting && !isReloading & !isAiming)
+            {
+                holder.player.playerMovement.ResetSprint();
+            }
+        });
     }
 
     public virtual void StartAiming()
@@ -618,8 +633,12 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public void StopAiming()
     { 
         isAiming = false;
-
         UiManager.Instance.SetCrosshair(true);
+
+        if(holder && !isInspecting && !isReloading && !isAttacking && canResetSprint)
+        {
+            holder.player.playerMovement.ResetSprint();
+        }
     }
 
     public virtual void Reload()
@@ -641,8 +660,11 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     private void FinishReload()
     {
-        isReloading = false;
-        holder.player.playerMovement.canSprint = true;
+        isReloading = false; 
+        if (holder && !isInspecting && !isAiming && !isAttacking && canResetSprint)
+        {
+            holder.player.playerMovement.ResetSprint();
+        }
         FillMag();
     }
 

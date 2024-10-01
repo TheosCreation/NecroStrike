@@ -7,6 +7,7 @@ public class WeaponSettings : ScriptableObject
     [Tooltip("Minimum force on Z axis")]
     public float rateOfFire = 700f;
     public float sprintToFireDelay = 0.2f;
+    public float fireToSprintDelay = 0.15f;
     public WeaponClass weaponClass = WeaponClass.Rifle;
     public BulletTrail bulletTrailPrefab;
     public MuzzleFlash[] muzzleFlashPrefabs;

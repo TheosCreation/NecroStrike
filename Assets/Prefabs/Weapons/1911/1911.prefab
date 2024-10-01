@@ -381,9 +381,9 @@ MonoBehaviour:
   collisionCollider: {fileID: 6900338348141154394}
   muzzleTransform: {fileID: 1858486113317997763}
   casingEjectionTransform: {fileID: 6168340948563929908}
-  motionReduction: 0.23
-  isHeld: 0
-  isEquip: 0
+  motionReduction: 0.1
+  isHeld: 1
+  isEquip: 1
   isAiming: 0
   isAttacking: 0
   isReloading: 0
@@ -405,7 +405,8 @@ MonoBehaviour:
   IKLeftRingPos: {fileID: 3613078240338743412}
   IKLeftThumbPos: {fileID: 4367175073600430912}
   applyRecoil: 1
-  defaultWeaponPartSOList: []
+  defaultWeaponPartSOList:
+  - {fileID: 11400000, guid: c22cb605a57a0094bb72452f4c515058, type: 2}
 --- !u!114 &1371430409247603381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -424,6 +425,8 @@ MonoBehaviour:
   partTypeAttachPointList:
   - partType: 1
     attachPointTransform: {fileID: 3051346785572281419}
+  - partType: 2
+    attachPointTransform: {fileID: 400143905133339080}
 --- !u!1 &1680629817727246346
 GameObject:
   m_ObjectHideFlags: 0
@@ -511,7 +514,7 @@ Transform:
   m_GameObject: {fileID: 2281413355309530891}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 8.089154e-20, w: 1}
-  m_LocalPosition: {x: 0, y: -0.0886, z: -0.09770012}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -522,6 +525,7 @@ Transform:
   - {fileID: 4627414407887600502}
   - {fileID: 3051346785572281419}
   - {fileID: 262528762292643567}
+  - {fileID: 400143905133339080}
   m_Father: {fileID: 3164287741261717058}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3113066669480661072
@@ -714,6 +718,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7984689983058611515}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5107729964172922906
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 400143905133339080}
+  m_Layer: 0
+  m_Name: UnderBarrel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &400143905133339080
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5107729964172922906}
+  serializedVersion: 2
+  m_LocalRotation: {x: -7.105424e-15, y: 0.00000005215404, z: -3.3307483e-15, w: 1}
+  m_LocalPosition: {x: -0, y: 0.0024, z: 0.1619}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2608359162587434103}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5431626241626887303
 GameObject:

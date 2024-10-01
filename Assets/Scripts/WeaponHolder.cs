@@ -252,13 +252,13 @@ public class WeaponHolder : MonoBehaviour
 
     private void TryStartAttacking()
     {
-        player.playerMovement.EndSprinting();
+        player.playerMovement.CancelSprint();
         currentWeapon?.StartAttacking();
     }
     
     private void TryStartAiming()
     {
-        player.playerMovement.EndSprinting();
+        player.playerMovement.CancelSprint();
         currentWeapon?.StartAiming();
     }
 
@@ -266,7 +266,7 @@ public class WeaponHolder : MonoBehaviour
     {
         if (isMeleeing || Time.time < lastMeleeTime + meleeWeapon.swingDuration + meleeWeapon.meleeCooldown) return;
         lastMeleeTime = Time.time;
-        player.playerMovement.EndSprinting();
+        player.playerMovement.CancelSprint();
         if (currentWeapon != null)
         {
             currentWeapon.gameObject.SetActive(false);

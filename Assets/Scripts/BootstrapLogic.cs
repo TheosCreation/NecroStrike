@@ -1,6 +1,6 @@
 using HeathenEngineering.SteamworksIntegration;
+using Steamworks;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using AppClient = HeathenEngineering.SteamworksIntegration.API.App.Client;
@@ -9,6 +9,8 @@ public class BootstrapLogic : MonoBehaviour
 {
     [SerializeField]
     private LoadingScreenDisplay loadingScreenDisplay;
+    [SerializeField]
+    private SteamworksBehaviour steamworksBehaviour;
     [SerializeField] private Texture2D cursor;
 
     void Start()
@@ -22,13 +24,30 @@ public class BootstrapLogic : MonoBehaviour
 
         Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
 
-        yield return new WaitUntil(() => SteamSettings.Initialized);
-        Debug.Log("Steam API is initalized as App " + AppClient.Id.ToString() + "Starting Scene Load!");
+        if (SteamAPI.IsSteamRunning())
+        {
+            // Wait until Steam settings are initialized
+            yield return new WaitUntil(() => SteamSettings.Initialized);
+            Debug.Log("Steam API is initialized as App " + AppClient.Id.ToString());
+
+            steamworksBehaviour.gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("Steam is not running. Skipping Steam initialization");
+        }
 
         //Show the loading screen
         loadingScreenDisplay.Progress = 0;
         loadingScreenDisplay.Showing = true;
 
+        Debug.Log("Loading 2..");
+        yield return new WaitForSeconds(1f);
+
+        Debug.Log("Loading 1..");
+        yield return new WaitForSeconds(1f);
+
+        Debug.Log("Starting Main Menu Scene Load!");
 
         var operation = SceneManager.LoadSceneAsync(GameManager.Instance.mainMenuScene);
         // Tell unity to activate the scene soon as its ready

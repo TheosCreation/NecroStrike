@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -94,7 +93,6 @@ public class PlayerMovement : MonoBehaviour
         UpdateAnimations();
         PlayFootstepSounds();
 
-        if (isSliding) return;
 
         movementInput = InputManager.Instance.MovementVector;
 
@@ -103,6 +101,9 @@ public class PlayerMovement : MonoBehaviour
         animator.SetFloat("SpeedY", localVelocity.z);
 
         CheckMoveSpeed();
+
+        if (isSliding) return;
+
         if (movementInput == Vector2.zero)
         {
             movementController.movement = false;
@@ -123,7 +124,7 @@ public class PlayerMovement : MonoBehaviour
         {
             multiplier = crouchMoveMultiplier;
         }
-        else if (sprintingInput && canSprint)
+        else if (sprintingInput && canSprint && movementController.isGrounded)
         {
             if (playerController.weaponHolder.currentWeapon != null)
             {
@@ -211,14 +212,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartCrouching()
     {
-        if (sprintingInput && Mathf.Abs(horizontalMovementSpeed.magnitude) > walkMoveSpeed)
+        if (isSprinting && Mathf.Abs(horizontalMovementSpeed.magnitude) > walkMoveSpeed && movementController.isGrounded)
         {
             Slide(transform.forward, slideForce, slideDuration);
         }
         else
         {
             isCrouching = true;
-            EndSprinting();
+            CancelSprint();
         }
 
         SetCapsuleHeight(crouchHeightMultiplier);
@@ -238,6 +239,20 @@ public class PlayerMovement : MonoBehaviour
         if (sprintingInput || isCrouching) return;
         sprintingInput = true;
         playerController.weaponHolder.currentWeapon?.CancelReload();
+    }
+
+    public void CancelSprint()
+    {
+        canSprint = false;
+        if (isSprinting)
+        {
+            timeSinceSprintEnd = Time.time;
+        }
+    }
+
+    public void ResetSprint()
+    {
+        canSprint = true;
     }
 
     public void EndSprinting()
@@ -260,6 +275,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (!isSliding && canSlide)
         {
+            CancelSprint();
+
             // If input detected then apply it
             if (movementInput.sqrMagnitude > Mathf.Epsilon && !ignoreInput)
             {
@@ -284,6 +301,15 @@ public class PlayerMovement : MonoBehaviour
         isSliding = false;
         SetCapsuleHeight(1.0f);
         slideRefreashTimer.SetTimer(slideRefreashTime, ResetSlide);
+
+        Weapon currentWeapon = playerController.weaponHolder.currentWeapon;
+        if (currentWeapon != null)
+        {
+            if(currentWeapon.canResetSprint && !currentWeapon.isAttacking && !currentWeapon.isAiming && !currentWeapon.isReloading)
+            {
+                canSprint = true;
+            }
+        }
         //movementController.SetFriction(true);
     }
 
@@ -296,7 +322,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (movementController.isGrounded && horizontalMovementSpeed.sqrMagnitude > 0.1f)
         {
-            if (playerController.playerMovement.sprintingInput)
+            if (playerController.playerMovement.isSprinting)
             {
                 audioSource.clip = audioClipSprinting;
             }

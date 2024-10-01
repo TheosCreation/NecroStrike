@@ -896,7 +896,7 @@ MonoBehaviour:
   collisionCollider: {fileID: 92971900393900197}
   muzzleTransform: {fileID: 4287732897404794088}
   casingEjectionTransform: {fileID: 8448374165828151181}
-  motionReduction: 0.23
+  motionReduction: 0.1
   isHeld: 0
   isEquip: 0
   isAiming: 0
@@ -923,7 +923,7 @@ MonoBehaviour:
   defaultWeaponPartSOList:
   - {fileID: 11400000, guid: 46ea6a9b38cc9da4e85deb835251514d, type: 2}
   - {fileID: 11400000, guid: 3196aadea98b02c44bbdfb16e7688384, type: 2}
-  - {fileID: 11400000, guid: 2d93296b06859ac4b804e6c414f5cd53, type: 2}
+  - {fileID: 11400000, guid: c22cb605a57a0094bb72452f4c515058, type: 2}
   - {fileID: 11400000, guid: cb512e5c57379414b925ef5ea0309584, type: 2}
 --- !u!114 &4412766892687370242
 MonoBehaviour:
@@ -1044,7 +1044,7 @@ Transform:
   m_GameObject: {fileID: 9203080547834451828}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.0581, z: 0.4085}
+  m_LocalPosition: {x: 0, y: 0.0475, z: 0.4085}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: DefaultWeaponSettings
   m_EditorClassIdentifier: 
   rateOfFire: 700
+  sprintToFireDelay: 0.1
+  fireToSprintDelay: 0.3
   weaponClass: 0
   bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
   muzzleFlashPrefabs:
@@ -43,6 +45,7 @@ MonoBehaviour:
   aimingZoomLevel: 1.2
   cameraZOffset: 0.05
   aimingMoveReduction: 0.2
+  aimingRecoilReduction: 0.5
   reloadTime: 0.5
   boltDelay: 0.2
   boltActionLength: 0.5

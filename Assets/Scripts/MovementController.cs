@@ -9,6 +9,7 @@ public class MovementController : MonoBehaviour
 
     [Header("Velocity Safety Measures")]
     [SerializeField] private float velocityThreshold = 0.01f;
+    [SerializeField] private float airControl = 0.4f;
 
     [Header("Gravity")]
     [SerializeField] private bool controlGravity = true;
@@ -160,6 +161,12 @@ public class MovementController : MonoBehaviour
             // Determine the rate to use (acceleration or deceleration)
             float rateX = (Mathf.Sign(velocityDifference.x) == Mathf.Sign(directionVector.x)) ? acceleration : deceleration;
             float rateZ = (Mathf.Sign(velocityDifference.z) == Mathf.Sign(directionVector.z)) ? acceleration : deceleration;
+
+            if (!isGrounded)
+            {
+                rateX *= airControl;
+                rateZ *= airControl;
+            }
 
             // Calculate new velocities with the appropriate rate
             float newVelocityX = currentVelocity.x + (velocityDifference.x * rateX * Time.fixedDeltaTime);

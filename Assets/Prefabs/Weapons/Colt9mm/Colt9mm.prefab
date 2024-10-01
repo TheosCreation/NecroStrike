@@ -643,7 +643,7 @@ MonoBehaviour:
   collisionCollider: {fileID: 959027868018043418}
   muzzleTransform: {fileID: 3762706249450546976}
   casingEjectionTransform: {fileID: 6913465628110804916}
-  motionReduction: 0.23
+  motionReduction: 0.1
   isHeld: 0
   isEquip: 0
   isAiming: 0
@@ -651,6 +651,7 @@ MonoBehaviour:
   isReloading: 0
   isInspecting: 0
   isBoltAction: 0
+  canResetSprint: 1
   settings: {fileID: 11400000, guid: ca587e767c173d3438cd9fd8c1cea46a, type: 2}
   currentSpread: 0
   recoil: {x: 0, y: 0}
