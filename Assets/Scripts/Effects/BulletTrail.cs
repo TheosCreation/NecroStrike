@@ -42,7 +42,12 @@ public class BulletTrail : MonoBehaviour
 
             if(spawnImpact && !hitCharacter)
             {
-                Instantiate(impactToSpawn, hitPosition + offset, Quaternion.LookRotation(hitNormal));
+                Quaternion rotation = Quaternion.identity;
+                if(hitNormal != Vector3.zero)
+                {
+                    rotation = Quaternion.LookRotation(hitNormal);
+                }
+                Instantiate(impactToSpawn, hitPosition + offset, rotation);
             }
             Destroy(gameObject); // Destroy the bullet trail once it reaches the destination
         }

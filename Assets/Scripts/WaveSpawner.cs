@@ -1,17 +1,16 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class WaveSpawner : MonoBehaviour, IPausable
 {
     [SerializeField] private ZombieFactory factory;
     [SerializeField] private PlayerController player;
-    [SerializeField] private Transform[] spawnPoints; // Points where zombies will spawn
+    [SerializeField] private SpawnArea[] spawnAreas;
     [SerializeField] private float preparationTime = 5.0f; // Time to prepare before wave starts
     [SerializeField] private float timeBetweenRounds = 10.0f; // Cooldown between rounds
     [SerializeField] private float baseZombiesPerSecond = 0.5f; // Zombies spawn rate per second at the first round
     [SerializeField] private int baseZombies = 10; // Base zombies per round
     [SerializeField] private float healthIncreaseMultiplier = 1.1f;
-    [SerializeField] private float zombiesMoveSpeedAdd = 0.2f;
     private AudioSource audioSource;
     [SerializeField] private AudioClip roundStartClip;
     [SerializeField] private AudioClip roundEndClip;
@@ -98,7 +97,6 @@ public class WaveSpawner : MonoBehaviour, IPausable
         zombiesMoveSpeed = GetZombieSpeed();
 
         audioSource.PlayOneShot(roundStartClip);
-        Debug.Log("Round " + currentRound + " starting!");
     }
 
     private void StartSpawning()
@@ -116,26 +114,22 @@ public class WaveSpawner : MonoBehaviour, IPausable
         roundCooldownTimer = 0;
         currentRound++;
         audioSource.PlayOneShot(roundEndClip);
-        Debug.Log("Round " + (currentRound - 1) + " ended!");
     }
 
     private void SpawnZombie()
     {
-        if (spawnPoints.Length == 0)
-        {
-            Debug.LogError("No spawn points assigned!");
-            return;
-        }
+        Transform spawnPoint = GetValidSpawnPoint();
 
-        Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        if (spawnPoint == null)
+        {
+            return; // No valid spawn point, return early
+        }
 
         Zombie zombie = factory.SpawnZombie(spawnPoint, player.transform, zombiesCurrentHealth, zombiesMoveSpeed);
         if (zombie != null)
         {
             zombiesAlive++;
             zombiesLeftToSpawn--;
-
-            Debug.Log("Spawned Zombie! Zombies alive: " + zombiesAlive + ", Zombies left to spawn: " + zombiesLeftToSpawn);
 
             // Subscribe to the OnDeath event to decrement zombiesAlive when the zombie dies
             zombie.OnDeath += HandleZombieDeath;
@@ -146,8 +140,6 @@ public class WaveSpawner : MonoBehaviour, IPausable
     {
         zombiesAlive--;
 
-        Debug.Log("Zombie died! Zombies alive: " + zombiesAlive);
-
         // Make sure zombiesAlive doesn't go negative
         if (zombiesAlive < 0)
         {
@@ -155,7 +147,29 @@ public class WaveSpawner : MonoBehaviour, IPausable
             zombiesAlive = 0;
         }
     }
+    private Transform GetValidSpawnPoint()
+    {
+        List<Transform> validSpawnPoints = new List<Transform>();
 
+        foreach (var area in spawnAreas)
+        {
+            // Only consider areas where the player is inside and the area is not locked
+            if (area.isPlayerInside && !area.isLocked)
+            {
+                validSpawnPoints.AddRange(area.spawnPoints);
+            }
+        }
+
+        if (validSpawnPoints.Count > 0)
+        {
+            return validSpawnPoints[Random.Range(0, validSpawnPoints.Count)];
+        }
+        else
+        {
+            Debug.LogError("No valid spawn points found!");
+            return null;
+        }
+    }
 
     // Helper functions for calculating round progression
 
@@ -171,7 +185,21 @@ public class WaveSpawner : MonoBehaviour, IPausable
 
     private float GetZombieSpeed()
     {
-        return zombiesMoveSpeed + (zombiesMoveSpeedAdd * (currentRound - 1));
+        if (currentRound >= 20)
+        {
+            // Sprinting speed (Stage 3)
+            return zombiesMoveSpeed * 1.5f; // Sprinting is 50% faster
+        }
+        else if (currentRound >= 6)
+        {
+            // Fast walking speed (Stage 2)
+            return zombiesMoveSpeed * 1.2f; // Fast walking is 20% faster
+        }
+        else
+        {
+            // Walking speed (Stage 1)
+            return zombiesMoveSpeed; // Base walking speed
+        }
     }
 
     private float GetZombieSpawnRate()
@@ -181,7 +209,7 @@ public class WaveSpawner : MonoBehaviour, IPausable
 
     private int GetMaxZombiesAlive()
     {
-        return Mathf.Min(24, currentRound * 4); // Limit active zombies to 24, scaling with rounds
+        return Mathf.Min(currentRound * 4, 24); // Maximum zombies ever allowed for any rounds is 24
     }
 
     public void OnPause()

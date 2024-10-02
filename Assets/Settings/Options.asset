@@ -29,7 +29,7 @@ MonoBehaviour:
     defaultValue: 0
   fov:
     name: Fov
-    defaultValue: 60
+    defaultValue: 80
   tilt:
     name: Tilt
     defaultValue: 1

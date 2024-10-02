@@ -13,9 +13,9 @@ public class UiManager : MonoBehaviour
 
     public UiCrosshair crosshair;
 
-
     [SerializeField] private FlashImage hitMarker;
     [SerializeField] private FlashImage hurtScreen;
+    [SerializeField] private TMP_Text interactionText;
     [SerializeField] private TMP_Text ammoText;
     [SerializeField] private TMP_Text ammoReserveText;
     [SerializeField] private TMP_Text speedText;
@@ -40,7 +40,8 @@ public class UiManager : MonoBehaviour
 
     private void Start()
     {
-        OpenPlayerHud();
+        OpenPlayerHud(); 
+        HideInteractionPrompt();
     }
 
     public void PauseMenu(bool isPaused)
@@ -101,4 +102,14 @@ public class UiManager : MonoBehaviour
     {
         playerWeakOverlay.gameObject.SetActive(weak);
     }
+
+    public void ShowInteractionPrompt(string text)
+    {
+        interactionText.text = text;
+    }   
+    
+    public void HideInteractionPrompt()
+    {
+        interactionText.text = "";
+    }    
 }

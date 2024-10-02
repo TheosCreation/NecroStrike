@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 54238244902362926}
   - component: {fileID: 114121961160874846}
   - component: {fileID: 82444821930212418}
+  - component: {fileID: 6402793486737129346}
   m_Layer: 0
   m_Name: CasingShell
   m_TagString: Untagged
@@ -135,13 +136,13 @@ MonoBehaviour:
   maximumZForce: 12
   minimumRotation: -360
   maximumRotation: 360
-  despawnTime: 1
+  despawnTime: 2
   casingSounds:
   - {fileID: 8300000, guid: 90602b60324612d4d96ae38178bc395f, type: 3}
   - {fileID: 8300000, guid: dec2611564313f94fa8b86075b6debb3, type: 3}
   - {fileID: 8300000, guid: 454726d0ce29d064b8a95d0a69487fa0, type: 3}
   audioSource: {fileID: 82444821930212418}
-  speed: 2500
+  spinSpeed: 2500
 --- !u!82 &82444821930212418
 AudioSource:
   m_ObjectHideFlags: 0
@@ -239,3 +240,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!65 &6402793486737129346
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1492315059354262}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.03249031, y: 0.030900147, z: 0.0827432}
+  m_Center: {x: 0.00000019744039, y: -0.00000020908197, z: 0.01158656}

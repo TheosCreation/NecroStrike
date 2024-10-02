@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public enum Firemode
 {
@@ -372,7 +373,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
         Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
 
-        Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
+        //Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
         RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, settings.damageFallOffDistance, settings.hitLayers);
 
         // Sort the hits by distance to ensure the closest object is processed first
@@ -380,7 +381,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
         // Instantiate the bullet trail at the muzzle position
         BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
-
+        bool hitATrigger = false;
         if (hits.Length > 0)
         {
             float remainingDamage = settings.baseDamage;
@@ -389,7 +390,11 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             foreach (RaycastHit hit in hits)
             {
                 // Ignore trigger colliders
-                if (hit.collider.isTrigger) continue;
+                if (hit.collider.isTrigger)
+                {
+                    hitATrigger = true;
+                    continue;
+                }
 
                 if (!spawnedBulletTrail)
                 {
@@ -411,10 +416,14 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         }
         else
         {
-            // No hits, create a bullet trail toward the maximum distance
-            Vector3 missPosition = startPosition + shootDirection * settings.damageFallOffDistance;
-            bulletTrail.Init(missPosition, Vector3.zero);
-            bulletTrail.spawnImpact = false;
+            HandleMiss(startPosition, shootDirection, bulletTrail);
+            spawnedBulletTrail = true;
+        }
+
+        if(hitATrigger && !spawnedBulletTrail)
+        {
+            spawnedBulletTrail = true;
+            HandleMiss(startPosition, shootDirection, bulletTrail);
         }
 
         // Apply recoil and handle ammo consumption
@@ -468,6 +477,14 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     }
 
+    protected void HandleMiss(Vector3 startPosition, Vector3 shootDirection, BulletTrail trail)
+    {
+        // No hits, create a bullet trail toward the maximum distance
+        Vector3 missPosition = startPosition + shootDirection * settings.damageFallOffDistance;
+        Debug.DrawLine(startPosition, missPosition, Color.red, 6.0f);
+        trail.Init(missPosition, Vector3.zero);
+        trail.spawnImpact = false;
+    }
     protected void HandleHit(RaycastHit hit, float damage, BulletTrail trail)
     {
         var collider = hit.collider;
@@ -746,5 +763,10 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public void OnUnPause()
     {
         audioSource.UnPause();
+    }
+
+    public string GetInteractionText()
+    {
+        return $"Pick up {gameObject.name}";
     }
 }

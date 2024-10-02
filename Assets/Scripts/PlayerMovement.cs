@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IPausable
 {
     private PlayerController playerController;
     [HideInInspector] public MovementController movementController;
@@ -344,5 +344,15 @@ public class PlayerMovement : MonoBehaviour
         {
             audioSource.Pause();
         }
+    }
+
+    public void OnPause()
+    {
+        audioSource.Pause();
+    }
+
+    public void OnUnPause()
+    {
+        PlayFootstepSounds();
     }
 }

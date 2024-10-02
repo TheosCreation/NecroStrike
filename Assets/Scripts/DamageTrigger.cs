@@ -11,7 +11,6 @@ public class DamageTrigger : MonoBehaviour
     {
         if (((1 << other.gameObject.layer) & damageMask) == 0)
         {
-            Debug.Log("Hit something unwanted: " + other.gameObject.name);
             return;
         }
 

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 54238244902362926}
   - component: {fileID: 114121961160874846}
   - component: {fileID: 82444821930212418}
+  - component: {fileID: 7693638778695094243}
   m_Layer: 0
   m_Name: CasingSmall
   m_TagString: Untagged
@@ -135,7 +136,7 @@ MonoBehaviour:
   maximumZForce: 12
   minimumRotation: -360
   maximumRotation: 360
-  despawnTime: 1
+  despawnTime: 2
   casingSounds:
   - {fileID: 8300000, guid: ce061822bd3ea954799cd9ca8f267b30, type: 3}
   - {fileID: 8300000, guid: 448d5d92d435b104b86b680d06b949da, type: 3}
@@ -143,7 +144,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 187e517e6d4aa504db111733a892b595, type: 3}
   - {fileID: 8300000, guid: 736e1b0b2319b96489c058313f18eb2d, type: 3}
   audioSource: {fileID: 82444821930212418}
-  speed: 2500
+  spinSpeed: 2500
 --- !u!82 &82444821930212418
 AudioSource:
   m_ObjectHideFlags: 0
@@ -241,3 +242,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!65 &7693638778695094243
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1492315059354262}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.010220759, y: 0.010220901, z: 0.022174282}
+  m_Center: {x: 4.656613e-10, y: -0.000000025844207, z: 0.0016738329}
