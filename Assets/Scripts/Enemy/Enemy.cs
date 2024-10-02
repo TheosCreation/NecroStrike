@@ -198,7 +198,16 @@ public class Enemy : MonoBehaviour, IDamageable, IPausable
         head.localScale = new Vector3(0.001f, 0.001f, 0.001f);
         // Activate the blood particles
         bloodParticles.Play();
-        gameObject.AddComponent<Timer>().SetTimer(headBleedoutTime + UnityEngine.Random.Range(0f, 1f), Die);
+
+        //have a 20% chance to stay alive
+        if(UnityEngine.Random.Range(0, 100) < 20)
+        {
+            gameObject.AddComponent<Timer>().SetTimer(headBleedoutTime + UnityEngine.Random.Range(0f, 0.3f), Die);
+        }
+        else
+        {
+            Die();
+        }
     }
 
     public void PlayRandomAttackSound()
