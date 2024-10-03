@@ -88,9 +88,9 @@ public class GameManager : MonoBehaviour
 
     public void ExitToMainMenu()
     {
+        SceneManager.LoadScene(mainMenuScene);
         PauseManager.Instance.SetPaused(false);
         Cursor.lockState = CursorLockMode.None;
-        SceneManager.LoadScene(mainMenuScene);
     }
 
     public void Quit()
