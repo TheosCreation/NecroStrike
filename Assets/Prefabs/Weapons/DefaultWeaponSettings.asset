@@ -42,6 +42,7 @@ MonoBehaviour:
   spreadIncreasePerShot: 0.05
   maxSpread: 0.25
   spreadRecoverRate: 4
+  aimInTime: 0.1
   aimingZoomLevel: 1.2
   cameraZOffset: 0.05
   aimingMoveReduction: 0.2

@@ -12,7 +12,10 @@ public class BootstrapLogic : MonoBehaviour
     [SerializeField]
     private SteamworksBehaviour steamworksBehaviour;
     [SerializeField] private Texture2D cursor;
-
+    private void Awake()
+    {
+        steamworksBehaviour.gameObject.SetActive(false);
+    }
     void Start()
     {
         DontDestroyOnLoad(gameObject);
@@ -26,11 +29,10 @@ public class BootstrapLogic : MonoBehaviour
 
         if (SteamAPI.IsSteamRunning())
         {
+            steamworksBehaviour.gameObject.SetActive(true);
             // Wait until Steam settings are initialized
             yield return new WaitUntil(() => SteamSettings.Initialized);
             Debug.Log("Steam API is initialized as App " + AppClient.Id.ToString());
-
-            steamworksBehaviour.gameObject.SetActive(false);
         }
         else
         {

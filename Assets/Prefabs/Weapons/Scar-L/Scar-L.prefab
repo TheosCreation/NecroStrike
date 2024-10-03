@@ -62,7 +62,7 @@ Transform:
   m_GameObject: {fileID: 168088244643594973}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.179, y: 1.461, z: 2.5183}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -256,6 +256,7 @@ MonoBehaviour:
   isHeld: 0
   isEquip: 0
   isAiming: 0
+  aimingInput: 0
   isAttacking: 0
   isReloading: 0
   isInspecting: 0
@@ -279,6 +280,7 @@ MonoBehaviour:
   applyRecoil: 1
   defaultWeaponPartSOList:
   - {fileID: 11400000, guid: c22cb605a57a0094bb72452f4c515058, type: 2}
+  weaponBody: {fileID: 8664736661331157272}
 --- !u!114 &8664736661331157272
 MonoBehaviour:
   m_ObjectHideFlags: 0

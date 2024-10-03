@@ -5,7 +5,7 @@ public class PlayerInteractions : MonoBehaviour
     private PlayerController player;
     [SerializeField] private float interactionDistance = 2f;
     [SerializeField] private Transform interactionDirection;
-    private IInteractable currentInteractable = null;
+    [HideInInspector] public IInteractable currentInteractable = null;
 
     private void Awake()
     {
@@ -37,7 +37,7 @@ public class PlayerInteractions : MonoBehaviour
                 {
                     // New interactable detected, update and display interaction text
                     currentInteractable = interactable;
-                    string interactionText = currentInteractable.GetInteractionText();
+                    string interactionText = currentInteractable.GetInteractionText(player);
                     DisplayInteractionText(interactionText);
                 }
             }

@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour, IDamageable
 {
     public PlayerLook playerLook;
     public PlayerMovement playerMovement;
+    public PlayerInteractions playerInteractions;
     public WeaponHolder weaponHolder;
 
     public int maxHealth = 100;
@@ -31,7 +32,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
 
-    [SerializeField] private bool hasHead = true;
     public event Action OnDeath;
     [SerializeField] private Impact bloodImpactPrefab;
 
@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour, IDamageable
     {
         weaponHolder = GetComponentInChildren<WeaponHolder>();
         playerMovement = GetComponent<PlayerMovement>();
+        playerInteractions = GetComponent<PlayerInteractions>();
         playerLook = GetComponent<PlayerLook>();
 
         InputManager.Instance.playerInput.Ui.Pause.started += _ctx => PauseManager.Instance.TogglePause();
@@ -130,6 +131,5 @@ public class PlayerController : MonoBehaviour, IDamageable
 
     public void HitHead()
     {
-        hasHead = false;
     }
 }

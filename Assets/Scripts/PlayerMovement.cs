@@ -14,7 +14,6 @@ public class PlayerMovement : MonoBehaviour, IPausable
     [SerializeField] private float sprintMoveMultiplier = 1.5f;
     [SerializeField] private float crouchMoveMultiplier = 0.5f;
     [HideInInspector] public float movementMultiplier = 1.0f;
-    private float currentMoveSpeed = 2.0f;
     [SerializeField] private float acceleration = 5.0f;
     [SerializeField] private float deceleration = 2.0f;
 
@@ -129,7 +128,7 @@ public class PlayerMovement : MonoBehaviour, IPausable
             if (playerController.weaponHolder.currentWeapon != null)
             {
                 // Ensure we are not aiming or attacking while sprinting
-                if (!playerController.weaponHolder.currentWeapon.isAiming && !playerController.weaponHolder.currentWeapon.isAttacking)
+                if (!playerController.weaponHolder.currentWeapon.aimingInput && !playerController.weaponHolder.currentWeapon.isAttacking)
                 {
                     // Check if moving forward (positive y direction) to allow sprinting
                     if (movementInput.y > 0)

@@ -31,7 +31,7 @@ public class WeaponSettings : ScriptableObject
 
     [Header("Ammo and Damage")]
     public int magSize = 30;
-    public int startingAmmoReserve = 1000;
+    public int maxAmmoReserve = 260;
     public float baseDamage = 50.0f;
     public float damageFallOffDistance = 100.0f;
     public float headShotMultiplier = 1.5f;
@@ -49,6 +49,7 @@ public class WeaponSettings : ScriptableObject
     public float spreadRecoverRate = 1.5f;
 
     [Header("Aiming")]
+    public float aimInTime = 0.15f;
     public float aimingZoomLevel = 1.2f;
     public float cameraZOffset = 0.05f;
     public float aimingMoveReduction = 0.2f;

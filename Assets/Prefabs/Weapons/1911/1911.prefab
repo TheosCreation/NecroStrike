@@ -385,6 +385,7 @@ MonoBehaviour:
   isHeld: 1
   isEquip: 1
   isAiming: 0
+  aimingInput: 0
   isAttacking: 0
   isReloading: 0
   isInspecting: 0
@@ -408,6 +409,7 @@ MonoBehaviour:
   applyRecoil: 1
   defaultWeaponPartSOList:
   - {fileID: 11400000, guid: c22cb605a57a0094bb72452f4c515058, type: 2}
+  weaponBody: {fileID: 1371430409247603381}
 --- !u!114 &1371430409247603381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -421,7 +423,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponSkin: {fileID: 0}
-  baseBody: {fileID: 0}
+  baseBody: {fileID: 919132149155446097, guid: ff309b6e1d0be2f4faff02fb880f3164, type: 3}
   weaponBodySO: {fileID: 11400000, guid: 8d75724e73e8d2d4a98cb211416539e1, type: 2}
   partTypeAttachPointList:
   - partType: 1

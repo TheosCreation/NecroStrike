@@ -31,6 +31,11 @@ public class WeaponBody : MonoBehaviour
         return partTypeAttachPointList;
     }
 
+    public GameObject GetBaseBody()
+    {
+        return baseBody;
+    }
+
     public void ApplyWeaponSkin()
     {
         if(weaponSkin && baseBody)

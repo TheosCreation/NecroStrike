@@ -30,6 +30,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     [SerializeField] private bool isHeld = false;
     [SerializeField] private bool isEquip = false;
     public bool isAiming = false;
+    public bool aimingInput = false;
     public bool isAttacking = false;
     public bool isReloading = false;
     public bool isInspecting = false;
@@ -55,6 +56,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private Timer reloadTimer;
     private Timer equipTimer;
     private Timer inspectTimer;
+    private Timer aimingTimer;
     private Timer boltActionTimer;
     private Timer fireToSprintTimer;
 
@@ -92,13 +94,12 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     [SerializeField] private List<WeaponPartSO> defaultWeaponPartSOList;
 
 
-    private WeaponBody weaponBody;
+    [SerializeField] private WeaponBody weaponBody;
     private Scope attachedScope;
     private Dictionary<WeaponPartSO.PartType, AttachedWeaponPart> attachedWeaponPartDic;
 
     private void Awake()
     {
-        weaponBody = GetComponent<WeaponBody>();
         animator = GetComponent<Animator>(); 
         rb = GetComponent<Rigidbody>(); 
         audioSource = GetComponent<AudioSource>();
@@ -107,6 +108,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         equipTimer = gameObject.AddComponent<Timer>();
         inspectTimer = gameObject.AddComponent<Timer>();
         fireToSprintTimer = gameObject.AddComponent<Timer>();
+        aimingTimer = gameObject.AddComponent<Timer>();
 
         if(settings.weaponClass == WeaponClass.Sniper && settings.firemode == Firemode.Single)
         {
@@ -133,7 +135,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     void Start()
     {
-        ammoReserve = settings.startingAmmoReserve;
+        FillReserve();
         FillMag();
 
         if (holder != null)
@@ -144,6 +146,11 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         {
             Drop(0);
         }
+    }
+
+    public int GetID()
+    {
+        return settings.GetInstanceID();
     }
 
     public void PickUp(bool playSound)
@@ -321,7 +328,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     public virtual void Inspect()
     {
-        if (isReloading || isInspecting || isAiming) return;
+        if (isReloading || isInspecting || aimingInput) return;
 
         isInspecting = true;
         animator.SetTrigger("Inspect");
@@ -534,7 +541,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         animator.SetBool("BoltAction", false);
     }
 
-    private void FillMag()
+    public void FillMag()
     {
         // Calculate the amount of ammo needed to fill the magazine
         int ammoNeeded = settings.magSize - ammoLeft;
@@ -557,6 +564,15 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         if (!isHeld) return;
 
         UiManager.Instance.UpdateAmmoText(ammoLeft);
+        UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
+    }
+
+    public void FillReserve()
+    {
+        ammoReserve = settings.maxAmmoReserve;
+
+        if (!isHeld) return;
+
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
 
@@ -629,7 +645,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         fireToSprintTimer.SetTimer(settings.fireToSprintDelay, () =>
         {
             canResetSprint = true;
-            if (holder && !isInspecting && !isReloading & !isAiming)
+            if (holder && !isInspecting && !isReloading & !aimingInput)
             {
                 holder.player.playerMovement.ResetSprint();
             }
@@ -640,16 +656,23 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     {
         CancelInspect();
 
-        isAiming = true;
+        aimingInput = true;
 
-        PlayAimInSound();
+        aimingTimer.StopTimer();
+        aimingTimer.SetTimer(settings.aimInTime, FinishAimIn);
 
         UiManager.Instance.SetCrosshair(false);
     }
-
+    private void FinishAimIn()
+    {
+        PlayAimInSound();
+        isAiming = true;
+    }
     public void StopAiming()
-    { 
+    {
+        aimingTimer.StopTimer();
         isAiming = false;
+        aimingInput = false;
         UiManager.Instance.SetCrosshair(true);
 
         if(holder && !isInspecting && !isReloading && !isAttacking && canResetSprint)
@@ -678,7 +701,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private void FinishReload()
     {
         isReloading = false; 
-        if (holder && !isInspecting && !isAiming && !isAttacking && canResetSprint)
+        if (holder && !isInspecting && !aimingInput && !isAttacking && canResetSprint)
         {
             holder.player.playerMovement.ResetSprint();
         }
@@ -754,6 +777,11 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     {
         return weaponBody.GetWeaponBodySO();
     }
+    
+    public GameObject GetWeaponBodyBase()
+    {
+        return weaponBody.GetBaseBody();
+    }
 
     public void OnPause()
     {
@@ -765,7 +793,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         audioSource.UnPause();
     }
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerController player)
     {
         return $"Pick up {gameObject.name}";
     }

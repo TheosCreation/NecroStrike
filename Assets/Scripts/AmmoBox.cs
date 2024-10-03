@@ -4,7 +4,7 @@ public class AmmoBox : MonoBehaviour, IInteractable
 {
     [SerializeField] private int AmmoToGive = 100;
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerController player)
     {
         return "Get Ammo Lol";
     }

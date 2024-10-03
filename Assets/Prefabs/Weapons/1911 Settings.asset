@@ -32,8 +32,8 @@ MonoBehaviour:
   recoilResetTimeSeconds: 1
   recoilPattern: {fileID: 11400000, guid: e572114a4b6da0a4e8b36c6638b9a989, type: 2}
   magSize: 8
-  startingAmmoReserve: 1000
-  baseDamage: 20
+  maxAmmoReserve: 260
+  baseDamage: 25
   damageFallOffDistance: 50
   headShotMultiplier: 1.5
   equipTime: 0.6
@@ -42,6 +42,7 @@ MonoBehaviour:
   spreadIncreasePerShot: 0.05
   maxSpread: 0.25
   spreadRecoverRate: 4
+  aimInTime: 0.1
   aimingZoomLevel: 1.2
   cameraZOffset: 0.2
   aimingMoveReduction: 0.2

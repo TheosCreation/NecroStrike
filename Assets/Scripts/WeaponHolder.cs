@@ -13,7 +13,6 @@ public class WeaponHolder : MonoBehaviour
     Timer meleeTimer;
     [SerializeField] private List<Weapon> weapons = new List<Weapon>();
     [SerializeField] private int maxHeldWeaponCount = 2;
-    [SerializeField] private float throwForce = 0.5f;
     [SerializeField] private Transform currentWeaponPosition;
     [SerializeField] private Transform idlePos;
     [SerializeField] private Transform aimingPos;
@@ -78,7 +77,7 @@ public class WeaponHolder : MonoBehaviour
         InputManager.Instance.playerInput.InGame.Attack.canceled += _ctx => currentWeapon?.StopAttacking();
         InputManager.Instance.playerInput.InGame.Aim.started += _ctx => TryStartAiming();
         InputManager.Instance.playerInput.InGame.Aim.canceled += _ctx => currentWeapon?.StopAiming();
-        InputManager.Instance.playerInput.InGame.Drop.started += _ctx => TryDropWeapon();
+        //InputManager.Instance.playerInput.InGame.Drop.started += _ctx => TryDropWeapon();
         InputManager.Instance.playerInput.InGame.Reload.started += _ctx => currentWeapon?.Reload();
         InputManager.Instance.playerInput.InGame.Inspect.started += _ctx => currentWeapon?.Inspect();
         InputManager.Instance.playerInput.InGame.Melee.started += _ctx => Melee();
@@ -103,7 +102,7 @@ public class WeaponHolder : MonoBehaviour
         }
 
         Transform transformToAttachWeapon = idlePos;
-        if (currentWeapon.isAiming && !currentWeapon.isReloading && !currentWeapon.isBoltAction)
+        if (currentWeapon.aimingInput && !currentWeapon.isReloading && !currentWeapon.isBoltAction)
         {
             transformToAttachWeapon = aimingPos;
         }
@@ -149,30 +148,39 @@ public class WeaponHolder : MonoBehaviour
         }
         else
         {
-            // Replace the current weapon if max count is reached
-            TryDropWeapon(); 
+            // Destroy the current weapon and remove its reference 
+            Destroy(weapons[currentWeaponIndex].gameObject);
+            weapons.RemoveAt(currentWeaponIndex);
             weapons.Add(weapon); // Add the weapon to the dynamic list
             SelectWeapon(weapon);
         }
     }
-
-    private void TryDropWeapon()
+    public Weapon HasWeapon(Weapon weaponToCheck)
     {
-        if (isMeleeing || weapons.Count <= 1) return;
-        if(currentWeapon != null)
+        foreach(Weapon weapon in weapons)
         {
-            currentWeapon.Drop(throwForce);
-            weapons.RemoveAt(currentWeaponIndex); // Remove the dropped weapon
-            currentWeapon = null;
-            SelectWeapon(0);
-            if(currentWeapon == null)
-            {
-
-                UiManager.Instance.UpdateAmmoReserveText(0);
-                UiManager.Instance.UpdateAmmoText(0);
-            }
+            if(weapon.GetID() == weaponToCheck.GetID()) return weapon;
         }
+
+        return null;
     }
+
+    //private void TryDropWeapon()
+    //{
+    //    if (isMeleeing || weapons.Count <= 1) return;
+    //    if(currentWeapon != null)
+    //    {
+    //        currentWeapon.Drop(throwForce);
+    //        weapons.RemoveAt(currentWeaponIndex); // Remove the dropped weapon
+    //        currentWeapon = null;
+    //        SelectWeapon(0);
+    //        if(currentWeapon == null)
+    //        {
+    //            UiManager.Instance.UpdateAmmoReserveText(0);
+    //            UiManager.Instance.UpdateAmmoText(0);
+    //        }
+    //    }
+    //}
 
     private void WeaponSwitch(Vector2 direction)
     {

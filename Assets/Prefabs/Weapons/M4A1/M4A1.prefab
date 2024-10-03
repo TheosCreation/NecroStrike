@@ -953,6 +953,7 @@ MonoBehaviour:
   isHeld: 1
   isEquip: 0
   isAiming: 0
+  aimingInput: 0
   isAttacking: 0
   isReloading: 0
   isInspecting: 0
@@ -976,6 +977,7 @@ MonoBehaviour:
   applyRecoil: 1
   defaultWeaponPartSOList:
   - {fileID: 11400000, guid: c22cb605a57a0094bb72452f4c515058, type: 2}
+  weaponBody: {fileID: 3226344994966046469}
 --- !u!114 &3226344994966046469
 MonoBehaviour:
   m_ObjectHideFlags: 0

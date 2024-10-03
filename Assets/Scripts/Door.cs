@@ -37,7 +37,7 @@ public class Door : MonoBehaviour, IInteractable
         }
     }
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerController player)
     {
         return $"Clear Cost: {doorCost}";
     }

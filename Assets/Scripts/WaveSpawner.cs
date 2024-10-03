@@ -10,7 +10,8 @@ public class WaveSpawner : MonoBehaviour, IPausable
     [SerializeField] private float timeBetweenRounds = 10.0f; // Cooldown between rounds
     [SerializeField] private float baseZombiesPerSecond = 0.5f; // Zombies spawn rate per second at the first round
     [SerializeField] private int baseZombies = 10; // Base zombies per round
-    [SerializeField] private float healthIncreaseMultiplier = 1.1f;
+    [SerializeField] private float earlyRoundHealthIncrease = 100f; //100 health per round untill round 10
+    [SerializeField] private float healthIncreaseMultiplier = 1.1f; //round 10 and up the health scales by 1.1 times its amount
     private AudioSource audioSource;
     [SerializeField] private AudioClip roundStartClip;
     [SerializeField] private AudioClip roundEndClip;
@@ -18,6 +19,7 @@ public class WaveSpawner : MonoBehaviour, IPausable
     private int currentRound = 1;
     private int zombiesLeftToSpawn;
     private int zombiesAlive;
+    [SerializeField] private int zombieBaseHealth = 150;
     [SerializeField] private int zombiesCurrentHealth = 150;
     [SerializeField] private float zombiesMoveSpeed = 2.0f;
     private bool isSpawning = false;
@@ -180,7 +182,21 @@ public class WaveSpawner : MonoBehaviour, IPausable
 
     private int GetZombieHealth()
     {
-        return Mathf.RoundToInt(zombiesCurrentHealth * Mathf.Pow(healthIncreaseMultiplier, currentRound - 1));
+        // Base health of the zombie
+        float zombiesCurrentHealth = zombieBaseHealth;
+
+        if (currentRound < 10)
+        {
+            // For rounds below 10, increment health by a fixed amount per round
+            zombiesCurrentHealth += earlyRoundHealthIncrease * (currentRound - 1); // Start at round 1 and apply health increases
+        }
+        else
+        {
+            // For round 10 and above, multiply health by a factor
+            zombiesCurrentHealth *= Mathf.Pow(healthIncreaseMultiplier, currentRound - 9); // Apply multiplier starting from round 10
+        }
+
+        return Mathf.RoundToInt(zombiesCurrentHealth);
     }
 
     private float GetZombieSpeed()
