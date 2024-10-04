@@ -9,6 +9,7 @@ public class MovementController : MonoBehaviour
 
     [Header("Velocity Safety Measures")]
     [SerializeField] private float velocityThreshold = 0.01f;
+    private float velocityThresholdSqrd = 0.0f;
     [SerializeField] private float airControl = 0.4f;
 
     [Header("Gravity")]
@@ -33,9 +34,10 @@ public class MovementController : MonoBehaviour
     [SerializeField] float stepSmooth = 2f;
 
     [Header("Slope Handling")]
+    [SerializeField] private float maxSlopeAngle = 45f;
+    [SerializeField] private float slideSpeed = 5f;
     private RaycastHit slopeHit;
-    public bool isOnSlope = false;
-    public float maxSlopeAngle = 45.0f;
+    private bool isOnSlope = false;
 
     [Header("Debugging")]
     [SerializeField] private bool debug = false;
@@ -45,31 +47,45 @@ public class MovementController : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        velocityThresholdSqrd = velocityThreshold * velocityThreshold;
     }
 
     private void FixedUpdate()
     {
+        // Ground check
         isGrounded = CheckGrounded();
+
+        // Handle slope movement
+        isOnSlope = CheckOnSlope();
 
         if (isGrounded)
         {
             SetGravity(false);
             AddForce(Vector3.down * 0.1f);
+
             if (!movement && useFriction)
             {
                 ApplyFriction(friction);
+            }
+
+            // Handle slope sliding if the slope is too steep
+            if (isOnSlope && Vector3.Angle(slopeHit.normal, Vector3.up) > maxSlopeAngle)
+            {
+                SlideDownSlope();
             }
         }
         else
         {
             SetGravity(true);
+
             if (!movement && useFriction)
             {
                 ApplyFriction(airFriction);
             }
         }
 
-        if (rb.velocity.sqrMagnitude < velocityThreshold * velocityThreshold)
+        // Reset velocity if below threshold
+        if (rb.velocity.sqrMagnitude < velocityThresholdSqrd)
         {
             rb.velocity = Vector3.zero;
         }
@@ -105,6 +121,82 @@ public class MovementController : MonoBehaviour
         }
         
     }
+    private void StepHandling(Vector3 moveDirection)
+    {
+        Vector3 origin = stepRayLower.transform.position;
+        Vector3 upOffset = Vector3.up * maxStepHeight;
+        Vector3 forwardOffset = moveDirection.normalized * stepCheckDistance;
+
+        // Debugging rays
+        if (debug)
+        {
+            Debug.DrawRay(origin, Vector3.up * maxStepHeight, Color.red);
+            Debug.DrawRay(origin + upOffset, moveDirection.normalized * stepCheckDistance, Color.green);
+            Debug.DrawRay(origin + upOffset + forwardOffset, Vector3.down * maxStepHeight, Color.blue);
+        }
+
+        // Check if there's room to step up
+        if (!Physics.Raycast(origin, Vector3.up, maxStepHeight, groundMask))
+        {
+            if (!Physics.Raycast(origin + upOffset, moveDirection.normalized, stepCheckDistance, groundMask))
+            {
+                if (Physics.Raycast(origin + upOffset + forwardOffset, Vector3.down, out RaycastHit downHit, maxStepHeight, groundMask))
+                {
+                    float stepHeight = downHit.point.y - transform.position.y;
+
+                    if (stepHeight <= maxStepHeight && stepHeight > 0)
+                    {
+                        float stepSlopeAngle = Vector3.Angle(downHit.normal, Vector3.up);
+
+                        if (stepSlopeAngle <= maxSlopeAngle)
+                        {
+                            if (!Physics.Raycast(origin, Vector3.down, out RaycastHit slopeHit, maxGroundDistance, groundMask) ||
+                                Vector3.Angle(slopeHit.normal, Vector3.up) <= maxSlopeAngle)
+                            {
+                                // Adjust position to step height smoothly
+                                Vector3 newPosition = transform.position;
+                                newPosition.y += stepHeight;
+
+                                transform.position = Vector3.Lerp(transform.position, newPosition, stepSmooth * Time.deltaTime);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Ground check using raycasts
+    private bool CheckGrounded()
+    {
+        Vector3[] cornerOffsets = new Vector3[]
+        {
+            new Vector3(-groundCheckBoxWidth, 0, 0),
+            new Vector3(groundCheckBoxWidth, 0, 0),
+            new Vector3(0, 0, groundCheckBoxWidth),
+            new Vector3(0, 0, -groundCheckBoxWidth)
+        };
+
+        foreach (Vector3 offset in cornerOffsets)
+        {
+            if (Physics.Raycast(groundCheckPosition.position + offset, Vector3.down, maxGroundDistance, groundMask))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Check if player is on a slope
+    private bool CheckOnSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, maxGroundDistance, groundMask))
+        {
+            float slopeAngle = Vector3.Angle(slopeHit.normal, Vector3.up);
+            return slopeAngle > 0 && slopeAngle <= maxSlopeAngle;
+        }
+        return false;
+    }
 
     public void Rotate(Transform transform)
     {
@@ -129,7 +221,6 @@ public class MovementController : MonoBehaviour
 
         MoveWorld(movementVector, maxSpeed, acceleration, deceleration);
     }
-
     public void MoveWorld(Vector3 directionVector, float maxSpeed, float acceleration, float deceleration)
     {
         if (directionVector.sqrMagnitude <= 0)
@@ -147,38 +238,43 @@ public class MovementController : MonoBehaviour
         // Maintain the current vertical velocity
         desiredVelocity.y = currentVelocity.y;
 
+        StepHandling(desiredVelocity);
+
         Vector3 velocityDifference = desiredVelocity - currentVelocity;
 
         movement = true;
 
-        if (velocityDifference.sqrMagnitude > Mathf.Epsilon * Mathf.Epsilon)
+        if (velocityDifference.sqrMagnitude > Mathf.Epsilon)
         {
+
+            // If on a slope, project movement onto the slope's surface
             if (isOnSlope)
             {
                 velocityDifference = Vector3.ProjectOnPlane(velocityDifference, slopeHit.normal);
             }
 
-            // Determine the rate to use (acceleration or deceleration)
+            // Apply acceleration or deceleration based on movement direction
             float rateX = (Mathf.Sign(velocityDifference.x) == Mathf.Sign(directionVector.x)) ? acceleration : deceleration;
             float rateZ = (Mathf.Sign(velocityDifference.z) == Mathf.Sign(directionVector.z)) ? acceleration : deceleration;
 
+            // Apply air control when not grounded
             if (!isGrounded)
             {
                 rateX *= airControl;
                 rateZ *= airControl;
             }
 
-            // Calculate new velocities with the appropriate rate
-            float newVelocityX = currentVelocity.x + (velocityDifference.x * rateX * Time.fixedDeltaTime);
-            float newVelocityZ = currentVelocity.z + (velocityDifference.z * rateZ * Time.fixedDeltaTime);
+            // Calculate new velocity values with acceleration or deceleration rates
+            float newVelocityX = Mathf.MoveTowards(currentVelocity.x, desiredVelocity.x, rateX * Time.fixedDeltaTime);
+            float newVelocityZ = Mathf.MoveTowards(currentVelocity.z, desiredVelocity.z, rateZ * Time.fixedDeltaTime);
+
+            Vector3 newVelocity = new Vector3(newVelocityX, currentVelocity.y, newVelocityZ);
 
             // Apply the new velocity to the rigidbody
-            rb.velocity = new Vector3(newVelocityX, currentVelocity.y, newVelocityZ);
+            rb.velocity = newVelocity;
         }
-
-
-        StepHandling(directionVector);
     }
+
 
     public void StopMovement()
     {
@@ -210,86 +306,6 @@ public class MovementController : MonoBehaviour
         return rb.velocity.magnitude;
     }
 
-    private bool CheckGrounded()
-    {
-        // Define the positions of the corners relative to groundCheckPosition
-        Vector3[] cornerOffsets = new Vector3[]
-        {
-        new Vector3(-groundCheckBoxWidth, 0, 0), // Left
-        new Vector3(groundCheckBoxWidth, 0, 0),  // Right
-        new Vector3(0, 0, groundCheckBoxWidth),  // Front
-        new Vector3(0, 0, -groundCheckBoxWidth)  // Back
-        };
-
-        // Perform raycasts from each corner
-        foreach (Vector3 offset in cornerOffsets)
-        {
-            if (Physics.Raycast(groundCheckPosition.position + offset, Vector3.down, maxGroundDistance, groundMask))
-            {
-                return true;
-            }
-        }
-
-        // If none of the raycasts hit the ground, return false
-        return false;
-    }
-    private void StepHandling(Vector3 moveDirection)
-    {
-        // Step detection rays start points
-        Vector3 origin = stepRayLower.transform.position;
-        Vector3 upOffset = Vector3.up * maxStepHeight; // Position offset for step height
-        Vector3 forwardOffset = moveDirection.normalized * stepCheckDistance; // Position offset for step forward check
-
-        // Draw debug rays for step detection
-        if (debug)
-        {
-            // Upward raycast to check for space above the character
-            Debug.DrawRay(origin, Vector3.up * maxStepHeight, Color.red);
-
-            // Forward raycast after moving up
-            Debug.DrawRay(origin + upOffset, moveDirection.normalized * stepCheckDistance, Color.green);
-
-            // Downward raycast to check for step height
-            Debug.DrawRay(origin + upOffset + forwardOffset, Vector3.down * maxStepHeight, Color.blue);
-        }
-
-        // Cast upwards to check if there is room to step up
-        if (!Physics.Raycast(origin, Vector3.up, maxStepHeight, groundMask))
-        {
-            // No obstruction above, potential step
-            // Cast forward to check if the character can move forward after stepping up
-            if (!Physics.Raycast(origin + upOffset, moveDirection.normalized, stepCheckDistance, groundMask))
-            {
-                // No obstruction in the movement direction, now check downward to detect step height
-                if (Physics.Raycast(origin + upOffset + forwardOffset, Vector3.down, out RaycastHit downHit, maxStepHeight, groundMask))
-                {
-                    // Calculate the height difference for stepping up
-                    float stepHeight = downHit.point.y - transform.position.y;
-
-                    // Ensure the height difference is within the step height limit
-                    if (stepHeight <= maxStepHeight && stepHeight > 0)
-                    {
-                        // Check the slope angle of the surface we're stepping onto
-                        float stepSlopeAngle = Vector3.Angle(downHit.normal, Vector3.up);
-
-                        // Ensure the slope angle is within the allowed limit
-                        if (stepSlopeAngle <= maxSlopeAngle)
-                        {
-                            // Ensure that the surface being stepped onto is not too steep
-                            if (!Physics.Raycast(origin, Vector3.down, out RaycastHit slopeHit, maxGroundDistance, groundMask) || Vector3.Angle(slopeHit.normal, Vector3.up) <= maxSlopeAngle)
-                            {
-                                // Smoothly move the character up to the step height
-                                Vector3 newPosition = transform.position;
-                                newPosition.y += stepHeight;
-                                transform.position = Vector3.Lerp(transform.position, newPosition, stepSmooth * Time.deltaTime);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public void SetFriction(bool useFriction)
     {
         this.useFriction = useFriction;
@@ -308,5 +324,14 @@ public class MovementController : MonoBehaviour
 
         // Update the rigidbody's velocity with the new horizontal velocity and keep the vertical component unchanged
         rb.velocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
+    }
+
+    private void SlideDownSlope()
+    {
+        // Project the player's movement along the slope normal
+        Vector3 slideDirection = Vector3.ProjectOnPlane(Vector3.down, slopeHit.normal).normalized;
+
+        // Add force to simulate sliding down the slope
+        rb.velocity += slideDirection * slideSpeed * Time.fixedDeltaTime;
     }
 }

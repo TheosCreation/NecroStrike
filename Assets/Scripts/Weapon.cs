@@ -212,6 +212,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public void Unequip()
     {
         isEquip = false;
+        CancelBoltAction();
 
         CancelReload();
     }
@@ -419,6 +420,9 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
                 {
                     break;
                 }
+
+                //if it was unpenerable lets not continue
+                if (hit.collider.gameObject.layer == 0) break;
             }
         }
         else
@@ -706,6 +710,16 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             holder.player.playerMovement.ResetSprint();
         }
         FillMag();
+    }
+
+    public void CancelBoltAction()
+    {
+        if (isBoltAction)
+        {
+            boltActionTimer.StopTimer();
+            isBoltAction = false;
+            animator.SetTrigger("CancelBoltAction");
+        }
     }
 
     public void CancelReload()
