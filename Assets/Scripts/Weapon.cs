@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 public enum Firemode
 {
@@ -17,12 +19,52 @@ public enum WeaponClass
     Sniper
 }
 
+[Serializable]
+public struct WeaponStatData
+{
+    public float damage;
+    public float rateOfFire;
+    public int magSize;
+    public float spread; // multiplier of max and min spreads
+    public float penetration; //1 = no damge loss targetHit
+    public float range;
+    public float recoilReduction; // 1 = no recoil reduction
+    public float aimInTime;
+    public float sprintToFireTime; 
+    public float reloadTime; 
+    
+    public WeaponStatData(
+        float _damage,
+        float _rateOfFire,
+        int _magSize,
+        float _spread,
+        float _penetration,
+        float _range,
+        float _recoilReduction,
+        float _aimInTime,
+        float _sprintToFireTime,
+        float _reloadTime)
+    {
+        damage = _damage;
+        rateOfFire = _rateOfFire;
+        magSize = _magSize;
+        spread = _spread;
+        penetration = _penetration;
+        range = _range;
+        recoilReduction = _recoilReduction;
+        aimInTime = _aimInTime;
+        sprintToFireTime = _sprintToFireTime;
+        reloadTime = _reloadTime;
+    }
+}
+
 [RequireComponent(typeof(AudioSource))]
 public class Weapon : MonoBehaviour, IInteractable, IPausable
 {
     protected Animator animator;
     private Rigidbody rb;
     public WeaponHolder holder;
+    private WeaponStatData weaponStats;
     [SerializeField] private Collider collisionCollider;
     [SerializeField] private Transform muzzleTransform;
     [SerializeField] private Transform casingEjectionTransform;
@@ -45,6 +87,8 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private int burstShotsFired = 0;
     private float timeSinceLastBurst = 0f;
     public float currentSpread = 0f;
+    private float currentMinSpread = 0f;
+    private float currentMaxSpread = 0f;
 
     [Header("Recoil")]
     public Vector2 recoil;
@@ -131,6 +175,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         }
 
         weaponBody.ApplyWeaponSkin();
+        CalculateWeaponStats();
     }
 
     void Start()
@@ -272,15 +317,15 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         }
 
         //spread return
-        currentSpread = Mathf.Lerp(currentSpread, settings.spreadAmount, Time.deltaTime * settings.spreadRecoverRate);
+        currentSpread = Mathf.Lerp(currentSpread, settings.minSpread, Time.deltaTime * settings.spreadRecoverRate);
     }
 
     private bool CanShoot()
     {
-        float timeBetweenShots = 60f / settings.rateOfFire; // Converts RPM to seconds per shot
+        float timeBetweenShots = 60f / weaponStats.rateOfFire; // Converts RPM to seconds per shot
 
         // Ensure enough time has passed since sprinting to allow shooting
-        if (Time.time - holder.player.playerMovement.timeSinceSprintEnd < settings.sprintToFireDelay)
+        if (Time.time - holder.player.playerMovement.timeSinceSprintEnd < weaponStats.sprintToFireTime)
         {
             return false; // Block shooting until sprint-to-fire delay is over
         }
@@ -372,17 +417,16 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         // If not aiming, add spread
         if (!isAiming)
         {
-            float spread = settings.spreadAmount;
-            shootDirection.x += Random.Range(-spread, spread);
-            shootDirection.y += Random.Range(-spread, spread);
-            shootDirection.z += Random.Range(-spread, spread);
+            shootDirection.x += Random.Range(-currentSpread, currentSpread);
+            shootDirection.y += Random.Range(-currentSpread, currentSpread);
+            shootDirection.z += Random.Range(-currentSpread, currentSpread);
             shootDirection.Normalize();
         }
 
         Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
 
-        //Debug.DrawRay(startPosition, shootDirection * 20.0f, Color.red, 1f);
-        RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, settings.damageFallOffDistance, settings.hitLayers);
+        Debug.DrawRay(startPosition, shootDirection * weaponStats.range, Color.red, 1f);
+        RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, weaponStats.range, settings.hitLayers);
 
         // Sort the hits by distance to ensure the closest object is processed first
         System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
@@ -392,7 +436,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         bool hitATrigger = false;
         if (hits.Length > 0)
         {
-            float remainingDamage = settings.baseDamage;
+            float remainingDamage = weaponStats.damage;
 
             // Loop through sorted hits and process each hit
             foreach (RaycastHit hit in hits)
@@ -413,7 +457,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
                 // Handle the hit and reduce damage based on penetration factor
                 HandleHit(hit, remainingDamage, bulletTrail);
-                remainingDamage *= settings.penetrationFactor;
+                remainingDamage *= weaponStats.penetration;
 
                 // Stop processing if the remaining damage is too low
                 if (remainingDamage <= 0)
@@ -448,7 +492,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
         //Add spread
         currentSpread += settings.spreadIncreasePerShot;
-        currentSpread = Mathf.Clamp(currentSpread, settings.spreadAmount, settings.maxSpread);
+        currentSpread = Mathf.Clamp(currentSpread, currentMinSpread, currentMaxSpread);
 
         // Update the last shot time and handle weapon fire mode
         lastShotTime = Time.time;
@@ -463,18 +507,18 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     protected void ApplyRecoil()
     {
-        float aimingReduction = isAiming ? settings.aimingRecoilReduction : 1f;
+        float currentRecoilReduction = weaponStats.recoilReduction; //gets any recoil reduction from the attachments
+        if(isAiming) currentRecoilReduction *= (1 - settings.aimingRecoilReduction); // reduces it further when we are aiming
 
-        // Ensure recoil is updated only when enough time has passed
         if (Time.time - lastShotTime >= settings.recoilResetTimeSeconds)
         {
             recoil = Vector2.zero;
-            recoil += settings.recoilPattern.pattern[0] * aimingReduction;
+            recoil += settings.recoilPattern.pattern[0] * currentRecoilReduction;
             currentRecoilIndex = 1;
         }
         else
         {
-            recoil += settings.recoilPattern.pattern[currentRecoilIndex] * aimingReduction;
+            recoil += settings.recoilPattern.pattern[currentRecoilIndex] * currentRecoilReduction;
 
             if (currentRecoilIndex + 1 < settings.recoilPattern.pattern.Length)
             {
@@ -491,11 +535,12 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     protected void HandleMiss(Vector3 startPosition, Vector3 shootDirection, BulletTrail trail)
     {
         // No hits, create a bullet trail toward the maximum distance
-        Vector3 missPosition = startPosition + shootDirection * settings.damageFallOffDistance;
+        Vector3 missPosition = startPosition + shootDirection * weaponStats.range;
         Debug.DrawLine(startPosition, missPosition, Color.red, 6.0f);
         trail.Init(missPosition, Vector3.zero);
         trail.spawnImpact = false;
     }
+
     protected void HandleHit(RaycastHit hit, float damage, BulletTrail trail)
     {
         var collider = hit.collider;
@@ -524,7 +569,6 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         //take the ammo from the mag
         ammoLeft -= magChange;
 
-        //If the weapon is held/equiped then update the ui
         if (!isHeld) return;
 
         UiManager.Instance.UpdateAmmoText(ammoLeft);
@@ -548,7 +592,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public void FillMag()
     {
         // Calculate the amount of ammo needed to fill the magazine
-        int ammoNeeded = settings.magSize - ammoLeft;
+        int ammoNeeded = weaponStats.magSize - ammoLeft;
 
         // Check if the reserve has enough ammo
         if (ammoReserve >= ammoNeeded)
@@ -565,7 +609,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         }
 
         //If the weapon is held/equiped then update the ui
-        if (!isHeld) return;
+        if (!isHeld && isEquip) return;
 
         UiManager.Instance.UpdateAmmoText(ammoLeft);
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
@@ -575,7 +619,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     {
         ammoReserve = settings.maxAmmoReserve;
 
-        if (!isHeld) return;
+        if (!isHeld && isEquip) return;
 
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
@@ -646,7 +690,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
         canResetSprint = false;
         fireToSprintTimer.StopTimer();
-        fireToSprintTimer.SetTimer(settings.fireToSprintDelay, () =>
+        fireToSprintTimer.SetTimer(settings.baseFireToSprintDelay, () =>
         {
             canResetSprint = true;
             if (holder && !isInspecting && !isReloading & !aimingInput)
@@ -663,7 +707,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         aimingInput = true;
 
         aimingTimer.StopTimer();
-        aimingTimer.SetTimer(settings.aimInTime, FinishAimIn);
+        aimingTimer.SetTimer(weaponStats.aimInTime, FinishAimIn);
 
         UiManager.Instance.SetCrosshair(false);
     }
@@ -687,7 +731,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     public virtual void Reload()
     {
-        if (!isReloading && ammoLeft < settings.magSize && ammoReserve > 0)
+        if (!isReloading && ammoLeft < weaponStats.magSize && ammoReserve > 0)
         {
             CancelInspect();
 
@@ -696,7 +740,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             PlayReloadSound(); 
             animator.SetTrigger("Reload");
 
-            reloadTimer.SetTimer(settings.reloadTime, FinishReload);
+            reloadTimer.SetTimer(weaponStats.reloadTime, FinishReload);
 
             holder.player.playerMovement.canSprint = false;
         }
@@ -810,5 +854,38 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public string GetInteractionText(PlayerController player)
     {
         return $"Pick up {gameObject.name}";
+    }
+
+    private void CalculateWeaponStats()
+    {
+        weaponStats = new WeaponStatData(settings.baseDamage, settings.baseRateOfFire, settings.baseMagSize, 1f, settings.penetrationFactor, settings.baseRange, 
+            1f, settings.baseAimInTime, settings.baseSprintToFireDelay, settings.baseReloadTime);
+
+        //retreive the stats and apply them
+        foreach (WeaponPartSO.PartType part in GetWeaponPartTypeList())
+        {
+            Transform spawnedTranform = attachedWeaponPartDic[part].spawnedTransform;
+            if (spawnedTranform == null) continue;
+
+            if (spawnedTranform.TryGetComponent<Attachment>(out var attachment))
+            {
+                attachment.Apply(ref weaponStats);
+            }
+            else
+            {
+                Debug.Log($"Attachment does not have Attachment script: {spawnedTranform.name}");
+            }
+        }
+
+        CalculateSpread();
+    }
+
+    private void CalculateSpread()
+    {
+        currentMinSpread = settings.minSpread * weaponStats.spread;
+        currentMaxSpread = settings.maxSpread * weaponStats.spread;
+
+        currentMinSpread = Mathf.Clamp(currentMinSpread, 0f, currentMaxSpread);
+        currentMaxSpread = Mathf.Clamp(currentMaxSpread, currentMinSpread, Mathf.Infinity);
     }
 }

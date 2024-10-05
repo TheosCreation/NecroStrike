@@ -16,7 +16,6 @@ public class WeaponBody : MonoBehaviour
 
     }
 
-
     [SerializeField] private WeaponBodySO weaponBodySO;
     [SerializeField] private List<PartTypeAttachPoint> partTypeAttachPointList;
 

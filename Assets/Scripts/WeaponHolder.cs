@@ -11,16 +11,17 @@ public class WeaponHolder : MonoBehaviour
     public MeleeWeapon meleeWeapon;
     private Weapon previousWeapon;
     Timer meleeTimer;
-    [SerializeField] private List<Weapon> weapons = new List<Weapon>();
+    public List<Weapon> weapons = new List<Weapon>();
     [SerializeField] private int maxHeldWeaponCount = 2;
     [SerializeField] private Transform currentWeaponPosition;
-    [SerializeField] private Transform idlePos;
+    public Transform idlePos;
     [SerializeField] private Transform aimingPos;
     [SerializeField] float scrollSwitchDelay = 0.1f;
     [SerializeField] float transitionSpeed = 5.0f;
     int currentWeaponIndex = 0;
     private bool isSwitching = false;
     [SerializeField] private bool isMeleeing = false;
+    public bool canAttach = true;
     private float lastMeleeTime = 0f;
 
     [Header("Right Hand Target")]
@@ -107,12 +108,16 @@ public class WeaponHolder : MonoBehaviour
             transformToAttachWeapon = aimingPos;
         }
 
-        UpdateHandTargets();
 
-        // Smoothly interpolate weapon's position and rotation to the target transform
-        currentWeapon.transform.position = Vector3.Lerp(currentWeapon.transform.position, transformToAttachWeapon.position, Time.deltaTime * transitionSpeed);
-        currentWeapon.transform.rotation = Quaternion.Slerp(currentWeapon.transform.rotation, transformToAttachWeapon.rotation, Time.deltaTime * transitionSpeed);
-        currentWeapon.transform.parent = transformToAttachWeapon;
+        if (canAttach)
+        {
+            UpdateHandTargets();
+
+            // Smoothly interpolate weapon's position and rotation to the target transform
+            currentWeapon.transform.position = Vector3.Lerp(currentWeapon.transform.position, transformToAttachWeapon.position, Time.deltaTime * transitionSpeed);
+            currentWeapon.transform.rotation = Quaternion.Slerp(currentWeapon.transform.rotation, transformToAttachWeapon.rotation, Time.deltaTime * transitionSpeed);
+            currentWeapon.transform.parent = transformToAttachWeapon;
+        }
     }
     private void UpdateHandTargets()
     {

@@ -5,9 +5,9 @@ public class WeaponSettings : ScriptableObject
 {
     [Header("Attacking")]
     [Tooltip("Minimum force on Z axis")]
-    public float rateOfFire = 700f;
-    public float sprintToFireDelay = 0.2f;
-    public float fireToSprintDelay = 0.15f;
+    public float baseRateOfFire = 700f;
+    public float baseSprintToFireDelay = 0.2f;
+    public float baseFireToSprintDelay = 0.15f;
     public WeaponClass weaponClass = WeaponClass.Rifle;
     public BulletTrail bulletTrailPrefab;
     public MuzzleFlash[] muzzleFlashPrefabs;
@@ -20,7 +20,6 @@ public class WeaponSettings : ScriptableObject
 
     [Header("Penetration")]
     public float penetrationFactor = 0.5f;
-    public int allowedHitCount = 3;
 
     [Header("Burst Firing")]
     public float burstCooldown = 1f;
@@ -30,10 +29,10 @@ public class WeaponSettings : ScriptableObject
     public RecoilPattern recoilPattern;
 
     [Header("Ammo and Damage")]
-    public int magSize = 30;
+    public int baseMagSize = 30;
     public int maxAmmoReserve = 260;
     public float baseDamage = 50.0f;
-    public float damageFallOffDistance = 100.0f;
+    public float baseRange = 100.0f;
     public float headShotMultiplier = 1.5f;
 
     [Header("Equip")]
@@ -43,20 +42,20 @@ public class WeaponSettings : ScriptableObject
     public float inspectTime = 2.2f;
 
     [Header("Hipfire")]
-    public float spreadAmount = 0.05f;
     public float spreadIncreasePerShot = 0.01f;
+    public float minSpread = 0.05f;
     public float maxSpread = 0.2f;
     public float spreadRecoverRate = 1.5f;
 
     [Header("Aiming")]
-    public float aimInTime = 0.15f;
+    public float baseAimInTime = 0.15f;
     public float aimingZoomLevel = 1.2f;
     public float cameraZOffset = 0.05f;
     public float aimingMoveReduction = 0.2f;
     public float aimingRecoilReduction = 0.5f;
 
     [Header("Reloading")]
-    public float reloadTime = 0.5f;
+    public float baseReloadTime = 0.5f;
 
     [Header("Bolt Action")]
     public float boltDelay = 0.2f;
