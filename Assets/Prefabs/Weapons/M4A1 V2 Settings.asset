@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
   m_Name: M4A1 V2 Settings
   m_EditorClassIdentifier: 
-  rateOfFire: 700
-  sprintToFireDelay: 0.1
-  fireToSprintDelay: 0.3
+  baseRateOfFire: 700
+  baseSprintToFireDelay: 0.2
+  baseFireToSprintDelay: 0.15
   weaponClass: 0
   bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
   muzzleFlashPrefabs:
@@ -27,27 +27,26 @@ MonoBehaviour:
   screenShakeDuration: 0.1
   screenShakeAmount: 0.2
   penetrationFactor: 0.5
-  allowedHitCount: 3
   burstCooldown: 1
   recoilResetTimeSeconds: 1
   recoilPattern: {fileID: 11400000, guid: 48bc54b6f09563d42a92435d568a2e0a, type: 2}
-  magSize: 30
+  baseMagSize: 30
   maxAmmoReserve: 260
   baseDamage: 65
-  damageFallOffDistance: 100
+  baseRange: 100
   headShotMultiplier: 1.5
   equipTime: 0.6
   inspectTime: 2.2
-  spreadAmount: 0.05
   spreadIncreasePerShot: 0.05
+  minSpread: 0.05
   maxSpread: 0.25
   spreadRecoverRate: 4
-  aimInTime: 0.1
+  baseAimInTime: 0.15
   aimingZoomLevel: 1.2
   cameraZOffset: 0.28
   aimingMoveReduction: 0.2
   aimingRecoilReduction: 0.5
-  reloadTime: 2.2
+  baseReloadTime: 0.5
   boltDelay: 0.2
   boltActionLength: 0.5
   firingSounds:

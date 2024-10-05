@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
   m_Name: L96 AWS Settings
   m_EditorClassIdentifier: 
-  rateOfFire: 50
-  sprintToFireDelay: 0.1
-  fireToSprintDelay: 0.3
+  baseRateOfFire: 60
+  baseSprintToFireDelay: 0.2
+  baseFireToSprintDelay: 0.15
   weaponClass: 3
   bulletTrailPrefab: {fileID: 4726179516888525362, guid: c0a46516513d1554ea29ab8440ad0360, type: 3}
   muzzleFlashPrefabs:
@@ -27,27 +27,26 @@ MonoBehaviour:
   screenShakeDuration: 0.1
   screenShakeAmount: 1
   penetrationFactor: 0.8
-  allowedHitCount: 5
   burstCooldown: 1
   recoilResetTimeSeconds: 3
   recoilPattern: {fileID: 11400000, guid: e572114a4b6da0a4e8b36c6638b9a989, type: 2}
-  magSize: 7
+  baseMagSize: 30
   maxAmmoReserve: 260
   baseDamage: 750
-  damageFallOffDistance: 100
+  baseRange: 100
   headShotMultiplier: 1.5
   equipTime: 0.6
   inspectTime: 2.2
-  spreadAmount: 0.4
   spreadIncreasePerShot: 0.8
+  minSpread: 0.05
   maxSpread: 1
   spreadRecoverRate: 3
-  aimInTime: 0.15
+  baseAimInTime: 0.15
   aimingZoomLevel: 1.3
   cameraZOffset: 0.26
   aimingMoveReduction: 0.2
   aimingRecoilReduction: 0.5
-  reloadTime: 4
+  baseReloadTime: 3
   boltDelay: 0.2
   boltActionLength: 0.5
   firingSounds:

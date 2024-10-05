@@ -1,59 +1,9 @@
 fileFormatVersion: 2
-guid: d0f006cb836eff74298894b5011eff25
+guid: bfbcb2aa91d82374db92e5c33abf3875
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: bolt
-    second: {fileID: 2100000, guid: d8305cfaf0af90d48a2acdf231cc9022, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: chromed
-    second: {fileID: 2100000, guid: 4adb678667050bb4fa28457e91853d82, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: finish
-    second: {fileID: 2100000, guid: c11f9aca0dcafff41a221bde1be90c99, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: finish_alu
-    second: {fileID: 2100000, guid: 5d3a7dd9098dbdf42a4e0b1f0525de43, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: finish_bright
-    second: {fileID: 2100000, guid: 2b56b74ffdd584442a11412a17b56d15, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: finish_dark
-    second: {fileID: 2100000, guid: d2dffb1d4b0070440a057004a6e3e60a, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: finish_secondary
-    second: {fileID: 2100000, guid: e6bc89c7ebd0dbc49b8fa018625557d1, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: mag
-    second: {fileID: 2100000, guid: 0cab1d2044204c445933d647e692dcdd, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: polymer
-    second: {fileID: 2100000, guid: f84b9e39b8a23bb48be9a11b02d16f89, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: polymer_rough
-    second: {fileID: 2100000, guid: 2df44f201c45d5a458348ffb6ea8a939, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -64,7 +14,7 @@ ModelImporter:
     bakeSimulation: 0
     resampleCurves: 1
     optimizeGameObjects: 0
-    removeConstantScaleCurves: 1
+    removeConstantScaleCurves: 0
     motionNodeName: 
     animationImportErrors: 
     animationImportWarnings: 
@@ -91,7 +41,7 @@ ModelImporter:
     importPhysicalCameras: 1
     importVisibility: 1
     importBlendShapes: 1
-    importCameras: 1
+    importCameras: 0
     importLights: 1
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
