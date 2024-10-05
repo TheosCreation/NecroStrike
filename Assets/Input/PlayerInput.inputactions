@@ -6,15 +6,6 @@
             "id": "02f9d66e-7846-4c2f-9648-895bc9014741",
             "actions": [
                 {
-                    "name": "Look",
-                    "type": "Value",
-                    "id": "a91ea14d-5657-4fb2-8881-e6ff82988d1f",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
                     "name": "Movement",
                     "type": "PassThrough",
                     "id": "b82f5ffe-dddb-49df-96d1-60605d199e08",
@@ -124,17 +115,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "91c44370-54a8-498d-974b-01183a37f682",
-                    "path": "<Mouse>/delta",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Look",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "",
                     "id": "5f8be263-4594-439f-b962-8e8e6551f4ff",
@@ -347,6 +327,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "6d86a60e-2ff3-441b-8aae-6ac2954f0766",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -358,6 +347,45 @@
                     "processors": "",
                     "groups": "",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3a8acc2d-5e3a-4c7a-810a-7eb1b3bfee4d",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Universal",
+            "id": "4b643d42-7e46-40be-a649-30d0126dca2c",
+            "actions": [
+                {
+                    "name": "MouseDelta",
+                    "type": "PassThrough",
+                    "id": "a94b3aec-16f4-401d-a178-9a74d71ae31a",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "be5b0d89-9590-4161-945c-154f79b7ecaf",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MouseDelta",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
