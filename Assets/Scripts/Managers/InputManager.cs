@@ -39,9 +39,9 @@ public class InputManager : MonoBehaviour
     {
         if (!updateMouseDelta) return;
 
-        Vector2 targetMouseDelta = playerInput.InGame.Look.ReadValue<Vector2>();
+        Vector2 targetMouseDelta = playerInput.Universal.MouseDelta.ReadValue<Vector2>();
 
-        if(mouseSmoothingStatus)
+        if(mouseSmoothingStatus && !PauseManager.Instance.isPaused)
         {
             currentMouseDelta = Vector2.SmoothDamp(currentMouseDelta, targetMouseDelta, ref currentMouseDeltaVelocity, mouseSmoothTime);
         }
@@ -64,14 +64,12 @@ public class InputManager : MonoBehaviour
 
     public void DisableInGameInput()
     {
-        updateMouseDelta = false;
         currentMouseDelta = Vector2.zero;
         playerInput.InGame.Disable();
     }
 
     public void EnableInGameInput()
     {
-        updateMouseDelta = true;
         playerInput.InGame.Enable();
     }
 }

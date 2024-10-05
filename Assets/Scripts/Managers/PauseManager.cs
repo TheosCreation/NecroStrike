@@ -54,7 +54,7 @@ public class PauseManager : MonoBehaviour
     private void Pause()
     {
         InputManager.Instance.DisableInGameInput();
-        UiManager.Instance.PauseMenu(true);
+        UiManager.Instance.OpenPauseMenu();
         Time.timeScale = 0;
 
         IPausable[] pausables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IPausable>().ToArray();
@@ -83,7 +83,7 @@ public class PauseManager : MonoBehaviour
     {
         Time.timeScale = 1;
         InputManager.Instance.EnableInGameInput();
-        UiManager.Instance.PauseMenu(false);
+        UiManager.Instance.OpenPlayerHud();
 
         IPausable[] pausables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<IPausable>().ToArray();
         foreach (IPausable p in pausables)

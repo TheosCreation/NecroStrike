@@ -7,9 +7,13 @@ public class UiManager : MonoBehaviour
 {
     public static UiManager Instance { get; private set; }
 
-    [SerializeField] private GameObject playerHud;
+    [SerializeField] private PlayerHud playerHud;
     [SerializeField] private PauseMenu pauseMenu;
     [SerializeField] private GameObject deathScreen;
+    [SerializeField] private GameObject weaponAttachmentMenuUi;
+    [SerializeField] private WeaponAttachmentMenu weaponAttachmentMenu;
+
+    private UiMenuPage currentPage;
 
     public UiCrosshair crosshair;
 
@@ -44,15 +48,20 @@ public class UiManager : MonoBehaviour
         HideInteractionPrompt();
     }
 
-    public void PauseMenu(bool isPaused)
+    public void OpenPauseMenu()
     {
-        pauseMenu.gameObject.SetActive(isPaused);
-        playerHud.SetActive(!isPaused);
+        currentPage = pauseMenu;
+        pauseMenu.gameObject.SetActive(true);
+        playerHud.gameObject.SetActive(false);
+        weaponAttachmentMenuUi.gameObject.SetActive(false);
+        weaponAttachmentMenu.gameObject.SetActive(false);
     }
 
     public void OpenPlayerHud()
     {
-        playerHud.SetActive(true);
+        currentPage = playerHud;
+
+        playerHud.gameObject.SetActive(true);
         deathScreen.SetActive(false);
         pauseMenu.gameObject.SetActive(false);
     }
@@ -60,7 +69,15 @@ public class UiManager : MonoBehaviour
     public void OpenDeathScreen()
     {
         deathScreen.SetActive(true);
-        playerHud.SetActive(false);
+        playerHud.gameObject.SetActive(false);
+    }
+    public void OpenWeaponAttachmentMenu()
+    {
+        currentPage = weaponAttachmentMenu;
+        weaponAttachmentMenuUi.gameObject.SetActive(true);
+        weaponAttachmentMenu.gameObject.SetActive(true);
+        pauseMenu.gameObject.SetActive(false);
+        playerHud.gameObject.SetActive(false);
     }
 
     public void UpdateAmmoText(int ammo)
@@ -111,5 +128,11 @@ public class UiManager : MonoBehaviour
     public void HideInteractionPrompt()
     {
         interactionText.text = "";
-    }    
+    }
+
+    public void Back()
+    {
+        currentPage.Back();
+    }
+
 }

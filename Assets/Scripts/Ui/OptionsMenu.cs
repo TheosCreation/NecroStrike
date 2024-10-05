@@ -128,6 +128,6 @@ public class OptionsMenu : MonoBehaviour
 
     private void OpenPreviousPage()
     {
-        transform.parent.GetComponent<UiMenuPage>().OpenMainPage();
+        transform.parent.GetComponent<UiMenuPage>().Back();
     }
 }

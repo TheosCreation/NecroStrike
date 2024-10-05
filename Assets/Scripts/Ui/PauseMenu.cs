@@ -5,6 +5,7 @@ public class PauseMenu : UiMenuPage
 {
     [SerializeField] private Button unpauseButton;
     [SerializeField] private Button optionsButtion;
+    [SerializeField] private Button attachmentMenuButton;
     [SerializeField] private Button exitToMainMenuButton;
 
     [SerializeField] private OptionsMenu optionsMenu;
@@ -14,6 +15,7 @@ public class PauseMenu : UiMenuPage
     {
         unpauseButton.onClick.AddListener(PauseManager.Instance.TogglePause);
         optionsButtion.onClick.AddListener(OpenOptionPage);
+        attachmentMenuButton.onClick.AddListener(UiManager.Instance.OpenWeaponAttachmentMenu);
         exitToMainMenuButton.onClick.AddListener(GameManager.Instance.ExitToMainMenu);
 
         OpenMainPage();
@@ -23,6 +25,7 @@ public class PauseMenu : UiMenuPage
     {
         unpauseButton.onClick.RemoveListener(PauseManager.Instance.TogglePause);
         optionsButtion.onClick.RemoveListener(OpenOptionPage);
+        attachmentMenuButton.onClick.RemoveListener(UiManager.Instance.OpenWeaponAttachmentMenu);
         exitToMainMenuButton.onClick.RemoveListener(GameManager.Instance.ExitToMainMenu);
     }
 
@@ -36,5 +39,11 @@ public class PauseMenu : UiMenuPage
     {
         mainPage.SetActive(true);
         optionsMenu.gameObject.SetActive(false);
+    }
+
+    public override void Back()
+    {
+        UiManager.Instance.OpenPlayerHud();
+        PauseManager.Instance.TogglePause();
     }
 }

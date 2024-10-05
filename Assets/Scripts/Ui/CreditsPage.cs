@@ -9,11 +9,11 @@ public class CreditsPage : MonoBehaviour
     {
         if (backButton == null) Debug.LogError("Back Button not set in editor");
 
-        backButton.onClick.AddListener(MainMenuManager.Instance.OpenMainPage);
+        backButton.onClick.AddListener(MainMenuManager.Instance.Back);
     }
 
     private void OnDisable()
     {
-        backButton.onClick.RemoveListener(MainMenuManager.Instance.OpenMainPage);
+        backButton.onClick.RemoveListener(MainMenuManager.Instance.Back);
     }
 }

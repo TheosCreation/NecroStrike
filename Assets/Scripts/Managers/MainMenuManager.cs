@@ -22,13 +22,18 @@ public class MainMenuManager : UiMenuPage
 
     private void Start()
     {
-        OpenMainPage();
+        Back();
     }
+
     public override void OpenMainPage()
     {
         startPage.gameObject.SetActive(true);
         optionsPage.gameObject.SetActive(false);
         creditsPage.gameObject.SetActive(false);
+    }
+
+    public override void Back()
+    {
     }
 
     public void OpenOptionsPage()
