@@ -21,7 +21,11 @@ public class Door : MonoBehaviour, IInteractable
     public void Interact(PlayerController player)
     {
         //we check if the player has the points
-        OpenDoor();
+        if (player.Points >= doorCost)
+        {
+            player.Points -= doorCost;
+            OpenDoor();
+        }
     }
 
     // Method to open the door

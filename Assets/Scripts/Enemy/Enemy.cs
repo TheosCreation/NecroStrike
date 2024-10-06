@@ -44,6 +44,7 @@ public class Enemy : MonoBehaviour, IDamageable, IPausable
 
     [SerializeField] private bool hasHead = true;
     [SerializeField] private bool isDead = false;
+    private PlayerController lastHitPlayer;
 
     public int maxHealth = 100;
     private float health;
@@ -61,6 +62,8 @@ public class Enemy : MonoBehaviour, IDamageable, IPausable
         }
     }
 
+    private bool hitFromMeleePrivate = false;
+    public bool hitFromMelee { get => hitFromMeleePrivate; set => hitFromMeleePrivate = value; }
 
     public event Action OnDeath;
 
@@ -132,6 +135,11 @@ public class Enemy : MonoBehaviour, IDamageable, IPausable
         Instantiate(bloodImpactPrefab, point + offset, Quaternion.LookRotation(pointNormal));
     }
 
+    public void SetLastHitPlayerReference(PlayerController _player)
+    {
+        lastHitPlayer = _player;
+    }
+
     public void Heal(float healAmount)
     {
         float newHealth = Health + healAmount;
@@ -141,12 +149,21 @@ public class Enemy : MonoBehaviour, IDamageable, IPausable
     public void Die()
     {
         if (isDead) return;
+        if(hitFromMelee)
+        {
+            lastHitPlayer.Points += 130;
+        }
+        else if(hasHead)
+        {
+            lastHitPlayer.Points += 60;
+        }
+        else
+        {
+            lastHitPlayer.Points += 100;
+        }
 
         isDead = true;
-        if (OnDeath != null)
-        {
-            OnDeath.Invoke();
-        }
+        OnDeath?.Invoke();
         ragdoll.ActivateRagdoll();
 
         swingCheck.gameObject.SetActive(false);

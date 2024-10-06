@@ -12,9 +12,17 @@ public class MeleeWeapon : Weapon
     {
         animator = GetComponent<Animator>();
         damageTrigger = GetComponentInChildren<DamageTrigger>();
+        damageTrigger.OnHit += OnHit;
         audioSource = GetComponent<AudioSource>();
         damageTrigger.damage = damage;
     }
+
+    private void OnHit(GameObject hitObject)
+    {
+        holder.player.Points += 10;
+        hitObject.GetComponent<Enemy>()?.SetLastHitPlayerReference(holder.player);
+    }
+
     private void Start()
     {
         

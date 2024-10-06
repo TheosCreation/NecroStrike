@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 using Random = UnityEngine.Random;
 
 public enum Firemode
@@ -556,9 +557,9 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     protected void HandleHit(RaycastHit hit, float damage, BulletTrail trail)
     {
         var collider = hit.collider;
-        var damageable = collider.GetComponent<IDamageable>();
-        if(damageable == null) damageable = collider.transform.root.GetComponent<IDamageable>();
-        if (damageable != null)
+        var enemy = collider.GetComponent<Enemy>();
+        if(enemy == null) enemy = collider.transform.root.GetComponent<Enemy>();
+        if (enemy != null)
         {
             trail.hitCharacter = true;
             float hitDamage = damage;
@@ -566,13 +567,16 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             {
                 if (Random.Range(0, 100) < 20)  // 20% chance (0-19 out of 100)
                 {
-                    damageable.HitHead();
+                    enemy.HitHead();
                 }
 
                 hitDamage *= settings.headShotMultiplier;
             }
 
-            damageable.Damage(hitDamage, hit.point, hit.normal);
+            holder.player.Points += 10; //give the player 10 points
+            enemy.Damage(hitDamage, hit.point, hit.normal);
+            enemy.hitFromMelee = false;
+            enemy.SetLastHitPlayerReference(holder.player);
         }
     }
 

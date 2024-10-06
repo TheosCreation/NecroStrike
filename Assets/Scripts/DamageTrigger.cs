@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class DamageTrigger : MonoBehaviour
@@ -6,6 +7,8 @@ public class DamageTrigger : MonoBehaviour
     public float damage = 1.0f;
     [SerializeField] private float cooldown = 1.0f;
     private float lastAttackTime = 0.0f;
+
+    public event Action<GameObject> OnHit;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -33,6 +36,8 @@ public class DamageTrigger : MonoBehaviour
         if (damageable != null)
         {
             damageable.Damage(damage, point, pointNormal);
+            damageable.hitFromMelee = true;
+            OnHit?.Invoke(other.gameObject);
             lastAttackTime = Time.time;
         }
     }

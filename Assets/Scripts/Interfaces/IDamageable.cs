@@ -3,6 +3,7 @@ using UnityEngine;
 public interface IDamageable
 {
     float Health { get; set; }
+    bool hitFromMelee { get; set; }
 
     void Damage(float damageAmount, Vector3 point, Vector3 pointNormal);
 

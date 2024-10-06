@@ -40,7 +40,11 @@ public class MysteryBox : MonoBehaviour, IInteractable
         switch (currentState)
         {
             case BoxState.Closed:
-                StartSpinning(player);
+                if (player.Points >= pointCost)
+                {
+                    StartSpinning(player);
+                    player.Points -= pointCost;
+                }
                 break;
             case BoxState.WeaponReady:
                 GiveWeaponToPlayer(player);

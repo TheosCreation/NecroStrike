@@ -2,11 +2,13 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class UiManager : MonoBehaviour
 {
     public static UiManager Instance { get; private set; }
 
+    [Header("References Setup")]
     [SerializeField] private PlayerHud playerHud;
     [SerializeField] private PauseMenu pauseMenu;
     [SerializeField] private GameObject deathScreen;
@@ -22,9 +24,12 @@ public class UiManager : MonoBehaviour
     [SerializeField] private TMP_Text interactionText;
     [SerializeField] private TMP_Text ammoText;
     [SerializeField] private TMP_Text ammoReserveText;
-    [SerializeField] private TMP_Text speedText;
+    [SerializeField] private TMP_Text totalScoreText;
     [SerializeField] private TMP_Text roundCounter;
     [SerializeField] private Image playerWeakOverlay;
+
+    [Header("Prefabs Setup")]
+    [SerializeField] private FloatingText floatingTextPrefab;
 
     //public Image image;
     //public UiBar bar;
@@ -92,12 +97,36 @@ public class UiManager : MonoBehaviour
 
     public void UpdateSpeedText(float speed)
     {
-        speedText.text = speed.ToString("F2");
+        //speedText.text = speed.ToString("F2");
     }
     
     public void UpdateRoundCount(int count)
     {
         roundCounter.text = count.ToString();
+    }
+
+    public void UpdatePoints(int _points, int _pointChange)
+    {
+        totalScoreText.text = _points.ToString();
+        FloatingText floatingText = Instantiate(floatingTextPrefab, totalScoreText.transform);
+
+        float RandomX = Random.Range(-40f, 40f);
+        float RandomY = Random.Range(-20f, 20f);
+        floatingText.transform.localPosition = new Vector3(RandomX, 50f + RandomY, 0.0f);
+
+        string text = "";
+        Color color = Color.white;
+        if (_pointChange > 0)
+        {
+            text = "+" + _pointChange.ToString();
+            color = Color.green;
+        }
+        else
+        {
+            text = _pointChange.ToString();
+            color = Color.red;
+        }
+        floatingText.Init(text, color);
     }
 
     public void FlashHitMarker()

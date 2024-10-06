@@ -32,22 +32,31 @@ public class Wallbuy : MonoBehaviour, IInteractable
         Weapon weapon = player.weaponHolder.HasWeapon(weaponToSell);
         if (weapon)
         {
-            weapon.FillReserve();
-            weapon.FillMag();
+            if (player.Points >= refillCost)
+            {
+                player.Points -= refillCost;
+                weapon.FillReserve();
+                weapon.FillMag();
+            }
         }
         else
         {
-            // Make the interaction text update
-            player.playerInteractions.currentInteractable = null;
+            if (player.Points >= purchaseCost)
+            {
+                player.Points -= purchaseCost;
 
-            // Instantiate the weapon
-            Weapon instantiatedWeapon = Instantiate(weaponToSell, transform.position, transform.rotation);
+                // Make the interaction text update
+                player.playerInteractions.currentInteractable = null;
 
-            // Remove the "(clone)" from the instantiated weapon's name
-            instantiatedWeapon.name = weaponToSell.name;
+                // Instantiate the weapon
+                Weapon instantiatedWeapon = Instantiate(weaponToSell, transform.position, transform.rotation);
 
-            // Make the weapon interact with the player
-            instantiatedWeapon.Interact(player);
+                // Remove the "(clone)" from the instantiated weapon's name
+                instantiatedWeapon.name = weaponToSell.name;
+
+                // Make the weapon interact with the player
+                instantiatedWeapon.Interact(player);
+            }
         }
     }
 }

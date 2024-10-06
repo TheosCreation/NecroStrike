@@ -797,9 +797,10 @@ MonoBehaviour:
   interactionText: {fileID: 7467281845099810925}
   ammoText: {fileID: 2651485251370699875}
   ammoReserveText: {fileID: 3250879440445708355}
-  speedText: {fileID: 5909297582735512597}
+  totalScoreText: {fileID: 5909297582735512597}
   roundCounter: {fileID: 5906783266690830254}
   playerWeakOverlay: {fileID: 1099231150956780838}
+  floatingTextPrefab: {fileID: 4566249903574175652, guid: 098c27c7a53c67043b2aaa7d338b9420, type: 3}
 --- !u!1 &3468117804969332973
 GameObject:
   m_ObjectHideFlags: 0
@@ -1751,7 +1752,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.675, y: 0.05}
   m_AnchorMax: {x: 0.975, y: 0.2}
-  m_AnchoredPosition: {x: 0, y: -13.779968}
+  m_AnchoredPosition: {x: 0, y: -13.780029}
   m_SizeDelta: {x: 0, y: 27.559937}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6384741289193517792
@@ -1809,8 +1810,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5089235442539454779}
   - {fileID: 6271716524219890939}
+  - {fileID: 5089235442539454779}
   - {fileID: 2371876456215210886}
   - {fileID: 7378949944335096594}
   - {fileID: 4345366952042527008}
@@ -2000,7 +2001,7 @@ GameObject:
   - component: {fileID: 3127403758525722040}
   - component: {fileID: 5909297582735512597}
   m_Layer: 5
-  m_Name: SpeedText
+  m_Name: ScoreText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2020,10 +2021,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 7304898968109175165}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.851, y: 0.896}
-  m_AnchorMax: {x: 0.9815209, y: 0.96800005}
-  m_AnchoredPosition: {x: 0.67993164, y: 0}
-  m_SizeDelta: {x: -1.7513428, y: 0.9696045}
+  m_AnchorMin: {x: 0.75, y: 0.18}
+  m_AnchorMax: {x: 0.95, y: 0.23}
+  m_AnchoredPosition: {x: 36.74, y: 0}
+  m_SizeDelta: {x: 73.479, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3127403758525722040
 CanvasRenderer:
@@ -2080,14 +2081,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 89.55
+  m_fontSize: 61.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 1
   m_fontSizeMax: 1000
   m_fontStyle: 0
-  m_HorizontalAlignment: 4
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0

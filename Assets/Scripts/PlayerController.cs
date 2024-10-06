@@ -32,6 +32,22 @@ public class PlayerController : MonoBehaviour, IDamageable
         }
     }
 
+    private int points;
+    public int Points
+    {
+        get => points;
+        set
+        {
+            int change = value - points;
+            points = value;
+
+            UiManager.Instance.UpdatePoints(points, change);
+        }
+    }
+
+    private bool hitFromMeleePrivate = false;
+    public bool hitFromMelee { get => hitFromMeleePrivate; set => hitFromMeleePrivate = value; }
+
     public event Action OnDeath;
     [SerializeField] private Impact bloodImpactPrefab;
 
