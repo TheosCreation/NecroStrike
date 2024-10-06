@@ -28,7 +28,7 @@ public class Wallbuy : MonoBehaviour, IInteractable
 
     public void Interact(PlayerController player)
     {
-        //we need to check if the player can afford this
+        // Check if the player already has the weapon
         Weapon weapon = player.weaponHolder.HasWeapon(weaponToSell);
         if (weapon)
         {
@@ -37,9 +37,16 @@ public class Wallbuy : MonoBehaviour, IInteractable
         }
         else
         {
-            //make the interationtext update
+            // Make the interaction text update
             player.playerInteractions.currentInteractable = null;
+
+            // Instantiate the weapon
             Weapon instantiatedWeapon = Instantiate(weaponToSell, transform.position, transform.rotation);
+
+            // Remove the "(clone)" from the instantiated weapon's name
+            instantiatedWeapon.name = weaponToSell.name;
+
+            // Make the weapon interact with the player
             instantiatedWeapon.Interact(player);
         }
     }

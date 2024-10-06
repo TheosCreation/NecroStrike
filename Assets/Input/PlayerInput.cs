@@ -358,6 +358,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""4f1d99a5-292a-4029-b2c3-ea02eb4399fc"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -380,6 +389,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Click"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e26496ac-f308-487e-8f31-5215c50aa56e"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -434,6 +454,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Ui = asset.FindActionMap("Ui", throwIfNotFound: true);
         m_Ui_Pause = m_Ui.FindAction("Pause", throwIfNotFound: true);
         m_Ui_Click = m_Ui.FindAction("Click", throwIfNotFound: true);
+        m_Ui_Zoom = m_Ui.FindAction("Zoom", throwIfNotFound: true);
         // Universal
         m_Universal = asset.FindActionMap("Universal", throwIfNotFound: true);
         m_Universal_MouseDelta = m_Universal.FindAction("MouseDelta", throwIfNotFound: true);
@@ -634,12 +655,14 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private List<IUiActions> m_UiActionsCallbackInterfaces = new List<IUiActions>();
     private readonly InputAction m_Ui_Pause;
     private readonly InputAction m_Ui_Click;
+    private readonly InputAction m_Ui_Zoom;
     public struct UiActions
     {
         private @PlayerInput m_Wrapper;
         public UiActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @Pause => m_Wrapper.m_Ui_Pause;
         public InputAction @Click => m_Wrapper.m_Ui_Click;
+        public InputAction @Zoom => m_Wrapper.m_Ui_Zoom;
         public InputActionMap Get() { return m_Wrapper.m_Ui; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -655,6 +678,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Click.started += instance.OnClick;
             @Click.performed += instance.OnClick;
             @Click.canceled += instance.OnClick;
+            @Zoom.started += instance.OnZoom;
+            @Zoom.performed += instance.OnZoom;
+            @Zoom.canceled += instance.OnZoom;
         }
 
         private void UnregisterCallbacks(IUiActions instance)
@@ -665,6 +691,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Click.started -= instance.OnClick;
             @Click.performed -= instance.OnClick;
             @Click.canceled -= instance.OnClick;
+            @Zoom.started -= instance.OnZoom;
+            @Zoom.performed -= instance.OnZoom;
+            @Zoom.canceled -= instance.OnZoom;
         }
 
         public void RemoveCallbacks(IUiActions instance)
@@ -747,6 +776,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     {
         void OnPause(InputAction.CallbackContext context);
         void OnClick(InputAction.CallbackContext context);
+        void OnZoom(InputAction.CallbackContext context);
     }
     public interface IUniversalActions
     {

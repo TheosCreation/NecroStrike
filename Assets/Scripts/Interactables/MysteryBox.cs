@@ -105,6 +105,8 @@ public class MysteryBox : MonoBehaviour, IInteractable
         Weapon instantiatedWeapon = Instantiate(selectedWeapon, weaponSpawnTransform.position, weaponSpawnTransform.rotation);
         instantiatedWeapon.Interact(player);
 
+        instantiatedWeapon.name = selectedWeapon.name;
+
         // Reset the mystery box state for the next use
         currentState = BoxState.Closed;
 

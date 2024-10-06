@@ -263,6 +263,26 @@ public class WeaponHolder : MonoBehaviour
         }
     }
 
+    public void SelectCurrentWeapon()
+    {
+        if (weapons.Count == 0) return;
+        if (weapons[currentWeaponIndex] == null) return;
+
+        for (int i = 0; i < weapons.Count; i++)
+        {
+            if (weapons[i] != null)
+            {
+                weapons[i].gameObject.SetActive(i == currentWeaponIndex);
+                weapons[i].isAttacking = false;
+
+                if (i == currentWeaponIndex)
+                {
+                    currentWeapon = weapons[i];
+                }
+            }
+        }
+    }
+
     private void TryStartAttacking()
     {
         player.playerMovement.CancelSprint();

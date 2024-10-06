@@ -715,7 +715,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: aef5a5a309357464aba1096b0a467d37, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 2
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -900,6 +900,7 @@ MonoBehaviour:
   settings: {fileID: 11400000, guid: 7906876e2bde73648aea65ead0d7875a, type: 2}
   currentSpread: 0
   recoil: {x: 0, y: 0}
+  animationMotion: {fileID: 2710740368811356583}
   IKRightHandPos: {fileID: 1639090217820611416}
   IKRightIndexPos: {fileID: 385855749276888850}
   IKRightMiddlePos: {fileID: 8009535121124142920}

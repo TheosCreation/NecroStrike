@@ -106,6 +106,9 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     protected AudioSource audioSource;
 
+    [Header("Animation Setup")]
+    public Transform animationMotion;
+
     [Header("Right Hand Setup")]
     public Transform IKRightHandPos;
     public Transform IKRightIndexPos;
@@ -196,6 +199,15 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public int GetID()
     {
         return settings.GetInstanceID();
+    }
+
+    public void SetAnimationActive(bool active)
+    {
+        if (!active)
+        {
+            animationMotion.localPosition = Vector3.zero;
+            animationMotion.localRotation = Quaternion.identity;
+        }
     }
 
     public void PickUp(bool playSound)
@@ -609,7 +621,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         }
 
         //If the weapon is held/equiped then update the ui
-        if (!isHeld && isEquip) return;
+        if (!isHeld && !isEquip) return;
 
         UiManager.Instance.UpdateAmmoText(ammoLeft);
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
@@ -619,7 +631,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     {
         ammoReserve = settings.maxAmmoReserve;
 
-        if (!isHeld && isEquip) return;
+        if (!isHeld && !isEquip) return;
 
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
