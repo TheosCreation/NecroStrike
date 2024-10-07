@@ -561,6 +561,8 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         if(enemy == null) enemy = collider.transform.root.GetComponent<Enemy>();
         if (enemy != null)
         {
+            enemy.SetLastHitPlayerReference(holder.player);
+            enemy.hitFromMelee = false;
             trail.hitCharacter = true;
             float hitDamage = damage;
             if (collider.tag == "Head")
@@ -575,8 +577,6 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
             holder.player.Points += 10; //give the player 10 points
             enemy.Damage(hitDamage, hit.point, hit.normal);
-            enemy.hitFromMelee = false;
-            enemy.SetLastHitPlayerReference(holder.player);
         }
     }
 

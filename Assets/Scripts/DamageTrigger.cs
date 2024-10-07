@@ -35,9 +35,9 @@ public class DamageTrigger : MonoBehaviour
         // If a damageable component is found, apply damage
         if (damageable != null)
         {
-            damageable.Damage(damage, point, pointNormal);
-            damageable.hitFromMelee = true;
             OnHit?.Invoke(other.gameObject);
+            damageable.hitFromMelee = true;
+            damageable.Damage(damage, point, pointNormal);
             lastAttackTime = Time.time;
         }
     }
