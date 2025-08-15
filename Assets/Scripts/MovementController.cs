@@ -85,9 +85,9 @@ public class MovementController : MonoBehaviour
         }
 
         // Reset velocity if below threshold
-        if (rb.velocity.sqrMagnitude < velocityThresholdSqrd)
+        if (rb.linearVelocity.sqrMagnitude < velocityThresholdSqrd)
         {
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
         }
     }
 
@@ -230,7 +230,7 @@ public class MovementController : MonoBehaviour
         }
 
         // Get the current velocity of the rigidbody
-        Vector3 currentVelocity = rb.velocity;
+        Vector3 currentVelocity = rb.linearVelocity;
 
         // Calculate the desired velocity based on the direction vector and target speed
         Vector3 desiredVelocity = directionVector.normalized * maxSpeed;
@@ -271,26 +271,26 @@ public class MovementController : MonoBehaviour
             Vector3 newVelocity = new Vector3(newVelocityX, currentVelocity.y, newVelocityZ);
 
             // Apply the new velocity to the rigidbody
-            rb.velocity = newVelocity;
+            rb.linearVelocity = newVelocity;
         }
     }
 
 
     public void StopMovement()
     {
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
     }
 
     public void ResetVerticalVelocity()
     {
-        Vector3 currentVelocity = rb.velocity;
-        rb.velocity = new Vector3(currentVelocity.x, 0, currentVelocity.z);
+        Vector3 currentVelocity = rb.linearVelocity;
+        rb.linearVelocity = new Vector3(currentVelocity.x, 0, currentVelocity.z);
     }
 
     public void ResetHorizontalVelocity()
     {
-        Vector3 currentVelocity = rb.velocity;
-        rb.velocity = new Vector3(0, currentVelocity.y, 0);
+        Vector3 currentVelocity = rb.linearVelocity;
+        rb.linearVelocity = new Vector3(0, currentVelocity.y, 0);
     }
 
     public void SetGravity(bool useGravity)
@@ -303,7 +303,7 @@ public class MovementController : MonoBehaviour
 
     public float GetLinearVelocityMagnitude()
     {
-        return rb.velocity.magnitude;
+        return rb.linearVelocity.magnitude;
     }
 
     public void SetFriction(bool useFriction)
@@ -314,7 +314,7 @@ public class MovementController : MonoBehaviour
     private void ApplyFriction(float friction)
     {
         // Get the current velocity of the rigidbody
-        Vector3 currentVelocity = rb.velocity;
+        Vector3 currentVelocity = rb.linearVelocity;
 
         // Apply friction only to the horizontal components (x and z)
         Vector3 horizontalVelocity = new Vector3(currentVelocity.x, 0, currentVelocity.z);
@@ -323,7 +323,7 @@ public class MovementController : MonoBehaviour
         horizontalVelocity = horizontalVelocity * friction;
 
         // Update the rigidbody's velocity with the new horizontal velocity and keep the vertical component unchanged
-        rb.velocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
+        rb.linearVelocity = new Vector3(horizontalVelocity.x, currentVelocity.y, horizontalVelocity.z);
     }
 
     private void SlideDownSlope()
@@ -332,6 +332,6 @@ public class MovementController : MonoBehaviour
         Vector3 slideDirection = Vector3.ProjectOnPlane(Vector3.down, slopeHit.normal).normalized;
 
         // Add force to simulate sliding down the slope
-        rb.velocity += slideDirection * slideSpeed * Time.fixedDeltaTime;
+        rb.linearVelocity += slideDirection * slideSpeed * Time.fixedDeltaTime;
     }
 }

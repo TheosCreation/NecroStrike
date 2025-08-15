@@ -81,7 +81,7 @@ public class PlayerMovement : MonoBehaviour, IPausable
 
     private void FixedUpdate()
     {
-        Vector3 horizontalVelocity = rb.velocity;
+        Vector3 horizontalVelocity = rb.linearVelocity;
         horizontalVelocity.y = 0f;
 
         horizontalMovementSpeed = new Vector2(horizontalVelocity.x, horizontalVelocity.z);
@@ -95,7 +95,7 @@ public class PlayerMovement : MonoBehaviour, IPausable
 
         movementInput = InputManager.Instance.MovementVector;
 
-        localVelocity = transform.InverseTransformDirection(rb.velocity);
+        localVelocity = transform.InverseTransformDirection(rb.linearVelocity);
         animator.SetFloat("SpeedX", localVelocity.x);
         animator.SetFloat("SpeedY", localVelocity.z);
 
