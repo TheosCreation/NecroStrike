@@ -36,11 +36,16 @@ public class Casing : MonoBehaviour
     public float spinSpeed = 2500.0f;
 
     private bool hasHitGround = false;  // Flag to check if casing has hit the ground.
+    [HideInInspector] public Rigidbody rb;
 
     private void Awake()
     {
-        Rigidbody rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
 
+    }
+
+    public void Activate()
+    {
         // Random rotation of the casing
         rb.AddRelativeTorque(
             Random.Range(minimumRotation, maximumRotation), // X Axis

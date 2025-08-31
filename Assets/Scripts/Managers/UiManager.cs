@@ -19,7 +19,7 @@ public class UiManager : MonoBehaviour
 
     public UiCrosshair crosshair;
 
-    [SerializeField] private FlashImage hitMarker;
+    //[SerializeField] private FlashImage hitMarker;
     [SerializeField] private FlashImage hurtScreen;
     [SerializeField] private TMP_Text interactionText;
     [SerializeField] private TMP_Text ammoText;
@@ -131,7 +131,7 @@ public class UiManager : MonoBehaviour
 
     public void FlashHitMarker()
     {
-        hitMarker.Play();
+        //hitMarker.Play();
     }
 
     public void FlashHurtScreen()

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.InputSystem;
 
 public class WeaponHolder : MonoBehaviour
 {
@@ -67,23 +68,25 @@ public class WeaponHolder : MonoBehaviour
     [SerializeField] private TwoBoneIKConstraint leftThumbIK;
     [SerializeField] private Transform leftThumbTarget;
 
-    private Animator animator;
+    private Animator animator; 
+    
+    private void OnWeaponSwitch(InputAction.CallbackContext ctx) => WeaponSwitch(ctx.ReadValue<Vector2>());
     private void Awake()
     {
         animator = GetComponent<Animator>();
         player = GetComponent<PlayerController>(); 
         meleeTimer = gameObject.AddComponent<Timer>();
-        InputManager.Instance.playerInput.InGame.WeaponSwitch.performed += ctx => WeaponSwitch(ctx.ReadValue<Vector2>());
-        InputManager.Instance.playerInput.InGame.Attack.started += _ctx => TryStartAttacking();
-        InputManager.Instance.playerInput.InGame.Attack.canceled += _ctx => currentWeapon?.StopAttacking();
-        InputManager.Instance.playerInput.InGame.Aim.started += _ctx => TryStartAiming();
-        InputManager.Instance.playerInput.InGame.Aim.canceled += _ctx => currentWeapon?.StopAiming();
-        //InputManager.Instance.playerInput.InGame.Drop.started += _ctx => TryDropWeapon();
-        InputManager.Instance.playerInput.InGame.Reload.started += _ctx => currentWeapon?.Reload();
-        InputManager.Instance.playerInput.InGame.Inspect.started += _ctx => currentWeapon?.Inspect();
-        InputManager.Instance.playerInput.InGame.Melee.started += _ctx => Melee();
 
         meleeWeapon.gameObject.SetActive(false);
+    }
+    private void Start()
+    {
+        InputManager.Instance.PlayerInput.WeaponSwitch.Action.performed += OnWeaponSwitch;
+    }
+    private void OnDestroy()
+    {
+        if(InputManager.Instance) InputManager.Instance.PlayerInput.WeaponSwitch.Action.performed -= OnWeaponSwitch;
+
     }
 
     private void Update()
@@ -102,8 +105,30 @@ public class WeaponHolder : MonoBehaviour
             rightHandIK.weight = 1f;
         }
 
+        bool tryingToAttack = InputManager.Instance.PlayerInput.Fire1.IsPressed;
+        if (tryingToAttack)
+        {
+            player.playerMovement.CancelSprint();
+        }
+
+        bool tryingToAim = InputManager.Instance.PlayerInput.Fire2.IsPressed;
+        if(tryingToAim)
+        {
+            player.playerMovement.CancelSprint();
+        }
+
+        if (currentWeapon != null)
+        {
+            currentWeapon.tryingToAttack = tryingToAttack;
+            currentWeapon.tryingToAim = tryingToAim;
+            currentWeapon.tryingToReload = InputManager.Instance.PlayerInput.Reload.IsPressed;
+            currentWeapon.tryingToInspect = InputManager.Instance.PlayerInput.Inspect.IsPressed;
+        }
+
+        if(InputManager.Instance.PlayerInput.Melee.WasPerformedThisFrame) Melee();
+
         Transform transformToAttachWeapon = idlePos;
-        if (currentWeapon.aimingInput && !currentWeapon.isReloading && !currentWeapon.isBoltAction)
+        if (tryingToAim && !currentWeapon.isReloading && !currentWeapon.isBoltAction)
         {
             transformToAttachWeapon = aimingPos;
         }
@@ -227,7 +252,7 @@ public class WeaponHolder : MonoBehaviour
             if (weapons[i] != null)
             {
                 weapons[i].gameObject.SetActive(weapons[i] == weapon);
-                weapons[i].isAttacking = false;
+                weapons[i].tryingToAttack = false;
 
                 if (weapons[i] == weapon)
                 {
@@ -250,7 +275,7 @@ public class WeaponHolder : MonoBehaviour
             if (weapons[i] != null)
             {
                 weapons[i].gameObject.SetActive(i == index);
-                weapons[i].isAttacking = false;
+                weapons[i].tryingToAttack = false;
 
                 if (i == index)
                 {
@@ -273,7 +298,7 @@ public class WeaponHolder : MonoBehaviour
             if (weapons[i] != null)
             {
                 weapons[i].gameObject.SetActive(i == currentWeaponIndex);
-                weapons[i].isAttacking = false;
+                weapons[i].tryingToAttack = false;
 
                 if (i == currentWeaponIndex)
                 {
@@ -281,18 +306,6 @@ public class WeaponHolder : MonoBehaviour
                 }
             }
         }
-    }
-
-    private void TryStartAttacking()
-    {
-        player.playerMovement.CancelSprint();
-        currentWeapon?.StartAttacking();
-    }
-    
-    private void TryStartAiming()
-    {
-        player.playerMovement.CancelSprint();
-        currentWeapon?.StartAiming();
     }
 
     private void Melee()
@@ -303,7 +316,7 @@ public class WeaponHolder : MonoBehaviour
         if (currentWeapon != null)
         {
             currentWeapon.gameObject.SetActive(false);
-            currentWeapon.isAttacking = false;
+            currentWeapon.tryingToAttack = false;
             previousWeapon = currentWeapon;
             currentWeapon?.Unequip();
         }

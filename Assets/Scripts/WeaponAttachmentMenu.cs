@@ -24,17 +24,28 @@ public class WeaponAttachmentMenu : UiMenuPage
 
     private void Awake()
     {
-        InputManager.Instance.playerInput.Ui.Click.started += _ctx => StartRotating();
-        InputManager.Instance.playerInput.Ui.Click.canceled += _ctx => EndRotating();
-        InputManager.Instance.playerInput.Ui.Zoom.performed += _ctx => Zoom(_ctx.ReadValue<Vector2>());
     }
 
     private bool hasInitialized = false;
 
     private void Start()
     {
+        InputManager.Instance.PlayerInput.UiClick.Action.started += _ctx => StartRotating();
+        InputManager.Instance.PlayerInput.UiClick.Action.canceled += _ctx => EndRotating();
+        InputManager.Instance.PlayerInput.UiZoom.Action.performed += _ctx => Zoom(_ctx.ReadValue<Vector2>());
+
         hasInitialized = true;
         gameObject.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        if(InputManager.Instance)
+        {
+            InputManager.Instance.PlayerInput.UiClick.Action.started -= _ctx => StartRotating();
+            InputManager.Instance.PlayerInput.UiClick.Action.canceled -= _ctx => EndRotating();
+            InputManager.Instance.PlayerInput.UiZoom.Action.performed -= _ctx => Zoom(_ctx.ReadValue<Vector2>());
+        }    
     }
 
     private void OnEnable()

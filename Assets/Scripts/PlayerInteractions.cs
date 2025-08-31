@@ -10,13 +10,24 @@ public class PlayerInteractions : MonoBehaviour
     private void Awake()
     {
         player = GetComponent<PlayerController>();
-        InputManager.Instance.playerInput.InGame.Interact.started += _ctx => Interact();
     }
 
     private void FixedUpdate()
     {
         DetectInteractable();
     }
+
+    private void Update()
+    {
+        if (InputManager.Instance.PlayerInput.Interact.WasPerformedThisFrame)
+        {
+            if (currentInteractable != null)
+            {
+                currentInteractable.Interact(player);
+            }
+        }
+    }
+
     void DetectInteractable()
     {
         RaycastHit hit;
@@ -59,16 +70,6 @@ public class PlayerInteractions : MonoBehaviour
                 ClearInteractionText();
                 currentInteractable = null;
             }
-        }
-    }
-
-
-
-    void Interact()
-    {
-        if (currentInteractable != null)
-        {
-            currentInteractable.Interact(player);
         }
     }
     

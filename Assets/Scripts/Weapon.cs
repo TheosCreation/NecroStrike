@@ -5,49 +5,29 @@ using UnityEngine;
 using static UnityEditor.Experimental.GraphView.GraphView;
 using Random = UnityEngine.Random;
 
-public enum Firemode
-{
-    Auto,
-    Burst,
-    Single
-}
-
-public enum WeaponClass
-{
-    Rifle,
-    Smg,
-    Pistol,
-    Sniper
-}
+public enum Firemode { Auto, Burst, Single }
+public enum WeaponClass { Rifle, Smg, Pistol, Sniper }
 
 [Serializable]
 public struct WeaponStatData
 {
     public float damage;
-    public float rateOfFire;
+    public float fireRate;
     public int magSize;
-    public float spread; // multiplier of max and min spreads
-    public float penetration; //1 = no damge loss targetHit
+    public float spread;          // multiplier of max and min spreads
+    public float penetration;     // 1 = no damage loss targetHit
     public float range;
     public float recoilReduction; // 1 = no recoil reduction
     public float aimInTime;
-    public float sprintToFireTime; 
-    public float reloadTime; 
-    
+    public float sprintToFireTime;
+    public float reloadTime;
+
     public WeaponStatData(
-        float _damage,
-        float _rateOfFire,
-        int _magSize,
-        float _spread,
-        float _penetration,
-        float _range,
-        float _recoilReduction,
-        float _aimInTime,
-        float _sprintToFireTime,
-        float _reloadTime)
+        float _damage, float _rateOfFire, int _magSize, float _spread, float _penetration,
+        float _range, float _recoilReduction, float _aimInTime, float _sprintToFireTime, float _reloadTime)
     {
         damage = _damage;
-        rateOfFire = _rateOfFire;
+        fireRate = _rateOfFire;
         magSize = _magSize;
         spread = _spread;
         penetration = _penetration;
@@ -66,30 +46,38 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private Rigidbody rb;
     public WeaponHolder holder;
     private WeaponStatData weaponStats;
+
     [SerializeField] private Collider collisionCollider;
     [SerializeField] private Transform muzzleTransform;
     [SerializeField] private Transform casingEjectionTransform;
+
     public float motionReduction = 0.5f;
+
     [SerializeField] private bool isHeld = false;
     [SerializeField] private bool isEquip = false;
+
     public bool isAiming = false;
-    public bool aimingInput = false;
-    public bool isAttacking = false;
+    public bool tryingToAttack = false; 
+    private bool prevTryingToAttack = false;
+    public bool tryingToAim = false;
+    public bool tryingToReload = false;
+    public bool tryingToInspect = false;
     public bool isReloading = false;
     public bool isInspecting = false;
     public bool isBoltAction = false;
     public bool canResetSprint = true;
+    public bool forceReload = false;
 
     public WeaponSettings settings;
 
     [Header("Attacking")]
     protected float lastShotTime = 0;
-
     private int burstShotsFired = 0;
     private float timeSinceLastBurst = 0f;
     public float currentSpread = 0f;
     private float currentMinSpread = 0f;
     private float currentMaxSpread = 0f;
+    private bool singleFireLatch = false;
 
     [Header("Recoil")]
     public Vector2 recoil;
@@ -98,12 +86,23 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private int ammoLeft = 0;
     private int ammoReserve = 0;
 
-    private Timer reloadTimer;
-    private Timer equipTimer;
-    private Timer inspectTimer;
-    private Timer aimingTimer;
-    private Timer boltActionTimer;
-    private Timer fireToSprintTimer;
+    // Replaced timers with timestamps
+    public bool equippingInProgress = false;
+    private float equipEndTime = 0f;
+
+    public bool aimingInProgress = false;
+    private float aimEndTime = 0f;
+
+    public bool reloadingInProgress = false; // mirrors isReloading for clarity during transition
+    private float reloadEndTime = 0f;
+
+    public bool inspectingInProgress = false;
+    private float inspectEndTime = 0f;
+
+    private float boltEndTime = 0f;
+
+    public bool fireToSprintCooldown = false;
+    private float fireToSprintEndTime = 0f;
 
     protected AudioSource audioSource;
 
@@ -131,40 +130,24 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     public class AttachedWeaponPart
     {
-
         public WeaponBody.PartTypeAttachPoint partTypeAttachPoint;
         public WeaponPartSO weaponPartSO;
         public Transform spawnedTransform;
-
     }
 
-
     [SerializeField] private List<WeaponPartSO> defaultWeaponPartSOList;
-
-
     [SerializeField] private WeaponBody weaponBody;
     private Scope attachedScope;
     private Dictionary<WeaponPartSO.PartType, AttachedWeaponPart> attachedWeaponPartDic;
 
     private void Awake()
     {
-        animator = GetComponent<Animator>(); 
-        rb = GetComponent<Rigidbody>(); 
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
         audioSource = GetComponent<AudioSource>();
         holder = transform.root.GetComponent<WeaponHolder>();
-        reloadTimer = gameObject.AddComponent<Timer>();
-        equipTimer = gameObject.AddComponent<Timer>();
-        inspectTimer = gameObject.AddComponent<Timer>();
-        fireToSprintTimer = gameObject.AddComponent<Timer>();
-        aimingTimer = gameObject.AddComponent<Timer>();
-
-        if(settings.weaponClass == WeaponClass.Sniper && settings.firemode == Firemode.Single)
-        {
-            boltActionTimer = gameObject.AddComponent<Timer>();
-        }
 
         attachedWeaponPartDic = new Dictionary<WeaponPartSO.PartType, AttachedWeaponPart>();
-
         foreach (WeaponBody.PartTypeAttachPoint partTypeAttachPoint in weaponBody.GetPartTypeAttachPointList())
         {
             attachedWeaponPartDic[partTypeAttachPoint.partType] = new AttachedWeaponPart
@@ -172,7 +155,6 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
                 partTypeAttachPoint = partTypeAttachPoint,
             };
         }
-
         foreach (WeaponPartSO weaponPartSO in defaultWeaponPartSOList)
         {
             SetPart(weaponPartSO);
@@ -187,20 +169,11 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         FillReserve();
         FillMag();
 
-        if (holder != null)
-        {
-            PickUp(false);
-        }
-        else
-        {
-            Drop(0);
-        }
+        if (holder != null) PickUp(false);
+        else Drop(0);
     }
 
-    public int GetID()
-    {
-        return settings.GetInstanceID();
-    }
+    public int GetID() => settings.GetInstanceID();
 
     public void SetAnimationActive(bool active)
     {
@@ -217,29 +190,21 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         rb.isKinematic = true;
         collisionCollider.enabled = false;
         LayerController.Instance.SetGameObjectAndChildrenLayer(gameObject, LayerMask.NameToLayer("Weapon"));
-
-        if(playSound)
-        {
-            PlayPickUpSound();
-        }
-        //holder = transform.root.GetComponent<WeaponHolder>();
+        if (playSound) PlayPickUpSound();
     }
 
     public virtual void Drop(float _force)
     {
         StopAiming();
-        StopAttacking();
+        tryingToAim = false;
+        tryingToAttack = false;
+        tryingToReload = false;
+
         CancelReload();
         Unequip();
 
-        if (attachedScope && holder)
-        {
-            attachedScope.SetZoom(false);
-        }
-        if (holder != null)
-        {
-            holder.player.playerLook.ResetZoomLevel();
-        }
+        if (attachedScope && holder) attachedScope.SetZoom(false);
+        if (holder != null) holder.player.playerLook.ResetZoomLevel();
 
         holder = null;
         transform.parent = null;
@@ -247,16 +212,14 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         rb.isKinematic = false;
         collisionCollider.enabled = true;
         LayerController.Instance.SetGameObjectAndChildrenLayer(gameObject, LayerMask.NameToLayer("Default"));
-
         rb.AddForce(transform.forward * _force, ForceMode.Impulse);
     }
 
     public void Equip()
     {
         animator.SetTrigger("Equip");
-
-        equipTimer.StopTimer();
-        equipTimer.SetTimer(settings.equipTime, FinishEquip);
+        equippingInProgress = true;
+        equipEndTime = Time.time + settings.equipTime;
 
         UiManager.Instance.UpdateAmmoText(ammoLeft);
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
@@ -265,141 +228,233 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private void FinishEquip()
     {
         isEquip = true;
+        equippingInProgress = false;
     }
 
     public void Unequip()
     {
         isEquip = false;
         CancelBoltAction();
-
         CancelReload();
+    }
+
+    public void StopAiming()
+    {
+        aimingInProgress = false;
+        isAiming = false;
+        UiManager.Instance.SetCrosshair(true);
+
+        if (holder && !isInspecting && !isReloading && !tryingToAttack && canResetSprint)
+        {
+            holder.player.playerMovement.ResetSprint();
+        }
     }
 
     void Update()
     {
-        if (!isEquip) return;
-
-        //attacking
-        if (isAttacking)
+        // guard
+        if (!isEquip)
         {
-            if (CanShoot() && !isInspecting)
+            // still allow equip completion timing
+            if (equippingInProgress && Time.time >= equipEndTime) FinishEquip();
+            return;
+        }
+
+        if (!tryingToAttack && prevTryingToAttack)
+        {
+            canResetSprint = false;
+            fireToSprintCooldown = true;
+            fireToSprintEndTime = Time.time + settings.baseFireToSprintDelay;
+        }
+        prevTryingToAttack = tryingToAttack;
+
+        // Equip completion
+        if (equippingInProgress && Time.time >= equipEndTime) FinishEquip();
+
+        // Aiming state machine
+        if (tryingToAim && !isReloading && !isBoltAction)
+        {
+            if (!isAiming && !aimingInProgress)
+            {
+                aimingInProgress = true;
+                aimEndTime = Time.time + weaponStats.aimInTime;
+            }
+            if (!isAiming && aimingInProgress && Time.time >= aimEndTime)
+            {
+                aimingInProgress = false;
+                isAiming = true;
+                PlayAimInSound();
+                UiManager.Instance.SetCrosshair(false);
+            }
+        }
+        else
+        {
+            if (isAiming || aimingInProgress) StopAiming();
+        }
+
+        // Inspect state machine
+        if (tryingToInspect && !isInspecting && !inspectingInProgress && !isReloading && !tryingToAim && !tryingToAttack)
+        {
+            isInspecting = true;
+            inspectingInProgress = true;
+            animator.SetTrigger("Inspect");
+            inspectEndTime = Time.time + settings.inspectTime;
+        }
+        else if (!tryingToInspect && (isInspecting || inspectingInProgress))
+        {
+            CancelInspect();
+        }
+
+        // Reload state machine
+        if ((tryingToReload || forceReload) && !isReloading && !reloadingInProgress && ammoLeft < weaponStats.magSize && ammoReserve > 0)
+        {
+            isReloading = true;
+            reloadingInProgress = true;
+            reloadEndTime = Time.time + weaponStats.reloadTime;
+            forceReload = false;
+
+            PlayReloadSound();
+            animator.SetTrigger("Reload");
+            if (holder) holder.player.playerMovement.canSprint = false;
+        }
+        if (reloadingInProgress && Time.time >= reloadEndTime)
+        {
+            isReloading = false;
+            reloadingInProgress = false;
+
+            if (holder && !isInspecting && !tryingToAim && !tryingToAttack && canResetSprint)
+            {
+                holder.player.playerMovement.ResetSprint();
+            }
+            FillMag();
+        }
+
+        // Attacking
+        if (!tryingToAttack)
+        {
+            singleFireLatch = false;
+            if (settings.firemode == Firemode.Burst) burstShotsFired = 0;
+        }
+
+        if (tryingToAttack && !isInspecting && !tryingToInspect)
+        {
+            CancelInspect();
+            if (CanShoot())
             {
                 if (ammoLeft > 0 && !isReloading)
                 {
                     Attack();
                 }
-                else
+                else if(!reloadingInProgress)
                 {
-                    Reload();
+                    forceReload = true;
                 }
             }
         }
 
-        //zooming and sprinting
+        // Inspect timing
+        if (inspectingInProgress && Time.time >= inspectEndTime)
+        {
+            isInspecting = false;
+            inspectingInProgress = false;
+        }
+
+        // Bolt action timing
+        if (isBoltAction && Time.time >= boltEndTime)
+        {
+            isBoltAction = false;
+            animator.SetBool("BoltAction", false);
+        }
+
+        // Fire-to-sprint cooldown
+        if (fireToSprintCooldown && Time.time >= fireToSprintEndTime)
+        {
+            fireToSprintCooldown = false;
+            canResetSprint = true;
+            if (holder && !isInspecting && !isReloading && !tryingToAim)
+            {
+                holder.player.playerMovement.ResetSprint();
+            }
+        }
+
+        // Zoom and sprint anim
         if (holder != null)
         {
             if (CanZoom())
             {
-                if (attachedScope && holder)
-                {
-                    attachedScope.SetZoom(true);
-                    holder.player.playerLook.SetZoomLevel(settings.aimingZoomLevel, settings.cameraZOffset, attachedScope.cameraFov / 30);
-                }
-                else
-                {
-                    holder.player.playerLook.SetZoomLevel(settings.aimingZoomLevel, settings.cameraZOffset, 0.8f);
-                }
+                if (attachedScope) attachedScope.SetZoom(true);
+                holder.player.playerLook.SetZoomLevel(settings.aimingZoomLevel, settings.cameraZOffset);
             }
             else
             {
-                if (attachedScope && holder)
-                {
-                    attachedScope.SetZoom(false);
-                }
+                if (attachedScope) attachedScope.SetZoom(false);
                 holder.player.playerLook.ResetZoomLevel();
             }
 
-            if (holder.player.playerMovement.isSprinting)
-            {
-                animator.SetBool("Sprint", true);
-            }
-            else
-            {
-                animator.SetBool("Sprint", false);
-            }
+            animator.SetBool("Sprint", holder.player.playerMovement.isSprinting);
         }
 
-        //spread return
+        // spread return
         currentSpread = Mathf.Lerp(currentSpread, settings.minSpread, Time.deltaTime * settings.spreadRecoverRate);
     }
 
     private bool CanShoot()
     {
-        float timeBetweenShots = 60f / weaponStats.rateOfFire; // Converts RPM to seconds per shot
+        float timeBetweenShots = (weaponStats.fireRate > 0f) ? 1f / weaponStats.fireRate : float.PositiveInfinity;
 
-        // Ensure enough time has passed since sprinting to allow shooting
-        if (Time.time - holder.player.playerMovement.timeSinceSprintEnd < weaponStats.sprintToFireTime)
+        // sprint-to-fire gate
+        if (holder != null && Time.time - holder.player.playerMovement.timeSinceSprintEnd < weaponStats.sprintToFireTime)
+            return false;
+
+        // Single: require trigger release between shots
+        if (settings.firemode == Firemode.Single)
         {
-            return false; // Block shooting until sprint-to-fire delay is over
+            if (singleFireLatch) return false;
+            return Time.time >= lastShotTime + timeBetweenShots;
         }
 
+        // Burst
         if (settings.firemode == Firemode.Burst)
         {
-            // Check if we are within the burst cooldown
-            if (Time.time - lastShotTime >= timeBetweenShots)
+            if (Time.time >= lastShotTime + timeBetweenShots)
             {
-                // Allow to shoot until 3 shots are fired
                 if (burstShotsFired < 3)
                 {
                     burstShotsFired++;
-                    lastShotTime = Time.time; // Reset last shot time for next shot in the burst
+                    lastShotTime = Time.time;
                     return true;
                 }
-                else
+                if (Time.time - timeSinceLastBurst >= settings.burstCooldown)
                 {
-                    // If 3 shots are fired, reset burst shots after cooldown
-                    if (Time.time - timeSinceLastBurst >= settings.burstCooldown)
-                    {
-                        burstShotsFired = 0; // Reset burst shots
-                        timeSinceLastBurst = Time.time; // Reset time since the last burst
-                    }
-                    return false;
+                    burstShotsFired = 0;
+                    timeSinceLastBurst = Time.time;
                 }
             }
             return false;
         }
-        else
-        {
-            // Handle Auto and Single Fire modes
-            if (Time.time - lastShotTime >= timeBetweenShots)
-            {
-                return true;
-            }
-            return false;
-        }
+
+        // Auto
+        return Time.time >= lastShotTime + timeBetweenShots;
     }
 
-    private bool CanZoom()
-    {
-        if (isAiming && !isReloading && !isBoltAction) return true;
-        return false;
-    }
+    private bool CanZoom() => isAiming && !isReloading && !isBoltAction;
 
     public virtual void Inspect()
     {
-        if (isReloading || isInspecting || aimingInput) return;
+        if (isReloading || isInspecting || tryingToAim) return;
 
         isInspecting = true;
+        inspectingInProgress = true;
         animator.SetTrigger("Inspect");
-        inspectTimer.SetTimer(settings.inspectTime, FinishInpect);
+        inspectEndTime = Time.time + settings.inspectTime;
     }
 
     public void CancelInspect()
-    {   
-        if(isInspecting)
+    {
+        if (isInspecting || inspectingInProgress)
         {
             isInspecting = false;
-            inspectTimer.StopTimer();
+            inspectingInProgress = false;
             animator.SetTrigger("CancelInspect");
         }
     }
@@ -407,6 +462,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public void FinishInpect()
     {
         isInspecting = false;
+        inspectingInProgress = false;
     }
 
     public void Interact(PlayerController player)
@@ -416,18 +472,11 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         PickUp(true);
     }
 
-    public void StartAttacking()
-    {
-        isAttacking = true;
-        CancelInspect();
-    }
-
     protected virtual void Attack()
     {
         bool spawnedBulletTrail = false;
         Vector3 shootDirection = holder.player.playerLook.playerCamera.transform.forward;
 
-        // If not aiming, add spread
         if (!isAiming)
         {
             shootDirection.x += Random.Range(-currentSpread, currentSpread);
@@ -435,50 +484,39 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             shootDirection.z += Random.Range(-currentSpread, currentSpread);
             shootDirection.Normalize();
         }
+        if (settings.firemode == Firemode.Single)
+        {
+            singleFireLatch = true;
+        }
 
         Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
 
         Debug.DrawRay(startPosition, shootDirection * weaponStats.range, Color.red, 1f);
         RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, weaponStats.range, settings.hitLayers);
+        Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
-        // Sort the hits by distance to ensure the closest object is processed first
-        System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
-
-        // Instantiate the bullet trail at the muzzle position
         BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
         bool hitATrigger = false;
+
         if (hits.Length > 0)
         {
             float remainingDamage = weaponStats.damage;
+            UiManager.Instance.FlashHitMarker();
 
-            // Loop through sorted hits and process each hit
             foreach (RaycastHit hit in hits)
             {
-                // Ignore trigger colliders
-                if (hit.collider.isTrigger)
-                {
-                    hitATrigger = true;
-                    continue;
-                }
+                if (hit.collider.isTrigger) { hitATrigger = true; continue; }
 
                 if (!spawnedBulletTrail)
                 {
-                    // Spawn bullet trail on the first (closest) hit point
                     bulletTrail.Init(hit.point, hit.normal);
                     spawnedBulletTrail = true;
                 }
 
-                // Handle the hit and reduce damage based on penetration factor
                 HandleHit(hit, remainingDamage, bulletTrail);
                 remainingDamage *= weaponStats.penetration;
 
-                // Stop processing if the remaining damage is too low
-                if (remainingDamage <= 0)
-                {
-                    break;
-                }
-
-                //if it was unpenerable lets not continue
+                if (remainingDamage <= 0) break;
                 if (hit.collider.gameObject.layer == 0) break;
             }
         }
@@ -488,40 +526,40 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             spawnedBulletTrail = true;
         }
 
-        if(hitATrigger && !spawnedBulletTrail)
+        if (hitATrigger && !spawnedBulletTrail)
         {
             spawnedBulletTrail = true;
             HandleMiss(startPosition, shootDirection, bulletTrail);
         }
 
-        // Apply recoil and handle ammo consumption
         if (applyRecoil) ApplyRecoil();
         TakeAmmoFromMag(1);
-        holder.player.playerLook.TriggerScreenShake(settings.screenShakeDuration, settings.screenShakeAmount * motionReduction * 0.01f);
+        holder.player.playerLook.CameraShake(settings.screenShakeAmount * motionReduction);
         PlayRandomFiringSound();
         SpawnRandomMuzzleFlash();
         SpawnCasing();
         animator.SetTrigger("Shoot");
 
-        //Add spread
         currentSpread += settings.spreadIncreasePerShot;
         currentSpread = Mathf.Clamp(currentSpread, currentMinSpread, currentMaxSpread);
 
-        // Update the last shot time and handle weapon fire mode
         lastShotTime = Time.time;
 
         if (settings.firemode == Firemode.Single)
         {
-            isAttacking = false;
+            tryingToAttack = false;
             if (settings.weaponClass == WeaponClass.Sniper) PullBolt();
+        }
+        if (ammoLeft <= 0)
+        {
+            forceReload = true;
         }
     }
 
-
     protected void ApplyRecoil()
     {
-        float currentRecoilReduction = weaponStats.recoilReduction; //gets any recoil reduction from the attachments
-        if(isAiming) currentRecoilReduction *= (1 - settings.aimingRecoilReduction); // reduces it further when we are aiming
+        float currentRecoilReduction = weaponStats.recoilReduction;
+        if (isAiming) currentRecoilReduction *= (1 - settings.aimingRecoilReduction);
 
         if (Time.time - lastShotTime >= settings.recoilResetTimeSeconds)
         {
@@ -532,22 +570,13 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         else
         {
             recoil += settings.recoilPattern.pattern[currentRecoilIndex] * currentRecoilReduction;
-
-            if (currentRecoilIndex + 1 < settings.recoilPattern.pattern.Length)
-            {
-                currentRecoilIndex++;
-            }
-            else
-            {
-                currentRecoilIndex = 0;
-            }
+            if (currentRecoilIndex + 1 < settings.recoilPattern.pattern.Length) currentRecoilIndex++;
+            else currentRecoilIndex = 0;
         }
-
     }
 
     protected void HandleMiss(Vector3 startPosition, Vector3 shootDirection, BulletTrail trail)
     {
-        // No hits, create a bullet trail toward the maximum distance
         Vector3 missPosition = startPosition + shootDirection * weaponStats.range;
         Debug.DrawLine(startPosition, missPosition, Color.red, 6.0f);
         trail.Init(missPosition, Vector3.zero);
@@ -556,9 +585,9 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     protected void HandleHit(RaycastHit hit, float damage, BulletTrail trail)
     {
-        var collider = hit.collider;
-        var enemy = collider.GetComponent<Enemy>();
-        if(enemy == null) enemy = collider.transform.root.GetComponent<Enemy>();
+        Collider collider = hit.collider;
+        Enemy enemy = collider.GetComponent<Enemy>();
+        if (enemy == null) enemy = collider.transform.root.GetComponent<Enemy>();
         if (enemy != null)
         {
             enemy.SetLastHitPlayerReference(holder.player);
@@ -567,66 +596,45 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             float hitDamage = damage;
             if (collider.tag == "Head")
             {
-                if (Random.Range(0, 100) < 20)  // 20% chance (0-19 out of 100)
-                {
-                    enemy.HitHead();
-                }
-
+                if (Random.Range(0, 100) < 20) enemy.HitHead();
                 hitDamage *= settings.headShotMultiplier;
             }
 
-            holder.player.Points += 10; //give the player 10 points
+            holder.player.Points += 10;
             enemy.Damage(hitDamage, hit.point, hit.normal);
         }
     }
 
     protected void TakeAmmoFromMag(int magChange)
     {
-        //take the ammo from the mag
         ammoLeft -= magChange;
-
         if (!isHeld) return;
-
         UiManager.Instance.UpdateAmmoText(ammoLeft);
     }
 
     private void PullBolt()
     {
         PlayBoltActionSound();
-        
         isBoltAction = true;
         animator.SetBool("BoltAction", true);
-        boltActionTimer.SetTimer(settings.boltActionLength, FinishBolt);
-    }
-
-    private void FinishBolt()
-    {
-        isBoltAction = false;
-        animator.SetBool("BoltAction", false);
+        boltEndTime = Time.time + settings.boltActionLength;
     }
 
     public void FillMag()
     {
-        // Calculate the amount of ammo needed to fill the magazine
         int ammoNeeded = weaponStats.magSize - ammoLeft;
-
-        // Check if the reserve has enough ammo
         if (ammoReserve >= ammoNeeded)
         {
-            // If there's enough ammo, fill the magazine completely
             ammoLeft += ammoNeeded;
             ammoReserve -= ammoNeeded;
         }
         else
         {
-            // If not enough ammo, fill the magazine with whatever is left
             ammoLeft += ammoReserve;
             ammoReserve = 0;
         }
 
-        //If the weapon is held/equiped then update the ui
         if (!isHeld && !isEquip) return;
-
         UiManager.Instance.UpdateAmmoText(ammoLeft);
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
@@ -634,9 +642,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public void FillReserve()
     {
         ammoReserve = settings.maxAmmoReserve;
-
         if (!isHeld && !isEquip) return;
-
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
 
@@ -648,37 +654,28 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     private void PlayPickUpSound()
     {
-        if(settings.pickUpClip == null)
-        {
-            Debug.Log("Weapon does not have a assigned pickup sound");
-        }
+        if (settings.pickUpClip == null) { Debug.Log("Weapon does not have a assigned pickup sound"); return; }
         audioSource.PlayOneShot(settings.pickUpClip);
     }
-    
+
     private void PlayBoltActionSound()
     {
-        if(settings.boltAction == null)
-        {
-            Debug.Log("Weapon does not have a assigned bolt action sound");
-        }
+        if (settings.boltAction == null) { Debug.Log("Weapon does not have a assigned bolt action sound"); return; }
         audioSource.clip = settings.boltAction;
         audioSource.PlayDelayed(settings.boltDelay);
     }
 
     protected void PlayRandomFiringSound()
     {
-        if(settings.firingSounds.Length == 0) return; //cannot play a firing sound because none is set
-
+        if (settings.firingSounds.Length == 0) return;
         int randomIndex = Random.Range(0, settings.firingSounds.Length);
         AudioClip randomClip = settings.firingSounds[randomIndex];
-
         audioSource.PlayOneShot(randomClip);
     }
 
     protected void SpawnRandomMuzzleFlash()
     {
-        if (settings.muzzleFlashPrefabs.Length == 0) return; //cannot spawn a muzzle flash because none is set
-
+        if (settings.muzzleFlashPrefabs.Length == 0) return;
         int randomIndex = Random.Range(0, settings.muzzleFlashPrefabs.Length);
         Instantiate(settings.muzzleFlashPrefabs[randomIndex], muzzleTransform.position, muzzleTransform.rotation, muzzleTransform);
     }
@@ -686,109 +683,39 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     protected void SpawnCasing()
     {
         if (settings.casingPrefab == null) return;
-
-        Instantiate(settings.casingPrefab, casingEjectionTransform.position, casingEjectionTransform.rotation);
+        Casing casing = Instantiate(settings.casingPrefab, casingEjectionTransform.position, casingEjectionTransform.rotation);
+        casing.rb.linearVelocity = holder.player.playerMovement.rb.linearVelocity;
+        casing.rb.angularVelocity = holder.player.playerMovement.rb.angularVelocity;
+        casing.Activate();
     }
 
     private void PlayReloadSound()
     {
-        audioSource.PlayOneShot(settings.reloadSound);
+        if (settings.reloadSound != null) audioSource.PlayOneShot(settings.reloadSound);
     }
-    
+
     private void PlayAimInSound()
     {
-        audioSource.PlayOneShot(settings.aimInSound);
-    }
-
-    public void StopAttacking()
-    {
-        isAttacking = false;
-
-        canResetSprint = false;
-        fireToSprintTimer.StopTimer();
-        fireToSprintTimer.SetTimer(settings.baseFireToSprintDelay, () =>
-        {
-            canResetSprint = true;
-            if (holder && !isInspecting && !isReloading & !aimingInput)
-            {
-                holder.player.playerMovement.ResetSprint();
-            }
-        });
-    }
-
-    public virtual void StartAiming()
-    {
-        CancelInspect();
-
-        aimingInput = true;
-
-        aimingTimer.StopTimer();
-        aimingTimer.SetTimer(weaponStats.aimInTime, FinishAimIn);
-
-        UiManager.Instance.SetCrosshair(false);
-    }
-    private void FinishAimIn()
-    {
-        PlayAimInSound();
-        isAiming = true;
-    }
-    public void StopAiming()
-    {
-        aimingTimer.StopTimer();
-        isAiming = false;
-        aimingInput = false;
-        UiManager.Instance.SetCrosshair(true);
-
-        if(holder && !isInspecting && !isReloading && !isAttacking && canResetSprint)
-        {
-            holder.player.playerMovement.ResetSprint();
-        }
-    }
-
-    public virtual void Reload()
-    {
-        if (!isReloading && ammoLeft < weaponStats.magSize && ammoReserve > 0)
-        {
-            CancelInspect();
-
-            isReloading = true;
-
-            PlayReloadSound(); 
-            animator.SetTrigger("Reload");
-
-            reloadTimer.SetTimer(weaponStats.reloadTime, FinishReload);
-
-            holder.player.playerMovement.canSprint = false;
-        }
-    }
-
-    private void FinishReload()
-    {
-        isReloading = false; 
-        if (holder && !isInspecting && !aimingInput && !isAttacking && canResetSprint)
-        {
-            holder.player.playerMovement.ResetSprint();
-        }
-        FillMag();
+        if (settings.aimInSound != null) audioSource.PlayOneShot(settings.aimInSound);
     }
 
     public void CancelBoltAction()
     {
         if (isBoltAction)
         {
-            boltActionTimer.StopTimer();
             isBoltAction = false;
             animator.SetTrigger("CancelBoltAction");
+            animator.SetBool("BoltAction", false);
         }
     }
 
     public void CancelReload()
     {
-        if(isReloading)
+        if (isReloading || reloadingInProgress)
         {
-            reloadTimer.StopTimer();
             isReloading = false;
-            holder.player.playerMovement.canSprint = true;
+            reloadingInProgress = false;
+            if (holder) holder.player.playerMovement.canSprint = true;
             audioSource.Stop();
             animator.SetTrigger("CancelReload");
         }
@@ -796,13 +723,11 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     public void SetPart(WeaponPartSO weaponPartSO)
     {
-        // Destroy currently attached part
         if (attachedWeaponPartDic[weaponPartSO.partType].spawnedTransform != null)
         {
             Destroy(attachedWeaponPartDic[weaponPartSO.partType].spawnedTransform.gameObject);
         }
 
-        // Spawn new part
         Transform spawnedPartTransform = Instantiate(weaponPartSO.prefab);
         AttachedWeaponPart attachedWeaponPart = attachedWeaponPartDic[weaponPartSO.partType];
         attachedWeaponPart.spawnedTransform = spawnedPartTransform;
@@ -811,13 +736,11 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         spawnedPartTransform.parent = attachPointTransform;
         spawnedPartTransform.localEulerAngles = Vector3.zero;
         spawnedPartTransform.localPosition = weaponPartSO.spawnOffset;
-        spawnedPartTransform.localScale = new Vector3(1,1,1);
+        spawnedPartTransform.localScale = new Vector3(1, 1, 1);
 
         attachedWeaponPart.weaponPartSO = weaponPartSO;
-
         attachedWeaponPartDic[weaponPartSO.partType] = attachedWeaponPart;
 
-        // Is it a barrel?
         if (weaponPartSO.partType == WeaponPartSO.PartType.Barrel)
         {
             BarrelWeaponPartSO barrelWeaponPartSO = (BarrelWeaponPartSO)weaponPartSO;
@@ -830,10 +753,12 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
                 barrelPartTypeAttachedWeaponPart.partTypeAttachPoint.attachPointTransform.forward * barrelWeaponPartSO.muzzleOffset;
         }
 
-        if(weaponPartSO.partType == WeaponPartSO.PartType.Scope)
+        if (weaponPartSO.partType == WeaponPartSO.PartType.Scope)
         {
             attachedScope = spawnedPartTransform.GetComponent<Scope>();
         }
+
+        CalculateWeaponStats();
     }
 
     public WeaponPartSO GetWeaponPartSO(WeaponPartSO.PartType partType)
@@ -847,37 +772,28 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         return new List<WeaponPartSO.PartType>(attachedWeaponPartDic.Keys);
     }
 
-    public WeaponBodySO GetWeaponBodySO()
-    {
-        return weaponBody.GetWeaponBodySO();
-    }
-    
-    public GameObject GetWeaponBodyBase()
-    {
-        return weaponBody.GetBaseBody();
-    }
+    public WeaponBodySO GetWeaponBodySO() => weaponBody.GetWeaponBodySO();
+    public GameObject GetWeaponBodyBase() => weaponBody.GetBaseBody();
 
-    public void OnPause()
-    {
-        audioSource.Pause();
-    }
+    public void OnPause() { audioSource.Pause(); }
+    public void OnUnPause() { audioSource.UnPause(); }
 
-    public void OnUnPause()
-    {
-        audioSource.UnPause();
-    }
-
-    public string GetInteractionText(PlayerController player)
-    {
-        return $"Pick up {gameObject.name}";
-    }
+    public string GetInteractionText(PlayerController player) => $"Pick up {gameObject.name}";
 
     private void CalculateWeaponStats()
     {
-        weaponStats = new WeaponStatData(settings.baseDamage, settings.baseRateOfFire, settings.baseMagSize, 1f, settings.penetrationFactor, settings.baseRange, 
-            1f, settings.baseAimInTime, settings.baseSprintToFireDelay, settings.baseReloadTime);
+        weaponStats = new WeaponStatData(
+            settings.baseDamage,
+            settings.baseRateOfFire,
+            settings.baseMagSize,
+            1f,
+            settings.penetrationFactor,
+            settings.baseRange,
+            1f,
+            settings.baseAimInTime,
+            settings.baseSprintToFireDelay,
+            settings.baseReloadTime);
 
-        //retreive the stats and apply them
         foreach (WeaponPartSO.PartType part in GetWeaponPartTypeList())
         {
             Transform spawnedTranform = attachedWeaponPartDic[part].spawnedTransform;

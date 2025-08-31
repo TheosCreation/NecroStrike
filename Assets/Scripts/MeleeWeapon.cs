@@ -32,9 +32,7 @@ public class MeleeWeapon : Weapon
 
     }
 
-    public override void Reload() { }
     public override void Inspect() { }
-    public override void StartAiming() { }
     public override void Drop(float _force) { }
     public void Swing()
     {

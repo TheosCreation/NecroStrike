@@ -1,0 +1,8 @@
+LocalPrefs.json contains preferences local to this machine. It does NOT get backed up in any way.
+Prefs.json contains preferences that are synced across all of your machines via Steam Cloud.
+
+All prefs files must be valid json.
+If you edit them, make sure you don't break the format.
+
+If a pref key is missing from the prefs files, the game will use the default value and save ONLY if overridden.
+Additionally, you can NOT move things between Prefs.json and LocalPrefs.json, the game will ignore them if misplaced.

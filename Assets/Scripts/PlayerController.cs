@@ -64,8 +64,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         playerMovement = GetComponent<PlayerMovement>();
         playerInteractions = GetComponent<PlayerInteractions>();
         playerLook = GetComponent<PlayerLook>();
-
-        InputManager.Instance.playerInput.Ui.Pause.started += _ctx => OnPausePressed();
     }
 
     private void Start()
@@ -86,18 +84,6 @@ public class PlayerController : MonoBehaviour, IDamageable
         if (isRegenerating)
         {
             RegenerateHealth();
-        }
-    }
-
-    private void OnPausePressed()
-    {
-        if (PauseManager.Instance.isPaused)
-        {
-            UiManager.Instance.Back();
-        }
-        else
-        {
-            PauseManager.Instance.TogglePause();
         }
     }
 
