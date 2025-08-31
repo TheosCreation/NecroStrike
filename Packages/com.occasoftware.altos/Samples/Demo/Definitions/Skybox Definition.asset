@@ -22,30 +22,30 @@ MonoBehaviour:
     groundColor: {r: 0.10461649, g: 0.088655606, b: 0.10224175, a: 0}
   - description: Dawn
     startTime: 6
-    horizonColor: {r: 0.4528302, g: 0.24195907, b: 0.087575644, a: 0}
+    horizonColor: {r: 0.4528302, g: 0.24954352, b: 0.09611963, a: 0}
     zenithColor: {r: 0.103181764, g: 0.09021698, b: 0.262, a: 0}
     groundColor: {r: 0.52537465, g: 0.5764209, b: 0.72955966, a: 0}
-  - description: Day
-    startTime: 9.1
-    horizonColor: {r: 0.48380208, g: 0.5967927, b: 0.6792453, a: 0}
-    zenithColor: {r: 0.06909563, g: 0.099198654, b: 0.23251227, a: 0}
-    groundColor: {r: 0.05660379, g: 0.045561332, b: 0.04026345, a: 0}
   - description: Day End
-    startTime: 16.5
-    horizonColor: {r: 0.66180134, g: 0.6967497, b: 0.8301887, a: 1}
+    startTime: 9.1
+    horizonColor: {r: 0.41384837, g: 0.445702, b: 0.5660378, a: 1}
     zenithColor: {r: 0.054512277, g: 0.13728885, b: 0.46226418, a: 0}
     groundColor: {r: 0.056128494, g: 0.045186214, b: 0.04091521, a: 0}
   - description: Evening
     startTime: 17
-    horizonColor: {r: 0.6603774, g: 0.45372912, b: 0.3270737, a: 0}
+    horizonColor: {r: 0.3018868, g: 0.2139007, b: 0.15806337, a: 0}
     zenithColor: {r: 0.6226415, g: 0.1967782, b: 0.38605088, a: 0}
     groundColor: {r: 0.066037714, g: 0.040888004, b: 0.02953007, a: 0}
+  - description: Day
+    startTime: 20.46
+    horizonColor: {r: 0.33726415, g: 0.43165094, b: 0.5, a: 0}
+    zenithColor: {r: 0.06909563, g: 0.099198654, b: 0.23251227, a: 0}
+    groundColor: {r: 0.05660379, g: 0.045561332, b: 0.04026345, a: 0}
   - description: Night
     startTime: 20.54
-    horizonColor: {r: 0.016197924, g: 0.017944247, b: 0.03773582, a: 0}
-    zenithColor: {r: 0.107600555, g: 0.107600555, b: 0.24528301, a: 0}
+    horizonColor: {r: 0.16402636, g: 0.19643703, b: 0.3584906, a: 0}
+    zenithColor: {r: 0.18222678, g: 0.18222678, b: 0.4245283, a: 0}
     groundColor: {r: 0.1509434, g: 0.12887149, b: 0.1509434, a: 0}
-  initialTime: 14
-  editorTime: 14
-  timeSystem: 14
+  initialTime: 9.1
+  editorTime: 9.1
+  timeSystem: 9.1
   dayNightCycleDuration: 0

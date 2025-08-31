@@ -21,6 +21,10 @@ MonoBehaviour:
   - groundType: 1
     audioClips:
     - {fileID: 8300000, guid: 1665adb38d7f5f8488c7124e7c7b7541, type: 3}
+    - {fileID: 8300000, guid: 12e7beef3c6be454bb7e89451fd47f01, type: 3}
+    - {fileID: 8300000, guid: 1f362f7dc072bb24b801915cc7747f14, type: 3}
+    - {fileID: 8300000, guid: d024695e0d4d41f4787ce82cd730c5ed, type: 3}
+    - {fileID: 8300000, guid: 46445f007ff7f8a4782927ed0598f82d, type: 3}
     slamClip: {fileID: 8300000, guid: 1665adb38d7f5f8488c7124e7c7b7541, type: 3}
     landClip: {fileID: 8300000, guid: 1665adb38d7f5f8488c7124e7c7b7541, type: 3}
   - groundType: 2

@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     public bool isWalking = false;
     public bool isJumping = false;
     public bool isFalling = false;
+    public bool canSlide = true;
     public bool isSliding = false;
     public bool isSprinting = false;
     public bool isStanding = true;
@@ -131,7 +132,13 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         // Step sounds
-        if (isWalking) footstepTimer = Mathf.MoveTowards(footstepTimer, 0f, Mathf.Min(rb.linearVelocity.magnitude, 15f) / 15f * Time.deltaTime * 3f);
+        if (isWalking)
+        {
+            // Normalize the timer reduction by actual movement speed
+            float speedRatio = rb.linearVelocity.magnitude / walkSpeed;
+            footstepTimer = Mathf.MoveTowards(footstepTimer, 0f, speedRatio * Time.deltaTime * 1.75f);
+        }
+
         if (footstepTimer <= 0f) Footstep();
 
         inputDirection = InputManager.Instance.PlayerInput.Move.ReadValue<Vector2>();
@@ -202,40 +209,44 @@ public class PlayerMovement : MonoBehaviour
         if (InputManager.Instance.PlayerInput.Shift.WasCanceledThisFrame) timeSinceSprintEnd = Time.time;
 
         // Slide input
-        if (InputManager.Instance.PlayerInput.Crouch.WasPerformedThisFrame && (gc.onGround || gc.sinceLastGrounded < 0.03f) && !isSliding)
+        if (InputManager.Instance.PlayerInput.Crouch.WasPerformedThisFrame && !isSliding)
         {
-            StartSlide();
+            if (isSprinting && rb.linearVelocity.magnitude > walkSpeed && (gc.onGround || gc.sinceLastGrounded < 0.03f))
+            {
+                // Sprint slide
+                StartSlide();
+            }
+            else if (gc.onGround)
+            {
+                // Regular crouch
+                isCrouching = true;
+                SetCapsuleHeight(crouchHeight);
+                isStanding = false;
+            }
         }
-        if (InputManager.Instance.PlayerInput.Crouch.WasPerformedThisFrame && !gc.onGround && !isSliding && !isJumping &&
-            Physics.Raycast(gc.transform.position + transform.up, Vector3.down, out _, 6f, environmentMask, QueryTriggerInteraction.Ignore))
+        if (InputManager.Instance.PlayerInput.Crouch.WasCanceledThisFrame)
         {
-            StartSlide();
-        }
-        if (InputManager.Instance.PlayerInput.Crouch.WasCanceledThisFrame && isSliding)
-        {
-            StopSlide();
+            // Don't stop slide when releasing crouch - let it finish naturally
+            if (!isSliding && isCrouching)
+            {
+                // End crouch
+                isCrouching = false;
+                SetCapsuleHeight(standHeight);
+                isStanding = true;
+            }
         }
 
         // Slide camera and stance
         if (isSliding)
         {
-            isStanding = false;
-            if (playerLook.defaultTarget.y != playerLook.originalPos.y - cameraCrouchOffset)
-            {
-                playerLook.defaultTarget = playerLook.originalPos - Vector3.up * cameraCrouchOffset;
-            }
             if (gc.onGround) playerLook.CameraShake(0.1f);
-        }
-        else
-        {
-            HandleStandup();
         }
 
         // Slope helper
         if (!slopeCheck.onGround && slopeCheck.forcedOff <= 0 && !isJumping)
         {
             float num = playerCollider.height / 2f - playerCollider.center.y;
-            if (rb.linearVelocity != Vector3.zero && Physics.Raycast(transform.position, Vector3.down, out var hit3, num + 1f, environmentMask, QueryTriggerInteraction.Ignore))
+            if (rb.linearVelocity != Vector3.zero && Physics.Raycast(transform.position, Vector3.down, out var hit3, num + 0.35f, environmentMask, QueryTriggerInteraction.Ignore))
             {
                 Vector3 target = new Vector3(transform.position.x, transform.position.y - hit3.distance + num, transform.position.z);
                 transform.position = Vector3.MoveTowards(transform.position, target, hit3.distance * Time.deltaTime * 10f);
@@ -260,43 +271,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         UpdateAnimations();
-    }
-
-    private void HandleStandup()
-    {
-        // try to restore stand height when not sliding
-        if (playerCollider && !Mathf.Approximately(playerCollider.height, standHeight))
-        {
-            Vector3 basePoint = new Vector3(playerCollider.bounds.center.x, playerCollider.bounds.min.y, playerCollider.bounds.center.z);
-            bool blocked = Physics.Raycast(basePoint, Vector3.up, standHeight, environmentMask, QueryTriggerInteraction.Ignore)
-                           || Physics.SphereCast(new Ray(basePoint + Vector3.up * 0.25f, Vector3.up), 0.5f, 2f, environmentMask, QueryTriggerInteraction.Ignore);
-            if (!blocked)
-            {
-                playerCollider.height = standHeight;
-                gc.transform.localPosition = groundCheckPos;
-
-                if (Physics.Raycast(transform.position, Vector3.down, 2.25f, environmentMask, QueryTriggerInteraction.Ignore))
-                    transform.position = new Vector3(transform.position.x, transform.position.y + 1.125f, transform.position.z);
-                else
-                    transform.position = new Vector3(transform.position.x, transform.position.y - 0.625f, transform.position.z);
-
-                playerLook.defaultTarget = playerLook.originalPos;
-                isStanding = true;
-                if (isCrouching) isCrouching = false;
-            }
-            else
-            {
-                isCrouching = true;
-            }
-        }
-        else if (playerLook.defaultTarget != playerLook.originalPos)
-        {
-            playerLook.defaultTarget = playerLook.originalPos;
-        }
-        else
-        {
-            isStanding = true;
-        }
     }
 
     private void UpdateAnimations()
@@ -369,13 +343,24 @@ public class PlayerMovement : MonoBehaviour
 
             if (isSliding)
             {
-                Vector3 slideRight = Vector3.Cross(Vector3.up, slideDirection).normalized;
-                float sideInput = inputDirection.x;
-                Vector3 inputInfluence = slideRight * sideInput * currentTargetMoveSpeed;
+                Vector3 currentVelocity = rb.linearVelocity;
+                Vector3 horizontalVel = new Vector3(currentVelocity.x, 0, currentVelocity.z);
 
-                Vector3 desired = (slideDirection * slideSpeed) + inputInfluence;
-                Vector3 diff = desired - rb.linearVelocity;
-                rb.linearVelocity += diff * Time.fixedDeltaTime * friction * slideSlowRate;
+                // Slow down gradually
+                float slideDeceleration = slideSlowRate * Time.fixedDeltaTime;
+                horizontalVel = Vector3.MoveTowards(horizontalVel, Vector3.zero, slideDeceleration);
+
+                // Stop slide if too slow
+                if (horizontalVel.magnitude < minSlideSpeed)
+                {
+                    StopSlide();
+                    return;
+                }
+
+                // Apply the velocity
+                rb.linearVelocity = new Vector3(horizontalVel.x, currentVelocity.y, horizontalVel.z);
+
+                return;
             }
             else
             {
@@ -504,36 +489,69 @@ public class PlayerMovement : MonoBehaviour
         else footStepAudioSource.PlayDelayed(delay);
     }
 
+    private void SetCapsuleHeight(float targetHeight)
+    {
+        playerCollider.height = targetHeight;
+        playerCollider.center = new Vector3(playerCollider.center.x, targetHeight / 2f, playerCollider.center.z);
+    }
+
+
     public void StartSlide()
     {
-        // enter crouch collider
-        if (!isCrouching)
+        if (!isSliding && canSlide)
         {
-            playerCollider.height = crouchHeight;
-            transform.position = new Vector3(transform.position.x, transform.position.y - 1.125f, transform.position.z);
-            gc.transform.localPosition = groundCheckPos + Vector3.up * 1.125f;
+            // Cancel sprint
+            CancelSprint();
+
+            // Set slide state
+            isSliding = true;
+            canSlide = false;
+
+            // Adjust collider immediately
+            SetCapsuleHeight(crouchHeight);
+
+            // Determine slide direction
+            Vector3 slideDirection;
+            if (movementDirection.sqrMagnitude > 0.001f)
+            {
+                slideDirection = movementDirection.normalized;
+            }
+            else
+            {
+                slideDirection = transform.forward;
+            }
+
+            // Reset velocities and apply slide force
+            ResetVerticalVelocity();
+            ResetHorizontalVelocity();
+            rb.AddForce(slideDirection * slideSpeed, ForceMode.VelocityChange);
+
+            // Set slide direction for ongoing slide physics
+            this.slideDirection = slideDirection;
+
+            // Start slide timer - slide lasts 1 second regardless of input
+            CancelInvoke(nameof(EndSlide));
+            Invoke(nameof(EndSlide), 1.0f);
         }
-
-        isSliding = true;
-
-        slideDirection = movementDirection.sqrMagnitude > 0.001f ? movementDirection.normalized : transform.forward;
-
-        // preserve forward momentum
-        Vector3 horizontalVelocity = rb.linearVelocity; horizontalVelocity.y = 0;
-        float currentSpeedInSlideDir = Vector3.Dot(horizontalVelocity, slideDirection);
-        float initialSlideSpeed = Mathf.Max(currentSpeedInSlideDir, slideSpeed * Mathf.Max(1f, slamForce * 0.5f));
-        rb.linearVelocity = slideDirection * initialSlideSpeed;
     }
 
     public void StopSlide()
     {
-        playerLook.ResetToDefaultPos();
+        if (!isSliding) return;
+
+        // Don't reset sprint immediately - add delay
         isSliding = false;
+
+        // Reset collider height
+        SetCapsuleHeight(standHeight);
+
+        // Reset slide tracking
         if (slideLength > longestSlide) longestSlide = slideLength;
         slideLength = 0f;
         framesSinceSlide = 0;
         velocityAfterSlide = rb.linearVelocity;
 
+        // Play end slide sound
         if (endSlideSound != null)
         {
             slideAudioSource.clip = endSlideSound;
@@ -542,8 +560,27 @@ public class PlayerMovement : MonoBehaviour
             slideAudioSource.Play();
         }
 
-        // stand if possible
-        TryStandFromCrouch();
+        // Reset slide availability after delay
+        CancelInvoke(nameof(ResetSlide));
+        Invoke(nameof(ResetSlide), 0.5f);
+
+        // Reset sprint after delay (not immediately)
+        CancelInvoke(nameof(ResetSprint));
+        Invoke(nameof(ResetSprint), 0.75f); // 0.75 second delay before can sprint again
+
+        // Reset stance
+        isCrouching = false;
+        isStanding = true;
+    }
+
+    private void EndSlide()
+    {
+        StopSlide();
+    }
+
+    private void ResetSlide()
+    {
+        canSlide = true;
     }
 
     private void TryStandFromCrouch()
@@ -556,7 +593,7 @@ public class PlayerMovement : MonoBehaviour
         {
             playerCollider.height = standHeight;
             gc.transform.localPosition = groundCheckPos;
-            playerLook.defaultTarget = playerLook.originalPos;
+            //playerLook.defaultTarget = playerLook.originalPos;
             isCrouching = false;
             isStanding = true;
         }
