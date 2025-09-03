@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 using Random = UnityEngine.Random;
 
 public enum Firemode { Auto, Burst, Single }

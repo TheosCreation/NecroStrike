@@ -1,0 +1,75 @@
+name: Build project
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # e.g. v0.1.0
+
+permissions:
+  contents: write
+
+jobs:
+  buildForAllSupportedPlatforms:
+    name: Build for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        targetPlatform:
+          - StandaloneWindows64
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
+
+      - if: matrix.targetPlatform == 'Android'
+        uses: jlumbroso/free-disk-space@v1.3.1
+
+      - uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+
+      - name: Set version
+        id: version
+        run: |
+          # Use tag name as version
+          echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
+      - name: Zip build
+        run: |
+          cd build/${{ matrix.targetPlatform }}
+          zip -r ../../NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: NecroStrike-${{ steps.version.outputs.version }}
+          files: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to itch.io
+        uses: manleydev/butler-publish-itchio-action@master
+        with:
+          entryPoint: butler
+          args: push "NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip" theoscreation/zombie-game:windows
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
