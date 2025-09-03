@@ -68,10 +68,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to itch.io
-        uses: manleydev/butler-publish-itchio-action@master
-        with:
-          butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
-          gameData: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
-          itchUsername: theoscreation
-          itchGameId: zombie-game
-          channel: windows
+  	uses: manleydev/butler-publish-itchio-action@master
+  	with:
+    		entryPoint: butler
+    		args: push "NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip" theoscreation/zombie-game:windows
+  	env:
+    		BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
