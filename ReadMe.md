@@ -2,7 +2,7 @@
 
 **NecroStrike** is a solo-developed survival-action game where players must infiltrate dangerous locations, survive waves of zombies, complete missions, and collect weapon attachments to upgrade their arsenal. The game combines tense survival mechanics, a modular weapon system, and immersive audio to deliver a thrilling and dynamic experience.  
 
-![NecroStrike Logo](link-to-logo-or-screenshot)
+![NecroStrike Logo](https://github.com/TheosCreation/NecroStrike/blob/main/Assets/Textures/GameIcon.png)
 
 ---
 
