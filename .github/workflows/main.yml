@@ -2,8 +2,7 @@ name: Build project
 
 on:
   push:
-    tags:
-      - 'v*.*.*' # e.g. v0.1.0
+    tags: ['v*.*.*']
 
 permissions:
   contents: write
@@ -15,8 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        targetPlatform:
-          - StandaloneWindows64
+        targetPlatform: [StandaloneWindows64]
 
     steps:
       - uses: actions/checkout@v4
@@ -48,48 +46,23 @@ jobs:
 
       - name: Set version
         id: version
-        run: |
-          # Use tag name as version
-          echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        run: echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
-       - name: Zip build
-        env:
-          ZIP_NAME: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+      - name: Zip build
         run: |
           cd build/${{ matrix.targetPlatform }}
-          zip -r "${{ github.workspace }}/${ZIP_NAME}" .
+          zip -r "${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip" .
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.version.outputs.version }}
-          name: NecroStrike-${{ steps.version.outputs.version }}
-          files: ${{ github.workspace }}/${{ env.ZIP_NAME }}
-          fail_if_no_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload to itch.io
-        uses: manleydev/butler-publish-itchio-action@master
-        env:
-          ZIP_NAME: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
-          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        with:
-          entryPoint: butler
-          args: >
-            push "/github/workspace/${ZIP_NAME}"
-            theoscreation/zombie-game:windows
-            --userversion "NecroStrike-${{ steps.version.outputs.version }}"
       - name: Verify archive
         run: ls -l "${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-            tag_name: ${{ steps.version.outputs.version }}
-            name: NecroStrike-${{ steps.version.outputs.version }}
-            files: ${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
-            fail_if_no_files: true
+          tag_name: ${{ steps.version.outputs.version }}
+          name: NecroStrike-${{ steps.version.outputs.version }}
+          files: ${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+          fail_if_no_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -98,7 +71,7 @@ jobs:
         with:
           entryPoint: butler
           args: >
-            push "${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip"
+            push "/github/workspace/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip"
             theoscreation/zombie-game:windows
             --userversion "NecroStrike-${{ steps.version.outputs.version }}"
         env:
