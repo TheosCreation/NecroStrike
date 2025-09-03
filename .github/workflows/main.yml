@@ -4,12 +4,6 @@ on:
   push:
     tags:
       - 'v*.*.*' # e.g. v0.1.0
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version name (e.g. v0.1.0)'
-        required: true
-        default: 'v0.1.0'
 
 # 👇 Needed so GITHUB_TOKEN can publish releases
 permissions:
@@ -53,38 +47,31 @@ jobs:
           name: Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
 
-    - name: Zip build
-      run: |
-       cd build/${{ matrix.targetPlatform }}
-       zip -r ../../NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip .
-
-      # Define version for release (tag if push, input if manual)
       - name: Set version
         id: version
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          fi
+          # Use tag name as version
+          echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
-      # Create GitHub Release
+      - name: Zip build
+        run: |
+          cd build/${{ matrix.targetPlatform }}
+          zip -r ../../NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip .
+
       - name: Create Release
-  	uses: softprops/action-gh-release@v1
-  	with:
-  	  tag_name: ${{ steps.version.outputs.version }}
-  	  name: NecroStrike-${{ steps.version.outputs.version }}
-  	  files: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
- 	 env:
- 	   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: NecroStrike-${{ steps.version.outputs.version }}
+          files: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload to itch.io
       - name: Upload to itch.io
-  	uses: manleydev/butler-publish-itchio-action@master
- 	 with:
- 	   butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
-  	  gameData: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
-  	  itchUsername: theoscreation
-  	  itchGameId: zombie-game
- 	   channel: windows
-
+        uses: manleydev/butler-publish-itchio-action@master
+        with:
+          butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
+          gameData: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+          itchUsername: theoscreation
+          itchGameId: zombie-game
+          channel: windows
