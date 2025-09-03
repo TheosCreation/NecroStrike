@@ -8,5 +8,8 @@
 
 ## Reporting a Vulnerability
 
-If you suspect there is any vulnerablities then go to Issues tab and submit a Security Vulnerability issue
-If there is a bug that you have found go to Issues tab and submit a Bug Report issue
+If you suspect a security vulnerability, please submit a Security Vulnerability issue in the Issues tab.
+
+If you discover a non-security bug, please submit a Bug Report issue in the Issues tab.
+
+When reporting a security vulnerability, include as much detail as possible without exposing sensitive data or full exploit code. This helps us address the issue quickly and safely.
