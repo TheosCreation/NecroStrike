@@ -252,7 +252,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""name"": ""Click"",
                     ""type"": ""Button"",
                     ""id"": ""6d86a60e-2ff3-441b-8aae-6ac2954f0766"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false

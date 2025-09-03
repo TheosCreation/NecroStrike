@@ -22,7 +22,7 @@ public class InputManager : Singleton<InputManager>
 
     [Range(0.0f, 0.5f)] public float mouseSmoothTime = 0.03f;
     Vector2 currentMouseDeltaVelocity = Vector2.zero;
-    private bool updateMouseDelta = true;
+    public bool updateMouseDelta = true;
 
     private readonly List<BufferedInput> inputBuffer = new();
     [SerializeField] private float inputBufferDuration = 3.0f; // the amount of time input actions states are stored in the buffer for, so sequences must be done withing 3 seconds
@@ -49,7 +49,7 @@ public class InputManager : Singleton<InputManager>
     {
         if (updateMouseDelta)
         {
-            Vector2 targetMouseDelta = PlayerInput.Look.ReadValue<Vector2>();
+            Vector2 targetMouseDelta = PlayerInput.MouseDelta.ReadValue<Vector2>();
 
             // Now smooth the mouse delta movement with unscaled time for best results
             currentMouseDelta = Vector2.SmoothDamp(currentMouseDelta, targetMouseDelta, ref currentMouseDeltaVelocity, mouseSmoothTime, Mathf.Infinity, Time.unscaledDeltaTime);
@@ -111,7 +111,6 @@ public class InputManager : Singleton<InputManager>
 
     public void DisableInGameInput()
     {
-        updateMouseDelta = false;
         currentMouseDelta = Vector2.zero;
         PlayerInput.Actions.Player.Disable();
         PlayerInput.Actions.Weapon.Disable();
@@ -119,7 +118,6 @@ public class InputManager : Singleton<InputManager>
 
     public void EnableInGameInput()
     {
-        updateMouseDelta = true;
         PlayerInput.Actions.Player.Enable();
         PlayerInput.Actions.Weapon.Enable();
     }

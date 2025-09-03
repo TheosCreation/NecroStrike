@@ -329,6 +329,7 @@ public class WeaponHolder : MonoBehaviour
             currentWeapon?.Unequip();
         }
         isMeleeing = true;
+        player.playerLook.ResetZoomLevel();
         meleeWeapon.gameObject.SetActive(true);
         meleeWeapon.Swing();
         currentWeapon = meleeWeapon;
@@ -337,6 +338,7 @@ public class WeaponHolder : MonoBehaviour
 
     private void EndMelee()
     {
+        player.playerMovement.ResetSprint();
         isMeleeing = false;
         meleeWeapon.gameObject.SetActive(false);
         if(previousWeapon == null)

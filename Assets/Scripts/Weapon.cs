@@ -19,11 +19,11 @@ public struct WeaponStatData
     public float recoilReduction; // 1 = no recoil reduction
     public float aimInTime;
     public float sprintToFireTime;
-    public float reloadTime;
+    public float reloadTimeMultiplier;
 
     public WeaponStatData(
         float _damage, float _rateOfFire, int _magSize, int _maxAmmoReserve, float _spread, float _penetration,
-        float _range, float _recoilReduction, float _aimInTime, float _sprintToFireTime, float _reloadTime)
+        float _range, float _recoilReduction, float _aimInTime, float _sprintToFireTime, float _reloadTimeMultiplier)
     {
         damage = _damage;
         fireRate = _rateOfFire;
@@ -35,7 +35,7 @@ public struct WeaponStatData
         recoilReduction = _recoilReduction;
         aimInTime = _aimInTime;
         sprintToFireTime = _sprintToFireTime;
-        reloadTime = _reloadTime;
+        reloadTimeMultiplier = _reloadTimeMultiplier;
     }
 }
 
@@ -94,7 +94,6 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     private float aimEndTime = 0f;
 
     public bool reloadingInProgress = false; // mirrors isReloading for clarity during transition
-    private float reloadEndTime = 0f;
 
     public bool inspectingInProgress = false;
     private float inspectEndTime = 0f;
@@ -172,11 +171,23 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         if (holder != null) PickUp(false);
         else Drop(0);
     }
+    protected virtual void OnEnable()
+    {
+        if (!animator) animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetBool("SingleRoundReloading", settings.singleRoundReloading);
+        }
+    }
 
     public int GetID() => settings.GetInstanceID();
 
     public void SetAnimationActive(bool active)
     {
+        if(animator != null)
+        {
+            animator.enabled = active;
+        }
         if (!active)
         {
             animationMotion.localPosition = Vector3.zero;
@@ -310,24 +321,27 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         {
             isReloading = true;
             reloadingInProgress = true;
-            reloadEndTime = Time.time + weaponStats.reloadTime;
             forceReload = false;
 
-            PlayReloadSound();
             animator.ResetTrigger("CancelReload");
-            animator.SetTrigger("Reload");
-            //if (holder) holder.player.playerMovement.canSprint = false;
-        }
-        if (reloadingInProgress && Time.time >= reloadEndTime)
-        {
-            isReloading = false;
-            reloadingInProgress = false;
+            CancelBoltAction();
 
-            if (holder && !isInspecting && !tryingToAim && !tryingToAttack && canResetSprint)
+            if (settings.singleRoundReloading)
             {
-                holder.player.playerMovement.ResetSprint();
+                PlayReloadSound();
+                animator.SetBool("Reload", true);
             }
-            FillMag();
+            else
+            {
+                PlayReloadSound();
+                animator.SetBool("Reload", true);
+            }
+        }
+
+        // Allow interrupt for shell-by-shell reloads
+        if (settings.singleRoundReloading && isReloading && tryingToAttack && ammoLeft > 0)
+        {
+            CancelReload();
         }
 
         // Attacking
@@ -439,6 +453,80 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     }
 
     private bool CanZoom() => isAiming && !isReloading;
+    public void LoadOne()
+    {
+        if (!settings.singleRoundReloading) return;
+
+        InsertOneRound();
+
+        if (!ShouldContinueSingleReload())
+        {
+            if (settings.reloadEndSound != null)
+            {
+                audioSource.PlayOneShot(settings.reloadEndSound);
+            }
+            else
+            {
+                Debug.LogWarning("Must assign reload end audio clip to weapon settings" + settings.name);
+            }
+            animator.SetBool("Reload", false);
+        }
+    }
+    private bool ShouldContinueSingleReload()
+    {
+        if (!settings.singleRoundReloading) return false;
+        if (!isReloading) return false;
+        if (ammoLeft >= weaponStats.magSize) return false;
+        if (ammoReserve <= 0) return false;
+        if (tryingToAttack && ammoLeft > 0) return false; // let player shoot if they can
+        return true;
+    }
+
+    private bool InsertOneRound()
+    {
+        if (ammoLeft >= weaponStats.magSize || ammoReserve <= 0) return false;
+
+        ammoLeft += 1;
+        ammoReserve -= 1;
+
+        if(settings.loadOneSound != null)
+        {
+            audioSource.PlayOneShot(settings.loadOneSound);
+
+        }
+        else
+        {
+            Debug.LogWarning("Must assign load one ammo audio clip to weapon settings" + settings.name);
+        }
+
+        if (isHeld || isEquip)
+        {
+            UiManager.Instance.UpdateAmmoText(ammoLeft);
+            UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
+        }
+        return true;
+    }
+
+    public void EndReload()
+    {
+        if (reloadingInProgress)
+        {
+            animator.SetBool("Reload", false);
+            isReloading = false;
+            reloadingInProgress = false;
+
+            if (holder && !isInspecting && !tryingToAim && !tryingToAttack && canResetSprint)
+            {
+                holder.player.playerMovement.ResetSprint();
+            }
+
+            if (!settings.singleRoundReloading)
+            {
+                FillMag();
+
+            }
+        }
+    }
 
     public virtual void Inspect()
     {
@@ -475,66 +563,69 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     protected virtual void Attack()
     {
-        bool spawnedBulletTrail = false;
-        Vector3 shootDirection = holder.player.playerLook.playerCamera.transform.forward;
+        int shots = Mathf.Max(1, settings.shotsPerFire);
 
-        if (!isAiming)
-        {
-            shootDirection.x += Random.Range(-currentSpread, currentSpread);
-            shootDirection.y += Random.Range(-currentSpread, currentSpread);
-            shootDirection.z += Random.Range(-currentSpread, currentSpread);
-            shootDirection.Normalize();
-        }
-        if (settings.firemode == Firemode.Single)
-        {
-            singleFireLatch = true;
-        }
-
+        bool anyPelletHit = false;
         Vector3 startPosition = holder.player.playerLook.playerCamera.transform.position;
+        Vector3 baseDir = holder.player.playerLook.playerCamera.transform.forward;
 
-        Debug.DrawRay(startPosition, shootDirection * weaponStats.range, Color.red, 1f);
-        RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, weaponStats.range, settings.hitLayers);
-        Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+        if (settings.firemode == Firemode.Single) singleFireLatch = true;
 
-        BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
-        bool hitATrigger = false;
-
-        if (hits.Length > 0)
+        for (int i = 0; i < shots; i++)
         {
-            float remainingDamage = weaponStats.damage;
-            UiManager.Instance.FlashHitMarker();
+            Vector3 shootDirection = baseDir;
 
-            foreach (RaycastHit hit in hits)
+            if (!isAiming)
             {
-                if (hit.collider.isTrigger) { hitATrigger = true; continue; }
+                shootDirection.x += Random.Range(-currentSpread, currentSpread);
+                shootDirection.y += Random.Range(-currentSpread, currentSpread);
+                shootDirection.z += Random.Range(-currentSpread, currentSpread);
+                shootDirection.Normalize();
+            }
 
-                if (!spawnedBulletTrail)
+            Debug.DrawRay(startPosition, shootDirection * weaponStats.range, Color.red, 1f);
+            RaycastHit[] hits = Physics.RaycastAll(startPosition, shootDirection, weaponStats.range, settings.hitLayers);
+            Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+
+            BulletTrail bulletTrail = Instantiate(settings.bulletTrailPrefab, muzzleTransform.position, Quaternion.identity);
+            bool spawnedBulletTrail = false;
+            bool hitATrigger = false;
+
+            if (hits.Length > 0)
+            {
+                float remainingDamage = weaponStats.damage;
+
+                foreach (RaycastHit hit in hits)
                 {
-                    bulletTrail.Init(hit.point, hit.normal);
-                    spawnedBulletTrail = true;
+                    if (hit.collider.isTrigger) { hitATrigger = true; continue; }
+
+                    if (!spawnedBulletTrail)
+                    {
+                        bulletTrail.Init(hit.point, hit.normal);
+                        spawnedBulletTrail = true;
+                    }
+
+                    HandleHit(hit, remainingDamage, bulletTrail);
+                    remainingDamage *= weaponStats.penetration;
+
+                    if (remainingDamage <= 0) break;
+                    if (hit.collider.gameObject.layer == 0) break;
                 }
 
-                HandleHit(hit, remainingDamage, bulletTrail);
-                remainingDamage *= weaponStats.penetration;
+                if (spawnedBulletTrail) anyPelletHit = true;
+            }
 
-                if (remainingDamage <= 0) break;
-                if (hit.collider.gameObject.layer == 0) break;
+            if (!spawnedBulletTrail)
+            {
+                // miss (either no hits or only triggers)
+                HandleMiss(startPosition, shootDirection, bulletTrail);
             }
         }
-        else
-        {
-            HandleMiss(startPosition, shootDirection, bulletTrail);
-            spawnedBulletTrail = true;
-        }
 
-        if (hitATrigger && !spawnedBulletTrail)
-        {
-            spawnedBulletTrail = true;
-            HandleMiss(startPosition, shootDirection, bulletTrail);
-        }
+        if (anyPelletHit) UiManager.Instance.FlashHitMarker();
 
         if (applyRecoil) ApplyRecoil();
-        TakeAmmoFromMag(1);
+        TakeAmmoFromMag(1); // only one ammo per shot
         holder.player.playerLook.CameraShake(settings.screenShakeAmount * motionReduction);
         PlayRandomFiringSound();
         SpawnRandomMuzzleFlash();
@@ -551,10 +642,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             tryingToAttack = false;
             if (settings.weaponClass == WeaponClass.Sniper) PullBolt();
         }
-        if (ammoLeft <= 0)
-        {
-            forceReload = true;
-        }
+        if (ammoLeft <= 0) forceReload = true;
     }
 
     protected void ApplyRecoil()
@@ -618,6 +706,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         PlayBoltActionSound();
         isBoltAction = true;
         animator.SetBool("BoltAction", true);
+        animator.ResetTrigger("CancelBoltAction");
         boltEndTime = Time.time + settings.boltActionLength;
     }
 
@@ -716,6 +805,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
     public void CancelReload()
     {
         animator.SetTrigger("CancelReload");
+        animator.SetBool("Reload", false);
         if (isReloading && reloadingInProgress)
         {
             audioSource.Stop();
@@ -797,7 +887,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             1f,
             settings.baseAimInTime,
             settings.baseSprintToFireDelay,
-            settings.baseReloadTime);
+            1.0f);
 
         foreach (WeaponPartSO.PartType part in GetWeaponPartTypeList())
         {

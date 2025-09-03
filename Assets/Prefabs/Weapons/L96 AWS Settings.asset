@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
   m_Name: L96 AWS Settings
   m_EditorClassIdentifier: 
-  baseRateOfFire: 60
+  baseRateOfFire: 0.7
+  shotsPerFire: 1
   baseSprintToFireDelay: 0.2
   baseFireToSprintDelay: 0.15
   weaponClass: 3
@@ -27,31 +28,34 @@ MonoBehaviour:
   screenShakeDuration: 0.1
   screenShakeAmount: 1
   penetrationFactor: 0.8
+  bulletImpact: 1
   burstCooldown: 1
   recoilResetTimeSeconds: 3
   recoilPattern: {fileID: 11400000, guid: e572114a4b6da0a4e8b36c6638b9a989, type: 2}
-  baseMagSize: 30
-  maxAmmoReserve: 260
+  baseMagSize: 5
+  baseMaxAmmoReserve: 260
   baseDamage: 750
   baseRange: 100
   headShotMultiplier: 1.5
   equipTime: 0.6
   inspectTime: 2.2
   spreadIncreasePerShot: 0.8
-  minSpread: 0.05
+  minSpread: 0.5
   maxSpread: 1
   spreadRecoverRate: 3
   baseAimInTime: 0.15
   aimingZoomLevel: 1.3
-  cameraZOffset: 0.26
+  cameraZOffset: 0.2
   aimingMoveReduction: 0.2
   aimingRecoilReduction: 0.5
-  baseReloadTime: 3
+  singleRoundReloading: 0
   boltDelay: 0.2
   boltActionLength: 0.5
   firingSounds:
   - {fileID: 8300000, guid: 6f5081526eb877942b528816635fb2f9, type: 3}
   reloadSound: {fileID: 8300000, guid: dea3cb81672d24d47b41b156b33fd090, type: 3}
+  loadOneSound: {fileID: 0}
+  reloadEndSound: {fileID: 0}
   aimInSound: {fileID: 8300000, guid: 8d13914dead02c342a47ec0f1e8090fa, type: 3}
   pickUpClip: {fileID: 8300000, guid: 556ae53dbfd634b4c92f8d27f1d0da8e, type: 3}
   boltAction: {fileID: 8300000, guid: f9574dc4fed03794bbec69c88c4bd709, type: 3}

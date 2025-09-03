@@ -8,6 +8,6 @@ public class Mag : Attachment
     public override void Apply(ref WeaponStatData weaponStatData)
     {
         weaponStatData.magSize = magSize;
-        weaponStatData.reloadTime *= reloadTimeMultiplier;
+        weaponStatData.reloadTimeMultiplier = reloadTimeMultiplier;
     }
 }

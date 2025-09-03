@@ -13,31 +13,31 @@ MonoBehaviour:
   m_Name: TransformDataStorage
   m_EditorClassIdentifier: 
   leftHandTransforms:
-  - localPosition: {x: -0.0509, y: -0.0806, z: 0.2987}
-    localRotation: {x: 0.51307917, y: 0.59023654, z: 0.51918143, w: -0.34470457}
-  - localPosition: {x: 0.0341, y: 0.1021, z: 0.0331}
-    localRotation: {x: 0.77279687, y: -0.00000005960461, z: 0.00000005960461, w: 0.63465345}
-  - localPosition: {x: 0.0107, y: 0.1, z: 0.0494}
-    localRotation: {x: 0.79985905, y: -0.000000029802308, z: 0.00000011920923, w: 0.6001879}
-  - localPosition: {x: -0.0263, y: 0.0816, z: 0.0429}
-    localRotation: {x: 0.7188206, y: 0.0025175505, z: 0.03363823, w: 0.6943768}
-  - localPosition: {x: -0.0074, y: 0.0936, z: 0.0462}
-    localRotation: {x: 0.7625912, y: -0.000000029802312, z: 0.00000014901156, w: 0.64688075}
-  - localPosition: {x: 0.0731, y: 0.024, z: 0.0248}
-    localRotation: {x: 0.52847147, y: 0.2772866, z: -0.33963633, w: 0.7269644}
+  - localPosition: {x: -0.0529, y: -0.0992, z: 0.1809}
+    localRotation: {x: 0.42211285, y: 0.6393774, z: 0.29595304, w: -0.570464}
+  - localPosition: {x: 0.0512, y: 0.1083, z: -0.0011}
+    localRotation: {x: 0.5829019, y: -0, z: 0.000000029802306, w: 0.8125426}
+  - localPosition: {x: 0.0267, y: 0.1092, z: 0.0056}
+    localRotation: {x: 0.52651834, y: -0.000000029802314, z: 0.000000029802314, w: 0.8501638}
+  - localPosition: {x: -0.031, y: 0.101, z: 0.0125}
+    localRotation: {x: 0.4170008, y: -0.00000005960463, z: 0.000000029802315, w: 0.9089061}
+  - localPosition: {x: -0.0109, y: 0.1054, z: 0.0094}
+    localRotation: {x: 0.5371995, y: 0.000000059604616, z: 0.000000059604616, w: 0.8434553}
+  - localPosition: {x: 0.0281, y: 0.0416, z: 0.0503}
+    localRotation: {x: -0, y: -0, z: -0, w: 1}
   rightHandTransforms:
-  - localPosition: {x: 0.0175, y: -0.0203, z: -0.1272}
-    localRotation: {x: 0.6535301, y: -0.31294584, z: -0.6074841, w: 0.3254633}
-  - localPosition: {x: -0.0386, y: 0.1196, z: -0.0022}
-    localRotation: {x: 0.34315237, y: 0.15583192, z: 0.15266524, w: 0.91359526}
-  - localPosition: {x: -0.0194, y: 0.0816, z: 0.0355}
-    localRotation: {x: 0.99150074, y: -0.0000003129243, z: 0.00000029802317, w: 0.13010114}
-  - localPosition: {x: 0.0274, y: 0.0543, z: 0.0402}
-    localRotation: {x: 0.9739446, y: -0.008138371, z: -0.12362541, w: 0.18995409}
-  - localPosition: {x: -0.0006, y: 0.0581, z: 0.0375}
+  - localPosition: {x: -0.0025, y: -0.1223, z: -0.1541}
+    localRotation: {x: 0.42063496, y: -0.46406826, z: -0.5000629, w: 0.5980335}
+  - localPosition: {x: -0.026299998, y: 0.12399992, z: 0.010899996}
+    localRotation: {x: 0.60252655, y: 0.0857718, z: 0.099620506, w: 0.78719807}
+  - localPosition: {x: -0.0099, y: 0.0977, z: 0.02489999}
+    localRotation: {x: 0.99150074, y: -0.00000031292427, z: 0.00000029802305, w: 0.13010111}
+  - localPosition: {x: 0.0264, y: 0.0666, z: 0.0273}
+    localRotation: {x: 0.91927433, y: -0.0000001452863, z: -0.00000025331968, w: 0.39361748}
+  - localPosition: {x: 0.0075, y: 0.0783, z: 0.0305}
     localRotation: {x: 0.982915, y: -0.00000026077024, z: 0.00000025331966, w: 0.18406017}
-  - localPosition: {x: -0.0658, y: 0.0352, z: 0.0298}
-    localRotation: {x: -0.28231415, y: -0.33058736, z: -0.43966395, w: -0.785943}
+  - localPosition: {x: -0.05659999, y: 0.055099994, z: 0.019399997}
+    localRotation: {x: -0.12760715, y: 0.028543191, z: -0.20932315, w: -0.9690643}
   attachmentPointTransforms:
   - localPosition: {x: 0, y: 0.08366403, z: -0.058349017}
     localRotation: {x: 0.00000032782555, y: 5.044854e-12, z: -8.269287e-12, w: 1}

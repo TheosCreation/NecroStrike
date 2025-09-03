@@ -54,6 +54,7 @@ MonoBehaviour:
   - {fileID: 5907892137367712189, guid: 84431d1d565232e4e992998a61d76c32, type: 3}
   - {fileID: 2764274788240866195, guid: af5d5cc5858479543910d088fa6e2d5c, type: 3}
   - {fileID: 1322863690021069834, guid: abf0cea13983ffa4e9a7bcbeaadda935, type: 3}
+  - {fileID: 4195224686179717827, guid: 306219d0f80631f40ad0168d1bdfeb41, type: 3}
   totalSpinTime: 3
   weaponDisplayInterval: 0.5
   weaponSpawnTransform: {fileID: 7312855269357683281}
@@ -84,6 +85,7 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

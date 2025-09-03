@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: 1911 Settings
   m_EditorClassIdentifier: 
   baseRateOfFire: 5
+  shotsPerFire: 1
   baseSprintToFireDelay: 0.2
   baseFireToSprintDelay: 0.15
   weaponClass: 2
@@ -26,12 +27,16 @@ MonoBehaviour:
     m_Bits: 513
   screenShakeDuration: 0.1
   screenShakeAmount: 0.5
+  offsetX: 0
+  offsetY: 0
+  offsetZ: 0
   penetrationFactor: 0.5
+  bulletImpact: 1
   burstCooldown: 1
   recoilResetTimeSeconds: 1
   recoilPattern: {fileID: 11400000, guid: e572114a4b6da0a4e8b36c6638b9a989, type: 2}
   baseMagSize: 8
-  maxAmmoReserve: 260
+  baseMaxAmmoReserve: 260
   baseDamage: 25
   baseRange: 100
   headShotMultiplier: 1.5
@@ -46,12 +51,14 @@ MonoBehaviour:
   cameraZOffset: 0.2
   aimingMoveReduction: 0.2
   aimingRecoilReduction: 0.5
-  baseReloadTime: 2.35
+  singleRoundReloading: 0
   boltDelay: 0.2
   boltActionLength: 0.5
   firingSounds:
   - {fileID: 8300000, guid: 2520234d2b2392244bf36703d14874e0, type: 3}
   reloadSound: {fileID: 8300000, guid: 7c4588a34155c794ab5aeb80284f5a26, type: 3}
+  loadOneSound: {fileID: 0}
+  reloadEndSound: {fileID: 0}
   aimInSound: {fileID: 8300000, guid: 8d13914dead02c342a47ec0f1e8090fa, type: 3}
   pickUpClip: {fileID: 8300000, guid: 556ae53dbfd634b4c92f8d27f1d0da8e, type: 3}
   boltAction: {fileID: 0}

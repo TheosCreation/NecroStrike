@@ -26,6 +26,7 @@ public class PlayerInput
     public InputActionState WeaponSwitch;
 
     public InputActionState Pause;
+    public InputActionState MouseDelta;
     //public InputActionState Respawn;
 
     //public InputActionState CheatKey;
@@ -111,6 +112,7 @@ public class PlayerInput
 
         Add(Actions.Player.Move, out Move);
         Add(Actions.Player.Look, out Look);
+        Add(Actions.Universal.MouseDelta, out MouseDelta);
         Add(Actions.Player.Shift, out Shift);
         Add(Actions.Player.Crouch, out Crouch);
         Add(Actions.Weapon.Reload, out Reload);

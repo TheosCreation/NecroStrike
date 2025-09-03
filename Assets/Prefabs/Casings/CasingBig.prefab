@@ -64,6 +64,7 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -136,7 +137,7 @@ MonoBehaviour:
   maximumZForce: 12
   minimumRotation: -360
   maximumRotation: 360
-  despawnTime: 2
+  despawnTime: 8
   casingSounds:
   - {fileID: 8300000, guid: ce061822bd3ea954799cd9ca8f267b30, type: 3}
   - {fileID: 8300000, guid: 448d5d92d435b104b86b680d06b949da, type: 3}
@@ -145,6 +146,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 736e1b0b2319b96489c058313f18eb2d, type: 3}
   audioSource: {fileID: 82444821930212418}
   spinSpeed: 2500
+  rb: {fileID: 0}
 --- !u!82 &82444821930212418
 AudioSource:
   m_ObjectHideFlags: 0

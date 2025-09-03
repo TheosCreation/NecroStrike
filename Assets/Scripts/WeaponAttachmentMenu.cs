@@ -144,7 +144,7 @@ public class WeaponAttachmentMenu : UiMenuPage
 
     private void RotateWeapon()
     {
-        Vector2 currentMouseDelta = InputManager.Instance.currentMouseDelta;
+            Vector2 currentMouseDelta = InputManager.Instance.currentMouseDelta;
         weaponAttachmentPoint.localEulerAngles += new Vector3(-currentMouseDelta.y, -currentMouseDelta.x, 0f) * rotateSpeed;
 
         float localEulerAnglesX = weaponAttachmentPoint.localEulerAngles.x;

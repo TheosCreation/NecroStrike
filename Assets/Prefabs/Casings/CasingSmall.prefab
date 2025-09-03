@@ -137,7 +137,7 @@ MonoBehaviour:
   maximumZForce: 12
   minimumRotation: -360
   maximumRotation: 360
-  despawnTime: 5
+  despawnTime: 8
   casingSounds:
   - {fileID: 8300000, guid: ce061822bd3ea954799cd9ca8f267b30, type: 3}
   - {fileID: 8300000, guid: 448d5d92d435b104b86b680d06b949da, type: 3}

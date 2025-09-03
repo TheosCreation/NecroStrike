@@ -156,6 +156,7 @@ public class PlayerLook : MonoBehaviour //MonoPrefsBehaviour
 
     private void Look()
     {
+        if(Time.deltaTime == 0) return;
         Vector2 currentMouseDelta = InputManager.Instance.currentMouseDelta;
 
 

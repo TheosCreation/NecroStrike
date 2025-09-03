@@ -23,6 +23,10 @@ public class MeleeWeapon : Weapon
         hitObject.GetComponent<Enemy>()?.SetLastHitPlayerReference(holder.player);
     }
 
+    protected override void OnEnable()
+    {
+        
+    }
     private void Start()
     {
         

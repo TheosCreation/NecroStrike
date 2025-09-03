@@ -6,6 +6,7 @@ public class WeaponSettings : ScriptableObject
     [Header("Attacking")]
     [Tooltip("Minimum force on Z axis")]
     public float baseRateOfFire = 700f;
+    public int shotsPerFire = 1;
     public float baseSprintToFireDelay = 0.2f;
     public float baseFireToSprintDelay = 0.15f;
     public WeaponClass weaponClass = WeaponClass.Rifle;
@@ -56,7 +57,8 @@ public class WeaponSettings : ScriptableObject
     public float aimingRecoilReduction = 0.5f;
 
     [Header("Reloading")]
-    public float baseReloadTime = 0.5f;
+    public bool singleRoundReloading = false;
+    //public float baseReloadTime = 0.5f;
 
     [Header("Bolt Action")]
     public float boltDelay = 0.2f;
@@ -65,6 +67,8 @@ public class WeaponSettings : ScriptableObject
     [Header("Audio")]
     public AudioClip[] firingSounds;
     public AudioClip reloadSound;
+    public AudioClip loadOneSound; //optional
+    public AudioClip reloadEndSound; //optional
     public AudioClip aimInSound;
     public AudioClip pickUpClip;
     public AudioClip boltAction; //optional
