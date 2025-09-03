@@ -53,6 +53,11 @@ jobs:
           name: Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
 
+    - name: Zip build
+      run: |
+       cd build/${{ matrix.targetPlatform }}
+       zip -r ../../NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip .
+
       # Define version for release (tag if push, input if manual)
       - name: Set version
         id: version
@@ -65,20 +70,21 @@ jobs:
 
       # Create GitHub Release
       - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.version.outputs.version }}
-          name: NecroStrike-${{ steps.version.outputs.version }}
-          files: build/${{ matrix.targetPlatform }}/**
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  	uses: softprops/action-gh-release@v1
+  	with:
+  	  tag_name: ${{ steps.version.outputs.version }}
+  	  name: NecroStrike-${{ steps.version.outputs.version }}
+  	  files: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+ 	 env:
+ 	   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Upload to itch.io
       - name: Upload to itch.io
-        uses: manleydev/butler-publish-itchio-action@master
-        with:
-          butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
-          gameData: build/${{ matrix.targetPlatform }}
-          itchUsername: theoscreation
-          itchGameId: zombie-game
-          channel: windows
+  	uses: manleydev/butler-publish-itchio-action@master
+ 	 with:
+ 	   butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
+  	  gameData: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+  	  itchUsername: theoscreation
+  	  itchGameId: zombie-game
+ 	   channel: windows
+
