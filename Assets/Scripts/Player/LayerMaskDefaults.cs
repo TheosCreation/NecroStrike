@@ -3,6 +3,7 @@ using UnityEngine;
 // Just a hard coded map of the layer mask yep for performance and usablity
 public enum LMD
 {
+    Default = 0,
     Weapons = 6,
     Player = 7,
     Environment = 13

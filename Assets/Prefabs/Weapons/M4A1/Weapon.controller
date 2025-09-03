@@ -594,10 +594,10 @@ AnimatorStateMachine:
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: -20, y: 0, z: 0}
-  m_EntryPosition: {x: 310, y: 270, z: 0}
+  m_EntryPosition: {x: 20, y: 270, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
-  m_DefaultState: {fileID: -5281192669351529538}
+  m_DefaultState: {fileID: -6738793142365056195}
 --- !u!1102 &7762511817649530769
 AnimatorState:
   serializedVersion: 6
@@ -605,7 +605,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: W_M4A1_ReloadEmpty
+  m_Name: Reload
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:

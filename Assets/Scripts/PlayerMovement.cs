@@ -42,9 +42,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float slideSlowRate = 0.5f;
 
     [Header("Crouch")]
-    [SerializeField] private float crouchHeight = 1.75f;      // capsule height while crouched
-    [SerializeField] private float standHeight = 3.5f;        // capsule height while standing
-    [SerializeField] private float cameraCrouchOffset = 0.625f;
+    [Range(0.01f, 1.0f)][SerializeField] private float crouchHeight = 0.5f;
 
     [Header("Setup")]
     public GroundCheck gc;
@@ -70,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
     [HideInInspector] public float currentTargetMoveSpeed;
     public Animator animator;
 
-    private CapsuleCollider playerCollider;
+    [HideInInspector] public CapsuleCollider playerCollider;
     private PlayerLook playerLook;
     private WeaponHolder weaponHolder;
 
@@ -97,6 +95,9 @@ public class PlayerMovement : MonoBehaviour
     private float longestSlide = 0f;
     private Vector3 velocityAfterSlide = Vector3.zero;
 
+    private Vector3 originalColliderCenter = Vector3.zero;
+    private float originalColliderHeight = 0f;
+
     // Removed systems
     private float slamForce = 0f; // retained as 0 for legacy math compatibility
 
@@ -113,8 +114,8 @@ public class PlayerMovement : MonoBehaviour
         landAudioSource = EnsureAudio(landAudioSource);
         if (fallSoundAudioSource == null) fallSoundAudioSource = EnsureAudio(null);
 
-        // capsule defaults
-        if (Mathf.Approximately(playerCollider.height, 0f)) playerCollider.height = standHeight;
+        originalColliderCenter = playerCollider.center;
+        originalColliderHeight = playerCollider.height;
     }
 
     private AudioSource EnsureAudio(AudioSource src)
@@ -202,10 +203,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         sprintingInput = InputManager.Instance.PlayerInput.Shift.IsPressed;
-        if (sprintingInput)
-        {
-            weaponHolder?.currentWeapon?.CancelReload();
-        }
         if (InputManager.Instance.PlayerInput.Shift.WasCanceledThisFrame) timeSinceSprintEnd = Time.time;
 
         // Slide input
@@ -231,7 +228,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 // End crouch
                 isCrouching = false;
-                SetCapsuleHeight(standHeight);
+                SetCapsuleHeight(1.0f);
                 isStanding = true;
             }
         }
@@ -256,8 +253,13 @@ public class PlayerMovement : MonoBehaviour
 
         // Sprint logic
         // external code should set sprintingInput; here we derive state
-        bool sprintAllowed = canSprint && gc.onGround && !isCrouching && !isSliding && inputDirection.sqrMagnitude > 0.01f;
+        bool sprintAllowed = canSprint && (gc.onGround || gc.sinceLastGrounded < 0.1f) && !isCrouching && !isSliding && inputDirection.sqrMagnitude > 0.01f;
         isSprinting = sprintingInput && sprintAllowed;
+
+        if (isSprinting)
+        {
+            weaponHolder?.currentWeapon?.CancelReload();
+        }
         if (!isSprinting && InputManager.Instance.PlayerInput.Shift.WasCanceledThisFrame)
         {
             // mark sprint end to gate weapon sprint-to-fire
@@ -489,10 +491,19 @@ public class PlayerMovement : MonoBehaviour
         else footStepAudioSource.PlayDelayed(delay);
     }
 
-    private void SetCapsuleHeight(float targetHeight)
+    private void SetCapsuleHeight(float multiplier)
     {
+        float targetHeight = originalColliderHeight * multiplier;
         playerCollider.height = targetHeight;
-        playerCollider.center = new Vector3(playerCollider.center.x, targetHeight / 2f, playerCollider.center.z);
+
+        // difference in height
+        float delta = originalColliderHeight - targetHeight;
+
+        // shift center downward by half the shrink
+        Vector3 targetCenter = originalColliderCenter;
+        targetCenter.y = originalColliderCenter.y - (delta * 0.5f);
+
+        playerCollider.center = targetCenter;
     }
 
 
@@ -543,7 +554,7 @@ public class PlayerMovement : MonoBehaviour
         isSliding = false;
 
         // Reset collider height
-        SetCapsuleHeight(standHeight);
+        SetCapsuleHeight(1.0f);
 
         // Reset slide tracking
         if (slideLength > longestSlide) longestSlide = slideLength;
@@ -581,26 +592,6 @@ public class PlayerMovement : MonoBehaviour
     private void ResetSlide()
     {
         canSlide = true;
-    }
-
-    private void TryStandFromCrouch()
-    {
-        Vector3 basePoint = new Vector3(playerCollider.bounds.center.x, playerCollider.bounds.min.y, playerCollider.bounds.center.z);
-        bool blocked = Physics.Raycast(basePoint, Vector3.up, standHeight, environmentMask, QueryTriggerInteraction.Ignore)
-                       || Physics.SphereCast(new Ray(basePoint + Vector3.up * 0.25f, Vector3.up), 0.5f, 2f, environmentMask, QueryTriggerInteraction.Ignore);
-
-        if (!blocked)
-        {
-            playerCollider.height = standHeight;
-            gc.transform.localPosition = groundCheckPos;
-            //playerLook.defaultTarget = playerLook.originalPos;
-            isCrouching = false;
-            isStanding = true;
-        }
-        else
-        {
-            isCrouching = true;
-        }
     }
 
     public void ResetSprint()

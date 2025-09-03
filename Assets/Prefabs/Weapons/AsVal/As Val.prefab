@@ -424,14 +424,24 @@ MonoBehaviour:
   isHeld: 0
   isEquip: 0
   isAiming: 0
-  isAttacking: 0
+  tryingToAttack: 0
+  tryingToAim: 0
+  tryingToReload: 0
+  tryingToInspect: 0
   isReloading: 0
   isInspecting: 0
   isBoltAction: 0
   canResetSprint: 1
+  forceReload: 0
   settings: {fileID: 11400000, guid: 3d97fddbd3e2a634a8394846abd1465b, type: 2}
   currentSpread: 0
   recoil: {x: 0, y: 0}
+  equippingInProgress: 0
+  aimingInProgress: 0
+  reloadingInProgress: 0
+  inspectingInProgress: 0
+  fireToSprintCooldown: 0
+  animationMotion: {fileID: 0}
   IKRightHandPos: {fileID: 8743752340985472834}
   IKRightIndexPos: {fileID: 5113191189005016096}
   IKRightMiddlePos: {fileID: 6771298310953488499}
@@ -448,6 +458,7 @@ MonoBehaviour:
   defaultWeaponPartSOList:
   - {fileID: 11400000, guid: e3d670e2094610845b2e4794f6624742, type: 2}
   - {fileID: 11400000, guid: 8baa7a0a7e656eb4fafc4fc72d9bde7f, type: 2}
+  weaponBody: {fileID: 0}
 --- !u!114 &3337116250769456355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1160,6 +1171,10 @@ PrefabInstance:
     - target: {fileID: 7168299365768411835, guid: bf344e311090b93489c833ba6e605839, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8417361359673230750, guid: bf344e311090b93489c833ba6e605839, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

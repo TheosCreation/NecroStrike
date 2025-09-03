@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4090057083578430}
   - component: {fileID: 33638959841711246}
   - component: {fileID: 23636734963167240}
-  - component: {fileID: 8472866203932418400}
+  - component: {fileID: 2964433092748534194}
   m_Layer: 0
   m_Name: SM_Env_Grass_Square_01
   m_TagString: Untagged
@@ -61,6 +61,7 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -86,8 +87,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8472866203932418400
-BoxCollider:
+--- !u!64 &2964433092748534194
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -104,6 +105,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 20.738586, y: 0.52196157, z: 19.22613}
-  m_Center: {x: -0.0000028610227, y: -0.05, z: 0}
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: e330da6f6bba5a64697a4388734c932e, type: 3}

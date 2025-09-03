@@ -30,7 +30,7 @@ public class WeaponSettings : ScriptableObject
 
     [Header("Ammo and Damage")]
     public int baseMagSize = 30;
-    public int maxAmmoReserve = 260;
+    public int baseMaxAmmoReserve = 260;
     public float baseDamage = 50.0f;
     public float baseRange = 100.0f;
     public float headShotMultiplier = 1.5f;

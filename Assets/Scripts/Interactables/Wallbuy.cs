@@ -10,6 +10,8 @@ public class Wallbuy : MonoBehaviour, IInteractable
     void Awake()
     {
         Destroy(tempGameObject);
+        tempGameObject = null;
+
         // Instantiate the weapon prefab and set its parent to this GameObject
         GameObject weaponBase = Instantiate(weaponToSell.GetWeaponBodyBase(), transform);
         weaponBase.transform.localPosition = Vector3.zero;
@@ -32,7 +34,7 @@ public class Wallbuy : MonoBehaviour, IInteractable
         Weapon weapon = player.weaponHolder.HasWeapon(weaponToSell);
         if (weapon)
         {
-            if (player.Points >= refillCost)
+            if (player.Points >= refillCost && weapon.IsReserveOrMagNotFill())
             {
                 player.Points -= refillCost;
                 weapon.FillReserve();

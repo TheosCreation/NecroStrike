@@ -280,38 +280,16 @@ public class PlayerLook : MonoBehaviour //MonoPrefsBehaviour
             defaultPos = Vector3.MoveTowards(defaultPos, defaultTarget, ((defaultTarget - defaultPos).magnitude + 0.5f) * Time.unscaledDeltaTime * 10f);
         }
 
+        playerCamera.transform.localPosition = new Vector3(
+                Mathf.MoveTowards(playerCamera.transform.localPosition.x, cameraTargetLocalPosition.x, Time.unscaledDeltaTime),
+                Mathf.MoveTowards(playerCamera.transform.localPosition.y, cameraTargetLocalPosition.y, Time.unscaledDeltaTime),
+                Mathf.MoveTowards(playerCamera.transform.localPosition.z, cameraTargetLocalPosition.z, Time.unscaledDeltaTime)
+        );
+
         if (!playerMovement.isActiveAndEnabled || cameraShaking > 0f)
         {
             return;
         }
-
-        //if (playerMovement.isWalking && playerMovement.isStanding && defaultPos == defaultTarget)
-        //{
-        //    float speedFactor = Mathf.Min(playerMovement.rb.linearVelocity.magnitude, bobbingSpeedFactor) / bobbingSpeedFactor;
-
-        //    playerCamera.transform.localPosition = new Vector3(
-        //        Mathf.MoveTowards(playerCamera.transform.localPosition.x, targetPos.x, Time.unscaledDeltaTime * 0.5f),
-        //        Mathf.MoveTowards(playerCamera.transform.localPosition.y, targetPos.y, Time.unscaledDeltaTime * 0.5f * speedFactor),
-        //        Mathf.MoveTowards(playerCamera.transform.localPosition.z, targetPos.z, Time.unscaledDeltaTime * 0.5f)
-        //    );
-
-        //    if (playerCamera.transform.localPosition == targetPos)
-        //    {
-        //        if (targetPos != defaultPos)
-        //        {
-        //            targetPos = defaultPos;
-        //        }
-        //        else
-        //        {
-        //            targetPos = new Vector3(defaultPos.x, defaultPos.y - offsetY, defaultPos.z);
-        //        }
-        //    }
-        //}
-        //else
-        //{
-        //    playerCamera.transform.localPosition = defaultPos;
-        //    targetPos = new Vector3(defaultPos.x, defaultPos.y - offsetY, defaultPos.z);
-        //}
     }
 
 

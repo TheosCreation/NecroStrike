@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 
 public class WeaponAnim : MonoBehaviour
 {
+    [SerializeField] private float maxPositionOffset = 0.5f;
+    [SerializeField] private float maxRotationAngle = 1f;
+
     [Header("Weapon Sway")]
     [SerializeField] private float positionalSway = 1f;
     [SerializeField] private float rotationalSway = 1f;
@@ -96,16 +99,34 @@ public class WeaponAnim : MonoBehaviour
             velocityOffsetMultiplierLocal *= 0.1f;
         }
         CalculateSway();
-        // Velocity sway
-        Vector3 localVelocity = playerController.playerLook.playerCamera.transform.InverseTransformDirection(movement.rb.linearVelocity);
+        // velocity sway
+        Vector3 localVelocity = playerController.playerLook.playerCamera.transform
+            .InverseTransformDirection(movement.rb.linearVelocity);
+
         velocityOffset = Vector3.ClampMagnitude(-localVelocity * velocityOffsetMultiplierLocal, maxVelocityOffsetLocal);
         currentOffset = Vector3.Lerp(currentOffset, velocityOffset, Time.deltaTime * timeScale);
         currentSwayOffset = Vector3.Lerp(currentSwayOffset, swayPositionOffset, Time.deltaTime * swaySmoothness);
 
-        transform.localPosition = bobbingPosition + currentOffset + currentSwayOffset;
+        // clamp final position offset
+        Vector3 finalPosOffset = currentOffset + currentSwayOffset;
+        finalPosOffset = Vector3.ClampMagnitude(finalPosOffset, maxPositionOffset);
 
+        transform.localPosition = bobbingPosition + finalPosOffset;
+
+        // rotation
         Quaternion finalRotation = initialRotation * swayRotationOffset;
-        transform.localRotation = Quaternion.Lerp(transform.localRotation, finalRotation, Time.deltaTime * swaySmoothness);
+
+        // clamp rotation offset by angle
+        Quaternion targetRot = Quaternion.Lerp(transform.localRotation, finalRotation, Time.deltaTime * swaySmoothness);
+        float angle;
+        Vector3 axis;
+        targetRot.ToAngleAxis(out angle, out axis);
+        if (angle > maxRotationAngle)
+        {
+            targetRot = Quaternion.AngleAxis(maxRotationAngle, axis);
+        }
+
+        transform.localRotation = targetRot;
     }
     private void CalculateSway()
     {

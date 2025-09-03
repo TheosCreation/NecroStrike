@@ -133,6 +133,14 @@ public class WeaponHolder : MonoBehaviour
             transformToAttachWeapon = aimingPos;
         }
 
+        if (Debug.isDebugBuild && InputManager.Instance.PlayerInput.F1.WasPerformedThisFrame)
+        {
+            if (currentWeapon != null)
+            {
+                currentWeapon.CalculateWeaponStats();
+            }
+        }
+
 
         if (canAttach)
         {

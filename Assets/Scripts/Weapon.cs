@@ -14,6 +14,7 @@ public struct WeaponStatData
     public float damage;
     public float fireRate;
     public int magSize;
+    public int maxAmmoReserve;
     public float spread;          // multiplier of max and min spreads
     public float penetration;     // 1 = no damage loss targetHit
     public float range;
@@ -23,12 +24,13 @@ public struct WeaponStatData
     public float reloadTime;
 
     public WeaponStatData(
-        float _damage, float _rateOfFire, int _magSize, float _spread, float _penetration,
+        float _damage, float _rateOfFire, int _magSize, int _maxAmmoReserve, float _spread, float _penetration,
         float _range, float _recoilReduction, float _aimInTime, float _sprintToFireTime, float _reloadTime)
     {
         damage = _damage;
         fireRate = _rateOfFire;
         magSize = _magSize;
+        maxAmmoReserve = _maxAmmoReserve;
         spread = _spread;
         penetration = _penetration;
         range = _range;
@@ -217,7 +219,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     public void Equip()
     {
-        animator.SetTrigger("Equip");
+        //animator.SetTrigger("Equip");
         equippingInProgress = true;
         equipEndTime = Time.time + settings.equipTime;
 
@@ -638,10 +640,13 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         UiManager.Instance.UpdateAmmoText(ammoLeft);
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
-
+    public bool IsReserveOrMagNotFill()
+    {
+        return ammoReserve < weaponStats.maxAmmoReserve || ammoLeft < weaponStats.magSize;
+    }
     public void FillReserve()
     {
-        ammoReserve = settings.maxAmmoReserve;
+        ammoReserve = weaponStats.maxAmmoReserve;
         if (!isHeld && !isEquip) return;
         UiManager.Instance.UpdateAmmoReserveText(ammoReserve);
     }
@@ -711,12 +716,13 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     public void CancelReload()
     {
-        if (isReloading || reloadingInProgress)
+        if (reloadingInProgress)
         {
             isReloading = false;
             reloadingInProgress = false;
             if (holder) holder.player.playerMovement.canSprint = true;
             audioSource.Stop();
+
             animator.SetTrigger("CancelReload");
         }
     }
@@ -780,12 +786,13 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     public string GetInteractionText(PlayerController player) => $"Pick up {gameObject.name}";
 
-    private void CalculateWeaponStats()
+    public void CalculateWeaponStats()
     {
         weaponStats = new WeaponStatData(
             settings.baseDamage,
             settings.baseRateOfFire,
             settings.baseMagSize,
+            settings.baseMaxAmmoReserve,
             1f,
             settings.penetrationFactor,
             settings.baseRange,
@@ -805,7 +812,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             }
             else
             {
-                Debug.Log($"Attachment does not have Attachment script: {spawnedTranform.name}");
+                //Debug.Log($"Attachment does not have Attachment script: {spawnedTranform.name}");
             }
         }
 

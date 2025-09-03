@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f15e3bbf3f90f34d815668637c9590f, type: 3}
   m_Name: M4A1 V2 Settings
   m_EditorClassIdentifier: 
-  baseRateOfFire: 700
+  baseRateOfFire: 11.666
   baseSprintToFireDelay: 0.2
   baseFireToSprintDelay: 0.15
   weaponClass: 0
@@ -31,7 +31,7 @@ MonoBehaviour:
   recoilResetTimeSeconds: 1
   recoilPattern: {fileID: 11400000, guid: 48bc54b6f09563d42a92435d568a2e0a, type: 2}
   baseMagSize: 30
-  maxAmmoReserve: 260
+  baseMaxAmmoReserve: 260
   baseDamage: 65
   baseRange: 100
   headShotMultiplier: 1.5
@@ -42,11 +42,11 @@ MonoBehaviour:
   maxSpread: 0.25
   spreadRecoverRate: 4
   baseAimInTime: 0.15
-  aimingZoomLevel: 1.2
-  cameraZOffset: 0.28
+  aimingZoomLevel: 1.3
+  cameraZOffset: 0.25
   aimingMoveReduction: 0.2
   aimingRecoilReduction: 0.5
-  baseReloadTime: 0.5
+  baseReloadTime: 2.3
   boltDelay: 0.2
   boltActionLength: 0.5
   firingSounds:
