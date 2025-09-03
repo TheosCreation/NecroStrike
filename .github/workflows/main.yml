@@ -48,12 +48,22 @@ jobs:
           name: Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
 
+      # Define version for release (tag if push, input if manual)
+      - name: Set version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
       # Create GitHub Release
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.event.inputs.version || github.ref_name }}
-          name: NecroStrike-${{ github.event.inputs.version || github.ref_name }}
+          tag_name: ${{ steps.version.outputs.version }}
+          name: NecroStrike-${{ steps.version.outputs.version }}
           files: build/${{ matrix.targetPlatform }}/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
