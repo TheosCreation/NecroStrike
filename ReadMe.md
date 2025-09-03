@@ -13,7 +13,15 @@
 - **Weapon Customization:** Upgrade and personalize your weapons using modular attachments to suit your playstyle.  
 - **Progression System:** Earn rewards for surviving waves and completing missions, unlocking new strategies and equipment.  
 - **Immersive Audio:** Experience high-quality sound effects and music that heighten tension and engagement.  
-- **Optional Steam Integration:** Basic Steam features are currently included, with plans to expand achievements, leaderboards, and multiplayer support.  
+- **Optional Steam Integration:** Basic Steam features are currently included, with plans to expand achievements, leaderboards, and multiplayer support.
+
+[Watch Gameplay Video](https://example.com/gameplay-video)
+
+---
+
+## 🎮 Play NecroStrike
+
+Try the game now on [itch.io](https://theoscreation.itch.io/zombie-game)
 
 ---
 
