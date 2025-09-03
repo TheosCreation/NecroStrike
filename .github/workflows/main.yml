@@ -52,11 +52,34 @@ jobs:
           # Use tag name as version
           echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
 
-      - name: Zip build
+       - name: Zip build
+        env:
+          ZIP_NAME: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
         run: |
           cd build/${{ matrix.targetPlatform }}
-          zip -r "${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip" .
+          zip -r "${{ github.workspace }}/${ZIP_NAME}" .
 
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: NecroStrike-${{ steps.version.outputs.version }}
+          files: ${{ github.workspace }}/${{ env.ZIP_NAME }}
+          fail_if_no_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to itch.io
+        uses: manleydev/butler-publish-itchio-action@master
+        env:
+          ZIP_NAME: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        with:
+          entryPoint: butler
+          args: >
+            push "/github/workspace/${ZIP_NAME}"
+            theoscreation/zombie-game:windows
+            --userversion "NecroStrike-${{ steps.version.outputs.version }}"
       - name: Verify archive
         run: ls -l "${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip"
 
