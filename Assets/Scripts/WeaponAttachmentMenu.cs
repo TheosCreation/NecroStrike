@@ -67,27 +67,18 @@ public class WeaponAttachmentMenu : UiMenuPage
             weapon.SetAnimationActive(false);
 
             weapon.gameObject.SetActive(true);// set the weapon active for the preview
+
             // Generate preview texture for the weapon
-            Texture2D previewTexture = AssetPreview.GetAssetPreview(weapon.gameObject);
+            Sprite previewSprite = GenerateWeaponPreview(weapon);
 
-            // Check if the preview texture is generated
-            if (previewTexture != null)
-            {
-                // Ensure that texture has alpha support and enable transparency
-                previewTexture.alphaIsTransparency = true;
+            // Create a new button for this weapon (assuming InventoryButton is a class with a Button reference)
+            InventoryButton newButton = Instantiate(inventoryButtonPrefab, attachButtonsTransform);
+            buttons.Add(newButton);
+            newButton.SetText(weapon.name);
 
-                // Create a new button for this weapon (assuming InventoryButton is a class with a Button reference)
-                InventoryButton newButton = Instantiate(inventoryButtonPrefab, attachButtonsTransform);
-                buttons.Add(newButton);
-                newButton.SetText(weapon.name);
+            newButton.button.image.sprite = previewSprite;
 
-                // Set the button's image using the generated preview texture with transparency
-                newButton.button.image.sprite = Sprite.Create(previewTexture,
-                    new Rect(0, 0, previewTexture.width, previewTexture.height),
-                    new Vector2(0.5f, 0.5f));
-
-                newButton.button.onClick.AddListener(() => EnableWeaponObject(weapon));
-            }
+            newButton.button.onClick.AddListener(() => EnableWeaponObject(weapon));
 
             // Attach the weapon to the correct attachment point in the scene
             weapon.transform.parent = weaponAttachmentPoint;
@@ -101,6 +92,33 @@ public class WeaponAttachmentMenu : UiMenuPage
 
         player.weaponHolder.SelectCurrentWeapon();
     }
+
+    private Sprite GenerateWeaponPreview(Weapon weapon)
+    {
+        Camera previewCamera = new GameObject("PreviewCamera").AddComponent<Camera>();
+        previewCamera.enabled = false;
+        RenderTexture rt = new RenderTexture(256, 256, 16);
+        previewCamera.targetTexture = rt;
+
+        // Position/rotate camera
+        previewCamera.transform.position = weapon.transform.position + new Vector3(0, 0, -2f);
+        previewCamera.transform.LookAt(weapon.transform);
+
+        previewCamera.Render();
+
+        RenderTexture.active = rt;
+        Texture2D tex = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
+        tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+        tex.Apply();
+
+        RenderTexture.active = null;
+        previewCamera.targetTexture = null;
+        Destroy(rt);
+        Destroy(previewCamera.gameObject);
+
+        return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+    }
+
     private void StartRotating()
     {
         isRotating = true;
