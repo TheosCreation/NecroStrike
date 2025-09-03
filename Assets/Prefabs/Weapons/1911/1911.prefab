@@ -102,6 +102,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7984689983058611515}
+  - component: {fileID: 4433691234339311200}
   m_Layer: 6
   m_Name: Left Hand Target
   m_TagString: Untagged
@@ -129,6 +130,33 @@ Transform:
   - {fileID: 4367175073600430912}
   m_Father: {fileID: 3164287741261717058}
   m_LocalEulerAnglesHint: {x: 187.979, y: -391.49, z: -465.022}
+--- !u!1773428102 &4433691234339311200
+ParentConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 870779319464882863}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Weight: 1
+  m_TranslationAtRest: {x: -0.04369998, y: -0.09590006, z: -0.041699886}
+  m_RotationAtRest: {x: 249.337, y: -350.358, z: -478.09302}
+  m_TranslationOffsets:
+  - {x: -0.05, y: 0.14, z: 0}
+  m_RotationOffsets:
+  - {x: 0, y: 0, z: 0}
+  m_AffectTranslationX: 1
+  m_AffectTranslationY: 1
+  m_AffectTranslationZ: 1
+  m_AffectRotationX: 1
+  m_AffectRotationY: 1
+  m_AffectRotationZ: 1
+  m_Active: 0
+  m_IsLocked: 0
+  m_Sources:
+  - sourceTransform: {fileID: 1707167764377419207}
+    weight: 1
 --- !u!1 &1480442323639566345
 GameObject:
   m_ObjectHideFlags: 0
@@ -354,7 +382,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 22100000, guid: cad1737bc0fa34b42bffd784cf258d87, type: 2}
-  m_CullingMode: 1
+  m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -416,8 +444,7 @@ MonoBehaviour:
   IKLeftRingPos: {fileID: 3613078240338743412}
   IKLeftThumbPos: {fileID: 4367175073600430912}
   applyRecoil: 1
-  defaultWeaponPartSOList:
-  - {fileID: 11400000, guid: c22cb605a57a0094bb72452f4c515058, type: 2}
+  defaultWeaponPartSOList: []
   weaponBody: {fileID: 1371430409247603381}
 --- !u!114 &1371430409247603381
 MonoBehaviour:
@@ -549,6 +576,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7412041843560336715}
+  - component: {fileID: 3868322224587735728}
   m_Layer: 6
   m_Name: Right Hand Target
   m_TagString: Untagged
@@ -576,6 +604,33 @@ Transform:
   - {fileID: 19346196484871663}
   m_Father: {fileID: 3164287741261717058}
   m_LocalEulerAnglesHint: {x: 0.722, y: -82.249, z: -84.908}
+--- !u!1773428102 &3868322224587735728
+ParentConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3113066669480661072}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Weight: 1
+  m_TranslationAtRest: {x: -0.0012000203, y: -0.043200016, z: -0.07909989}
+  m_RotationAtRest: {x: 5, y: -77.263, z: -80.978}
+  m_TranslationOffsets:
+  - {x: 0, y: 0, z: 0}
+  m_RotationOffsets:
+  - {x: 0, y: 0, z: 0}
+  m_AffectTranslationX: 1
+  m_AffectTranslationY: 1
+  m_AffectTranslationZ: 1
+  m_AffectRotationX: 1
+  m_AffectRotationY: 1
+  m_AffectRotationZ: 1
+  m_Active: 0
+  m_IsLocked: 0
+  m_Sources:
+  - sourceTransform: {fileID: 0}
+    weight: 1
 --- !u!1 &3451687595890264974
 GameObject:
   m_ObjectHideFlags: 0
@@ -1200,6 +1255,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff309b6e1d0be2f4faff02fb880f3164, type: 3}
+--- !u!4 &1707167764377419207 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4859998772208819986, guid: ff309b6e1d0be2f4faff02fb880f3164, type: 3}
+  m_PrefabInstance: {fileID: 6107790576283935445}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6001471285725267262 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ff309b6e1d0be2f4faff02fb880f3164, type: 3}

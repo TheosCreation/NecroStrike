@@ -272,7 +272,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         if (equippingInProgress && Time.time >= equipEndTime) FinishEquip();
 
         // Aiming state machine
-        if (tryingToAim && !isReloading && !isBoltAction)
+        if (tryingToAim && !isReloading)
         {
             if (!isAiming && !aimingInProgress)
             {
@@ -314,8 +314,9 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
             forceReload = false;
 
             PlayReloadSound();
+            animator.ResetTrigger("CancelReload");
             animator.SetTrigger("Reload");
-            if (holder) holder.player.playerMovement.canSprint = false;
+            //if (holder) holder.player.playerMovement.canSprint = false;
         }
         if (reloadingInProgress && Time.time >= reloadEndTime)
         {
@@ -437,7 +438,7 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
         return Time.time >= lastShotTime + timeBetweenShots;
     }
 
-    private bool CanZoom() => isAiming && !isReloading && !isBoltAction;
+    private bool CanZoom() => isAiming && !isReloading;
 
     public virtual void Inspect()
     {
@@ -714,15 +715,14 @@ public class Weapon : MonoBehaviour, IInteractable, IPausable
 
     public void CancelReload()
     {
-        if (reloadingInProgress)
+        animator.SetTrigger("CancelReload");
+        if (isReloading && reloadingInProgress)
         {
-            isReloading = false;
-            reloadingInProgress = false;
-            if (holder) holder.player.playerMovement.canSprint = true;
             audioSource.Stop();
 
-            animator.SetTrigger("CancelReload");
         }
+        isReloading = false;
+        reloadingInProgress = false;
     }
 
     public void SetPart(WeaponPartSO weaponPartSO)

@@ -20,6 +20,7 @@ public class WeaponSettings : ScriptableObject
 
     [Header("Penetration")]
     public float penetrationFactor = 0.5f;
+    public float bulletImpact = 1.0f;
 
     [Header("Burst Firing")]
     public float burstCooldown = 1f;

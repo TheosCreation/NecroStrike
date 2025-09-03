@@ -72,7 +72,7 @@ jobs:
           entryPoint: butler
           args: >
             push "NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip"
-            theoscreation/necrostrike:windows
+            theoscreation/zombie-game:windows
             --userversion "NecroStrike-${{ steps.version.outputs.version }}"
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}

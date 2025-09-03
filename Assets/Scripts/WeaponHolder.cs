@@ -128,7 +128,7 @@ public class WeaponHolder : MonoBehaviour
         if(InputManager.Instance.PlayerInput.Melee.WasPerformedThisFrame) Melee();
 
         Transform transformToAttachWeapon = idlePos;
-        if (tryingToAim && !currentWeapon.isReloading && !currentWeapon.isBoltAction)
+        if (tryingToAim && !currentWeapon.isReloading)
         {
             transformToAttachWeapon = aimingPos;
         }
