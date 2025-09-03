@@ -55,14 +55,18 @@ jobs:
       - name: Zip build
         run: |
           cd build/${{ matrix.targetPlatform }}
-          zip -r ../../NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip .
+          zip -r "${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip" .
+
+      - name: Verify archive
+        run: ls -l "${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.version.outputs.version }}
-          name: NecroStrike-${{ steps.version.outputs.version }}
-          files: NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+            tag_name: ${{ steps.version.outputs.version }}
+            name: NecroStrike-${{ steps.version.outputs.version }}
+            files: ${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip
+            fail_if_no_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -71,7 +75,7 @@ jobs:
         with:
           entryPoint: butler
           args: >
-            push "NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip"
+            push "${{ github.workspace }}/NecroStrike-${{ steps.version.outputs.version }}-${{ matrix.targetPlatform }}.zip"
             theoscreation/zombie-game:windows
             --userversion "NecroStrike-${{ steps.version.outputs.version }}"
         env:
