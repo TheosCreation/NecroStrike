@@ -11,6 +11,10 @@ on:
         required: true
         default: 'v0.1.0'
 
+# 👇 Needed so GITHUB_TOKEN can publish releases
+permissions:
+  contents: write
+
 jobs:
   buildForAllSupportedPlatforms:
     name: Build for ${{ matrix.targetPlatform }}
@@ -20,6 +24,7 @@ jobs:
       matrix:
         targetPlatform:
           - StandaloneWindows64
+
     steps:
       - uses: actions/checkout@v4
         with:
